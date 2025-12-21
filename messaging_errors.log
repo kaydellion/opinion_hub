@@ -1,0 +1,5 @@
+# Messaging Error Log
+# This file tracks all failed SMS, Email, and WhatsApp message attempts
+# Format: [Date Time] - [Type] - User: [ID], Recipient: [Contact], Error: [Message]
+# ================================================================================
+

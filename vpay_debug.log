@@ -1,0 +1,293 @@
+2025-12-09 10:18:29 - vPay Callback received
+GET: Array
+(
+    [reference] => SMS_1765271889744_601354
+    [type] => sms_credits
+    [units] => 1000
+)
+
+POST: Array
+(
+)
+
+SESSION: Array
+(
+    [ads_checked] => 1
+    [user_id] => 1
+    [user_role] => client
+    [role] => client
+)
+
+
+2025-12-09 10:46:49 - vPay Callback received
+GET: Array
+(
+    [reference] => SMS_1765273573474_207190
+    [type] => sms_credits
+    [units] => 500
+)
+
+POST: Array
+(
+)
+
+SESSION: Array
+(
+    [ads_checked] => 1
+    [user_id] => 1
+    [user_role] => client
+    [role] => client
+    [error_message] => Payment verification failed
+)
+
+
+2025-12-09 11:40:39 - vPay Callback received
+GET: Array
+(
+    [reference] => SMS_1765273573474_207190
+    [type] => sms_credits
+    [units] => 500
+)
+
+POST: Array
+(
+)
+
+SESSION: Array
+(
+    [ads_checked] => 1
+    [user_id] => 1
+    [user_role] => client
+    [role] => client
+    [error_message] => Payment verification failed
+)
+
+
+2025-12-09 11:44:27 - vPay Callback received
+GET: Array
+(
+    [reference] => SMS_1765276868424_904728
+    [type] => sms_credits
+    [units] => 100
+)
+
+POST: Array
+(
+)
+
+SESSION: Array
+(
+    [ads_checked] => 1
+    [user_id] => 1
+    [user_role] => client
+    [role] => client
+    [error_message] => Payment verification failed
+    [info_message] => This payment has already been processed.
+)
+
+
+2025-12-09 11:47:34 - vPay Callback received
+GET: Array
+(
+    [reference] => SMS_1765276868424_904728
+    [type] => sms_credits
+    [units] => 100
+)
+
+POST: Array
+(
+)
+
+SESSION: Array
+(
+    [ads_checked] => 1
+    [user_id] => 1
+    [user_role] => client
+    [role] => client
+    [error_message] => Payment verification failed
+    [info_message] => This payment has already been processed.
+    [success_message] => Payment successful! 100 sms credits have been added to your account.
+)
+
+
+2025-12-09 11:48:03 - vPay Callback received
+GET: Array
+(
+    [reference] => SMS_1765277265170_838923
+    [type] => sms_credits
+    [units] => 100
+)
+
+POST: Array
+(
+)
+
+SESSION: Array
+(
+    [ads_checked] => 1
+    [user_id] => 1
+    [user_role] => client
+    [role] => client
+    [error_message] => Payment verification failed
+    [info_message] => This payment has already been processed.
+    [success_message] => Payment successful! 100 sms credits have been added to your account.
+)
+
+
+2025-12-09 11:52:05 - vPay Callback received
+GET: Array
+(
+    [reference] => SMS_1765277502032_699608
+    [type] => sms_credits
+    [units] => 1000
+    [amount] => 9000
+)
+
+POST: Array
+(
+)
+
+SESSION: Array
+(
+    [ads_checked] => 1
+    [user_id] => 1
+    [user_role] => client
+    [role] => client
+    [error_message] => Payment verification failed
+    [info_message] => This payment has already been processed.
+    [success_message] => Payment successful! 100 sms credits have been added to your account.
+)
+
+
+2025-12-09 11:52:46 - vPay Callback received
+GET: Array
+(
+    [reference] => DATABANK_1765277550473_TBHEVQTHS
+    [type] => databank_access
+    [poll_id] => 2
+    [amount] => 5000
+)
+
+POST: Array
+(
+)
+
+SESSION: Array
+(
+    [ads_checked] => 1
+    [user_id] => 1
+    [user_role] => client
+    [role] => client
+    [error_message] => Payment verification failed
+    [info_message] => This payment has already been processed.
+    [success_message] => Payment successful! 1000 sms credits have been added to your account.
+)
+
+
+2025-12-09 11:59:13 - vPay Callback received
+GET: Array
+(
+    [reference] => DATABANK_1765277550473_TBHEVQTHS
+    [type] => databank_access
+    [poll_id] => 2
+    [amount] => 5000
+)
+
+POST: Array
+(
+)
+
+SESSION: Array
+(
+    [ads_checked] => 1
+    [user_id] => 1
+    [user_role] => client
+    [role] => client
+    [error_message] => Payment verification failed
+    [info_message] => This payment has already been processed.
+    [success_message] => Payment successful! 1000 sms credits have been added to your account.
+)
+
+
+2025-12-09 11:59:47 - vPay Callback received
+GET: Array
+(
+    [reference] => DATABANK_1765277969987_7FLJE8W7J
+    [type] => databank_access
+    [poll_id] => 2
+    [amount] => 5000
+)
+
+POST: Array
+(
+)
+
+SESSION: Array
+(
+    [ads_checked] => 1
+    [user_id] => 1
+    [user_role] => client
+    [role] => client
+    [error_message] => Failed to grant access. Please contact support.
+    [info_message] => This payment has already been processed.
+    [success_message] => Payment successful! 1000 sms credits have been added to your account.
+)
+
+
+2025-12-09 12:18:12 - vPay Callback received
+GET: Array
+(
+    [reference] => DATABANK_1765279076247_1DTKZF5WJ
+    [type] => databank_access
+    [poll_id] => 2
+    [amount] => 5000
+)
+
+POST: Array
+(
+)
+
+SESSION: Array
+(
+    [ads_checked] => 1
+    [user_id] => 1
+    [user_role] => client
+    [role] => client
+    [error_message] => Failed to grant access. Please contact support.
+    [info_message] => This payment has already been processed.
+    [success_message] => Payment successful! 1000 sms credits have been added to your account.
+)
+
+
+2025-12-12 14:32:48 - vPay Callback received
+GET: Array
+(
+    [reference] => POLL_6_1765546346044_960298
+    [type] => poll_payment
+    [poll_id] => 6
+    [amount] => 11000
+)
+
+POST: Array
+(
+)
+
+SESSION: Array
+(
+    [ads_checked] => 1
+    [user_id] => 1
+    [user_role] => client
+    [role] => client
+    [error] => Please complete payment before publishing poll
+    [payment_required] => Array
+        (
+            [poll_id] => 6
+            [agent_cost] => 10000
+            [admin_commission] => 1000
+            [total_cost] => 11000
+            [description] => Payment for poll: Politics
+        )
+
+)
+
+

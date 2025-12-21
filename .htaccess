@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Redirect view-poll.php?id=X to view-poll/slug (handled by PHP now)
+# Just ensure pretty URLs work correctly
+
+# Pretty URL for poll slugs - QSA flag preserves query parameters like ?ref=
+RewriteRule ^view-poll/([a-zA-Z0-9-]+)/?$ view-poll.php?slug=$1 [L,QSA]
+
+# You can add more rules below as needed

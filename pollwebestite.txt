@@ -1,0 +1,2541 @@
+KINDLY NOTE THAT THE CONTENTS OF THIS DOCUMENT IS A PROPERTY OF FORAMINIFERA MARKET RESEARCH LIMITED AND HAS COPYRIGHTS.
+
+DESIGN AND DEVELOPMENT OF WWW.OPINIONHUB.NG
+
+Opinion Hub NG would have the following details
+
+Colour: Grey, Orange and Black layout
+Logo and slogan: What gets measured, gets done!
+Name of website: www.opinionhub.ng 
+Table of Contents
+
+Home Page
+About Us
+Contact Us
+Privacy Policy
+Cookie Policy
+Terms of Use
+Who Uses OpinionHub.ng?
+Blog
+Disclaimer & Phishing Claims
+Frequently Asked Question (FAQ)
+Client Portal
+Agent Portal
+Become an Agent
+Subscription (Price & Plans)
+User Guide
+Create Survey & Poll
+Send SMS, WhatsApp & E-Mail Invites
+Databank
+Advertise With Us
+
+REQUIREMENTS 
+
+Domain Name & Hosting
+Payment Gateway
+Bulk SMS Gateway (https://termii.com/ - I already have account with them)
+E-Mail Gateway (https://www.brevo.com/ - I already have account with them)
+VTU Gateway
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+HOME PAGE | 
+| Clients Portal | Become an Agent | Databank | Subscription | Advertise With Us |
+| +234 (0) 8033782777 | hello@opinionhub.ng |
+| LOG-IN | FORGOT PASSWORD | SIGN UP | 
+
+In a rapidly evolving world, where data-driven decisions are becoming the cornerstone of successful strategies, the need for accurate, reliable, and insightful public opinion data cannot be overstated. 
+
+Opinion Hub NG was born out of this necessity—to provide a platform where the pulse of Nigeria's diverse population can be felt, understood, and acted upon. 
+
+Whether it's understanding voter behaviour, gauging public sentiment on key issues, or providing businesses with critical market insights, Opinion Hub NG is dedicated to delivering the most comprehensive and reliable polling data across Nigeria.
+
+
+| For Politicians & Government | For Brands | For Media Agencies | For Pollsters | For Academics & Researchers | For Consultancies |
+
+
+
+
+SEARCH
+
+| Animals & Pets | Beauty & Well-being | Business Services | Construction & Manufacturing | Education & Training | Electronics & Technology | Events & Entertainment | Food, Beverages & Tobacco| Health & Medical | Hobbies & Crafts | Home & Garden | Home Services | Legal Services | Media & Publishing | Money & Insurance | Politics & Governance | Public & Local Services | Restaurants & Bars | Shopping & Fashion | Sports | Travel & Vacation | Utilities | Vehicles & Transportation |
+
+
+
+
+DISPLAY 20 LATEST POLLS & SURVEY
+DISPLAY 20 LATEST ARTICLES
+DISPLAY ADVERTS
+
+
+BECOME AN AGENT|
+
+Opinionhub.ng is a leading online platform dedicated to conducting polls and surveys across Nigeria. The platform is designed to gather insights from a wide range of demographics, providing valuable data for businesses, governments, and organizations looking to understand the needs and preferences of the Nigerian populace. 
+
+By working with Opinionhub.ng, agents help bridge the gap between the platform and the public, ensuring that data collected is representative, accurate, and actionable.
+
+Why Become an Agent?
+
+Earn Income: As an agent, you earn commissions for every survey or poll you facilitate. The more respondents you engage, the more you can earn, making it a lucrative opportunity for those with strong networks and communication skills.
+
+Flexible Work: Being an agent allows you to work on your own terms. Whether you’re a student, a full-time employee, or a stay-at-home parent, you can easily fit this role into your schedule.  All you need is a smartphone or computer with internet access.
+
+Expand Your Network: Working as an agent for Opinionhub.ng gives you the opportunity to interact with diverse groups of people. This can help you build connections that may be beneficial for your personal and professional growth.
+
+Becoming an agent for Opinionhub.ng is straightforward. Below is a step-by-step guide to get you started:
+
+Visit the Opinionhub.ng Website: Start by visiting the official Opinionhub.ng website. Here, you’ll find detailed information about the platform, its services, and the role of an agent.
+
+Register as an Agent: Look for the agent registration section on the website. You’ll need to provide basic information such as your name, contact details, and location. This helps Opinionhub.ng understand where you can be most effective as an agent.
+
+Start Engaging Respondents: Opinionhub.ng will provide you with access to surveys and polls. Your job is to reach out to potential respondents, encourage them to participate, and ensure that their data is accurately recorded.
+
+Earn Commissions: For every successful poll or survey completed through your efforts, you earn a commission. Opinionhub.ng provides a transparent system for tracking your earnings and withdrawing your funds. As an agent, you can earn as much as one thousand naira (₦ 1,000), airtime or data per poll completed. 
+
+After registering and completing your profile, we would review your application and once approved, you would soon start receiving task via email. Once you have completed the task your account would be credited within five (5) working days.
+REQUIREMENTS
+
+Own a Smartphone with at least Android OS 6.0.
+Be at least eighteen (18) years old.
+Have at least a Secondary School Leaving Certificate
+Have a functional email address and know how to send and receive emails
+
+1. Sign up
+
+Apply to join our community by signing up.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2. Take Task
+
+Give feedback on the products and service that you love and use today.
+
+
+ 
+CREATE YOUR PROFILE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3. Get paid
+
+Earn money for every task completed.
+
+ONCE THE USER CLICKS ON THE CREATE YOUR PROFILE BUTTON, DISPLAY THE FOLLOWING.
+Basic Detail 
+Title:      First Name:	    Middle Name:  	Last Name:
+Date Of Birth (18+):	Gender:       Email Address:   	Telephone Number:
+USERS SHOULD BE REQUIRED TO FILL THE FOLLOWING
+Address: 
+Select - State and LGA (When the user selects a STATE, all the LGA’s under the state should be displayed)
+Tell Us About Yourself:
+Social Media Links:
+Facebook -                  Twitter -                   Instagram-             LinkedIn-
+Occupation
+Healthcare and Medicine
+Doctor | Nurse | Pharmacist | Surgeon | Dentist | Medical Laboratory Technician | Physical Therapist | Radiologist | Optometrist | Psychiatrist |
+Education and Academia
+Teacher | Professor | Librarian | School Principal | Academic Advisor | Curriculum Developer | Research Scientist | Special Education Teacher | Educational Consultant | School Counselor
+Engineering and Technology
+Software Engineer | Civil Engineer | Mechanical Engineer |Electrical Engineer | Computer Programmer | Network Administrator | Data Scientist | IT Support Specialist | Cybersecurity Analyst | Aerospace Engineer |
+Business and Finance
+Accountant | Financial Analyst | Marketing Manager | Human Resources Manager | Business Consultant | Sales Representative | Investment Banker | Real Estate Agent | Project Manager | Insurance Broker | Arts and Entertainment | Graphic Designer | Actor | Musician | Photographer | Film Director | Author | Dancer | Art Curator | Fashion Designer | Animator | Law and Public Safety | Lawyer | Police Officer | Firefighter | Paralegal | Judge | Probation Officer | Correctional Officer | Detective | Security Guard | 	Legal Secretary |
+Trades and Construction
+Carpenter | Electrician | Plumber | Welder |	Mason | HVAC Technician | Painter | Heavy Equipment Operator |Roofer | Landscaper |
+Science and Research
+Biologist | Chemist | Physicist | Environmental Scientist | Geologist |Astronomer | Marine Biologist | Geneticist | Meteorologist | Ecologist | 
+Hospitality and Tourism
+Hotel Manager | Travel Agent | Chef | Restaurant Manager | Tour Guide |	Event Planner | Bartender | Concierge | Cruise Ship Staff | Flight Attendant |
+Media and Communication
+Journalist | Public Relations Specialist | Editor | Television Producer | Radio Host | Social Media Manager | Content Writer | Videographer | Translator | Copywriter |
+Agriculture and Environment
+Farmer | Agricultural Scientist | Horticulturist | Forester | Fishery Manager | Wildlife Biologist | Soil Scientist | Environmental Consultant | Landscape Architect | Agronomist |
+Transportation and Logistics
+Truck Driver | Airline Pilot | Ship Captain | Train Conductor | Logistics Coordinator | Warehouse Manager | Delivery Driver | Air Traffic Controller | Freight Forwarder | Customs Broker
+Retail and Customer Service
+Retail Sales Associate | Store Manager | Customer Service Representative | Cashier | Visual Merchandiser | Inventory Specialist | Call Center Agent | Personal Shopper | E-commerce Manager | Retail Buyer |
+Sports and Fitness
+Personal Trainer | Coach |Professional Athlete | Sports Commentator | Sports Agent | Fitness Instructor | Sports Medicine Physician | Athletic Trainer | Referee | Sports Marketing Manager |
+Government and Public Administration
+Diplomat | Urban Planner | Policy Analyst | Public Relations Officer | Legislator |	City Manager | Social Worker | Tax Examiner | Customs Officer | Intelligence Analyst |
+Manufacturing and Production
+Factory Worker | Quality Control Inspector | Production Manager | Assembly Line Worker | Machinist | Maintenance Technician | Industrial Engineer | Production Planner | 	Operations Manager | Manufacturing Engineer |
+Miscellaneous
+Entrepreneur | Real Estate Developer | Nonprofit Manager | Auctioneer | Archivist | Antiques Dealer | Dog Trainer | Florist | Funeral Director | 	Tattoo Artist |
+Areas of Interest (ALLOW FOR MULTIPLE SELECTION)
+| Animals & Pets| Beauty & Well-being| Business Services| Construction & Manufacturing| Education & Training| Electronics & Technology| Events & Entertainment| Food, Beverages & Tobacco| Health & Medical| Hobbies & Crafts| Home & Garden| Home Services| Legal Services | Media & Publishing| Money & Insurance| Politics & Governance | Public & Local Services| Restaurants & Bars| Shopping & Fashion| Sports| Travel & Vacation| Utilities| Vehicles & Transportation|
+What is your highest educational qualification?
+Senior School Certificate | National Diploma | Higher National Diploma | Bachelor’s Degree (Honours) | Nigeria Certificate in Education | Bachelor of Education | Bachelor of Law(s) (LLB) | Bachelor of Medicine and Bachelor of Surgery (MBBS) | Bachelor of Dental Surgery (BDS) | Doctor of Veterinary Medicine (DVM) | Postgraduate Diploma | Master’s Degree | Master of Philosophy | Doctor of Philosophy | Others |
+BANKING DETAILS
+
+Bank Name:               Account Name:           Account Number:
+
+SUBMIT
+
+ONCE THE USER CLICKS ON THE SUBMIT BUTTON, DISPLAY THE FOLLOWING CONTRACT.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FORAMINIFERA MARKET RESEARCH LIMITED
+
+Opinion Hub NG ….. The One Stop Shop for Polls and Surveys in Nigeria!
+
+61-65 Egbe- Isolo Road,
+Iyana Ejigbo Shopping Arcade,
+Block A, Suite 19,
+Iyana Ejigbo Bus Stop, Ejigbo, Lagos State, Nigeria.
+Tel: +234 (0) 803 3782 777; +234 (01) 29 52 413
+hello@opinionhub.ng
+www.opinionhub.ng
+
+This Contract Agreement ("Agreement") is made and entered into on this ___ day of __________, 2024, by and between:
+
+Foraminifera Market Research Limited (hereinafter referred to as the "Company"), a company duly registered under the laws of Nigeria, with its principal office located at [Address], and [Agent's Full Name] (hereinafter referred to as the "Agent"), residing at [Agent's Address].
+
+WHEREAS, the Company operates an online polling platform known as Opinionhub.ng ("the Platform"), which provides polling services to clients across Nigeria;
+
+WHEREAS, the Agent desires to provide services as an independent contractor to the Company, promoting, managing, and executing polling activities on the Platform;
+
+NOW, THEREFORE, in consideration of the mutual covenants and agreements herein contained, the parties agree as follows:
+
+1. Appointment of Agent
+
+1.1. The Company hereby appoints the Agent as a non-exclusive independent contractor to perform polling activities on behalf of the Company through the Opinionhub.ng platform.
+
+1.2. The Agent agrees to act in accordance with the terms and conditions set forth in this Agreement and to uphold the reputation and integrity of the Company at all times.
+
+2. Scope of Services
+
+2.1. The Agent shall perform the following services:
+
+Promote the Platform and its services to potential clients.
+Manage and execute polling projects assigned by the Company.
+Collect, validate, and submit polling data in accordance with the Company’s guidelines.
+Provide feedback and reports as required by the Company.
+2.2. The Agent shall use their best efforts to ensure that polling data is collected accurately and ethically.
+
+3. Compensation
+
+3.1. The Company shall pay the Agent a commission of one thousand naira (₦ 1,000), airtime or data per response.
+
+3.2. Payment to the Agent shall be made within three (3) days upon the submission of an invoice by the Agent and verification by the Company.
+
+3.3. The Company reserves the right to deduct any applicable taxes or fees from the Agent’s commission as required by law.
+
+4. Agent’s Obligations
+
+4.1. The Agent shall:
+
+Conduct all activities with the highest level of professionalism and integrity.
+Comply with all relevant laws, regulations, and Company policies.
+Maintain confidentiality regarding all proprietary and sensitive information of the Company.
+Not engage in any activity that may cause harm or damage to the Company’s reputation or operations.
+4.2. The Agent shall be responsible for their own expenses, including travel, communication, and any other costs incurred in the performance of their duties under this Agreement.
+
+5. Confidentiality
+
+5.1. The Agent agrees not to disclose any confidential information, including but not limited to client lists, polling data, trade secrets, and business strategies, to any third party without the prior written consent of the Company.
+
+5.2. This confidentiality obligation shall survive the termination of this Agreement.
+6. Term and Termination
+
+6.1. This Agreement shall commence on the date first written above and shall continue until terminated by either party with five (5) days’ written notice.
+
+6.2. The Company may terminate this Agreement immediately for cause if the Agent breaches any of the terms of this Agreement or engages in conduct that is detrimental to the Company.
+
+6.3. Upon termination, the Agent shall cease all activities on behalf of the Company and return any property or materials belonging to the Company.
+
+7. Indemnification
+
+7.1. The Agent agrees to indemnify and hold harmless the Company, its officers, employees, and agents from and against any and all claims, liabilities, damages, and expenses arising from the Agent’s actions or omissions under this Agreement.
+
+8. Independent Contractor Status
+
+8.1. The parties agree that the Agent is an independent contractor and not an employee, partner, or joint venture of the Company. The Agent shall not be entitled to any employee benefits from the Company.
+
+8.2. The Agent shall be responsible for their own taxes, insurance, and other obligations as an independent contractor.
+
+9. Governing Law and Dispute Resolution
+
+9.1. This Agreement shall be governed by and construed in accordance with the laws of the Federal Republic of Nigeria.
+
+9.2. Any disputes arising out of or in connection with this Agreement shall be resolved through good-faith negotiations between the parties. If the dispute cannot be resolved through negotiation, it shall be submitted to arbitration in accordance with the rules of the Nigerian Arbitration and Conciliation Act.
+
+10. Miscellaneous
+
+10.1. Entire Agreement: This Agreement constitutes the entire understanding between the parties and supersedes all prior discussions, agreements, or understandings of any kind.
+
+10.2. Amendments: Any amendments to this Agreement must be made in writing and signed by both parties.
+10.3. Severability: If any provision of this Agreement is found to be invalid or unenforceable, the remaining provisions shall remain in full force and effect.
+
+10.4. Assignment: The Agent may not assign or transfer any of their rights or obligations under this Agreement without the prior written consent of the Company.
+
+10.5. Notices: Any notices required under this Agreement shall be in writing and delivered to the addresses of the parties as stated above.
+
+IN WITNESS WHEREOF, the parties hereto have executed this Agreement as of the day and year first above written.
+
+AGENT|                                                                Foraminifera Market Research Limited |   - AGREED.
+AGREE|         SUBMIT|
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+AGENT PROFILE & PAGE
+Sample pages
+
+Freelancer - https://freeagent.gavencreative.com/freelancers/
+Inner Page - https://freeagent.gavencreative.com/employers/freelancer/ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CREATE SURVEY & POLL|
+
+STEP ONE – PROJECT DETAILS
+
+Project Name:
+Project Description:
+Images:
+
+ADD MORE
+
+DURATION 
+
+Start and End Date:                                                                      Start and End Time:
+
+Categories and Sub-Categories:
+
+| Animals & Pets| Beauty & Well-being| Business Services| Construction & Manufacturing| Education & Training| Electronics & Technology| Events & Entertainment| Food, Beverages & Tobacco| Health & Medical| Hobbies & Crafts| Home & Garden| Home Services| Legal Services | Media & Publishing| Money & Insurance| Politics & Governance | Public & Local Services| Restaurants & Bars| Shopping & Fashion| Sports| Travel & Vacation| Utilities| Vehicles & Transportation|
+
+POLL TYPE (Single Selection)
+
+Political Polling
+
+Approval Poll
+Favourability Poll
+Head-to-Head Poll
+Issue Poll
+Benchmark Poll
+Tracking Poll
+Exit Poll
+Push Poll
+Deliberative Poll
+Flash Poll
+Opinion Poll
+Straw Poll
+Referendum Poll
+Omnibus Poll
+Sentiment Poll
+Ballot Test Poll
+Engagement Poll
+Satisfaction Poll
+Electability Poll
+Ballot Test Poll
+Priority Poll
+Awareness Poll
+
+Business and Market Research
+
+Customer Satisfaction Poll
+Brand Awareness Poll
+Market Segmentation Poll
+Product Development Poll
+Pricing Poll
+Advertising Effectiveness Poll
+Employee Satisfaction Poll
+Competitor Analysis Poll
+Purchase Intent Poll
+Market Trend Poll
+Customer Experience Poll
+Product Usage Poll
+Demand Forecasting Poll
+Concept Testing Poll
+Brand Loyalty Poll
+Economic Outlook Poll
+Crisis Management Poll
+
+Social Research
+
+Community Feedback Poll
+Cross-Sectional Poll
+Longitudinal Poll
+Attitudinal Poll
+Behavioural Poll
+Demographic Poll
+Opinion Poll
+Social Network Poll
+Deliberative Poll
+Experimental Poll
+Qualitative Poll
+Cultural Poll
+Social Mobility Poll
+Policy Impact Poll
+Social Norms Poll
+Life Satisfaction and Well-being Poll
+
+Environment
+
+Climate Change Poll
+Biodiversity and Conservation Poll
+Sustainability and Green Practices Poll
+Pollution and Waste Management Poll
+Natural Resources and Energy Use Poll
+Environmental Policy and Regulation Poll
+Environmental Education and Awareness Poll
+Local Environmental Issues Poll
+Consumer Behavior and Environmental Impact Poll
+Disaster Preparedness and Response Poll
+
+Economy
+
+Consumer Confidence Poll
+Business Confidence Poll
+Employment Poll
+Inflation Expectation Poll
+Housing Market Poll
+Investment Sentiment Poll
+Economic Policy Poll
+Cost of Living Poll
+GDP Growth Expectation Poll
+Poverty and Income Distribution Poll
+
+Health and Wellness 
+
+Physical Health Poll
+Mental Health Poll
+Wellness and Lifestyle Poll
+Public Health and Policy Poll
+Alternative and Complementary Medicine Poll
+Sexual and Reproductive Health Poll
+
+Technology
+
+Device Usage Poll
+Social Media and Internet Usage Poll
+Software and Applications Poll
+E-commerce and Online Shopping Poll
+Technology Adoption and Trends Poll
+Data Privacy and Security Poll
+Gaming and Entertainment Technology Poll
+Technology in Education Poll
+Remote Work Technology Poll
+Emerging Technologies Poll
+
+Travel and Leisure
+
+Destination Preference Poll
+Travel Habits Poll
+Accommodation Preferences Poll
+Leisure Activities Poll
+Travel Planning Poll
+Transportation Preferences Poll
+Sustainability and Eco-Friendly Travel Poll
+Travel Insurance Poll
+
+POLL SETTINGS
+
+Regulations 
+
+Allow selection of multiple options – YES | NO
+Require participants’ names – YES | NO
+Allow comments – YES | NO
+Hide share button – YES | NO
+
+Voting Security
+
+Allow multiple votes per person – YES | NO
+One vote per browsing session – YES | NO
+One vote per IP address – YES | NO
+One vote per Opinion Hub NG Account – YES | NO
+
+Results Visibility
+
+Public after vote – YES | NO
+Public after end of voting – YES | NO
+Private – YES | NO
+
+Set Number of Responders
+
+Enter a number
+Select Subscription Plan Poll Access (FOR ADMIN ONLY)
+
+Free | Paid | Classic Plan (Provide Box) | Enterprise Plan (Provide Box) |    Premium Plan (Provide Box) |
+
+For paid, state the price ₦ - 
+
+For clients that does not any plan Classic Plan, Enterprise Plan and Premium Plan, users would only access the poll when they pay for it.
+
+
+NEXT | SAVE | REVIEW
+
+
+STEP TWO (SELECT QUESTION TYPE. THE USER SHOULD BE ABLE TO SELECT MAXIMUM 10 QUESTIONS PER POLL)
+
+Multiple Choice | Ratings | Open-ended | Word Cloud | Quiz | Assessment | Yes/No | Multiple Answer | Dichotomous | Matrix | Date | Date Range |
+
+Multiple Choice
+Description: Allows respondents to select one or more options from a list of predetermined answers.
+Example:
+
+        Question: “Which of the following social media platforms do you use most often?”
+        Options:
+
+            Facebook
+            Twitter
+            Instagram
+            LinkedIn
+
+2. Ratings
+
+Description: Respondents rate a particular item, service, or experience on a scale (e.g., 1 to 5 stars, or 1 to 10).
+    
+Example:
+
+        Question: “How would you rate our customer service?”
+        Scale: 1 (Very Poor) to 5 (Excellent)
+
+3. Open-ended 
+
+Description: Respondents provide a free-text answer without any predefined options, allowing for more detailed and qualitative feedback.
+Example:
+
+        Question: “What improvements would you like to see in our product?”
+
+4. Word Cloud
+
+Description: Respondents submit one or more words or short phrases in response to a question. The most frequent responses are displayed more prominently in a word cloud.
+
+    Example:
+
+        Question: “What word best describes your experience with our brand?”
+
+
+
+5. Quiz
+
+Description: A poll with correct and incorrect answers, designed to test the knowledge of the respondents. It’s often used for educational purposes or fun engagement.
+
+Example:
+
+        Question: “Which planet is known as the Red Planet?”
+        Options:
+
+            Earth
+            Mars
+            Venus
+            Jupiter
+
+        Correct Answer: Mars
+
+6. Assessment
+
+Description: Similar to a quiz, but more focused on evaluating a person’s knowledge, skills, or attitudes. Often used in training or education to gauge understanding.
+
+Example:
+
+        Question: “How confident are you in using the new project management software?”
+        Options:
+
+            Not Confident
+            Slightly Confident
+            Moderately Confident
+            Very Confident
+
+7. Yes/No 
+
+Description: A binary poll where respondents choose between two options: Yes or No.
+    
+Example: “Do you agree with the new company policy?”
+
+8. Multiple Answer 
+
+Description: Respondents can select multiple answers, but each answer is treated individually rather than as a ranked choice.
+    
+Example: “Which sports do you follow? (Select all that apply)”
+
+9. Dichotomous 
+
+Description: Similar to a Yes/No poll, but can include any two mutually exclusive options.
+
+Example: “Do you prefer coffee or tea?”
+
+10. Matrix 
+
+Description: A grid-based poll where respondents evaluate multiple items across several dimensions or criteria.
+    
+Example: “Rate the following products based on quality, price, and ease of use.”
+
+11. Date
+
+Description: Collects a specific date input from respondents.
+Example:
+Question: “What is your preferred date for the company event?”
+Input: [Date Picker]
+Respondent selects a date from a calendar.
+
+12. Date Range
+
+Description: Captures a range of dates, useful for understanding time spans or periods.
+
+Example:
+Question: “Between which dates are you available for a meeting?”
+Input: [Start Date Picker] – [End Date Picker]
+Respondent selects a start date and an end date.
+
+
+STEP FOUR – MODE OF COLLECTION AND PROMOTION
+
+Agent | Telephone | Face to Face | SMS | Whatsapp | Email | Social Media |
+
+If SMS or WhatsApp is selected, display the following
+
+UPLOAD MOBILE NUMBER | 
+
+I would provide for Telephone, Face to Face and Social Media
+
+If Email is selected, display the following
+
+UPLOAD EMAIL | 
+
+If Agent is selected, display the following
+
+Users should be able to sort the agents they want to poll using the details below
+
+Clients should be able to sort agents that would receive the task by
+
+AGE
+Young adults (18-25 years old) | Adults (25-60 years old) | Middle-aged adults (40-65 years old) | Senior citizens (65+ years old) |
+
+EDUCATIONAL LEVEL
+Senior School Certificate | National Diploma | Higher National Diploma | Bachelor’s Degree (Honours) | Nigeria Certificate in Education | Bachelor of Education | Bachelor of Law(s) (LLB) | Bachelor of Medicine and Bachelor of Surgery (MBBS) | Bachelor of Dental Surgery (BDS) | Doctor of Veterinary Medicine (DVM) | Postgraduate Diploma | Master’s Degree | Master of Philosophy | Doctor of Philosophy | Others |
+
+GENDER
+Female | Male |
+
+LOCATION (STATE | LGA)
+Display state and LGA
+OCCUPATION
+Healthcare and Medicine
+Doctor | Nurse | Pharmacist | Surgeon | Dentist | Medical Laboratory Technician | Physical Therapist | Radiologist | Optometrist | Psychiatrist |
+Education and Academia
+Teacher | Professor | Librarian | School Principal | Academic Advisor | Curriculum Developer | Research Scientist | Special Education Teacher | Educational Consultant | School Counselor
+Engineering and Technology
+Software Engineer | Civil Engineer | Mechanical Engineer |Electrical Engineer | Computer Programmer | Network Administrator | Data Scientist | IT Support Specialist | Cybersecurity Analyst | Aerospace Engineer |
+Business and Finance
+Accountant | Financial Analyst | Marketing Manager | Human Resources Manager | Business Consultant | Sales Representative | Investment Banker | Real Estate Agent | Project Manager | Insurance Broker | Arts and Entertainment | Graphic Designer | Actor | Musician | Photographer | Film Director | Author | Dancer | Art Curator | Fashion Designer | Animator | Law and Public Safety | Lawyer | Police Officer | Firefighter | Paralegal | Judge | Probation Officer | Correctional Officer | Detective | Security Guard | 	Legal Secretary |
+Trades and Construction
+Carpenter | Electrician | Plumber | Welder |	Mason | HVAC Technician | Painter | Heavy Equipment Operator |Roofer | Landscaper |
+Science and Research
+Biologist | Chemist | Physicist | Environmental Scientist | Geologist |Astronomer | Marine Biologist | Geneticist | Meteorologist | Ecologist | 
+Hospitality and Tourism
+Hotel Manager | Travel Agent | Chef | Restaurant Manager | Tour Guide |	Event Planner | Bartender | Concierge | Cruise Ship Staff | Flight Attendant |
+Media and Communication
+Journalist | Public Relations Specialist | Editor | Television Producer | Radio Host | Social Media Manager | Content Writer | Videographer | Translator | Copywriter |
+Agriculture and Environment
+Farmer | Agricultural Scientist | Horticulturist | Forester | Fishery Manager | Wildlife Biologist | Soil Scientist | Environmental Consultant | Landscape Architect | Agronomist |
+Transportation and Logistics
+Truck Driver | Airline Pilot | Ship Captain | Train Conductor | Logistics Coordinator | Warehouse Manager | Delivery Driver | Air Traffic Controller | Freight Forwarder | Customs Broker
+Retail and Customer Service
+Retail Sales Associate | Store Manager | Customer Service Representative | Cashier | Visual Merchandiser | Inventory Specialist | Call Center Agent | Personal Shopper | E-commerce Manager | Retail Buyer |
+Sports and Fitness
+Personal Trainer | Coach |Professional Athlete | Sports Commentator | Sports Agent | Fitness Instructor | Sports Medicine Physician | Athletic Trainer | Referee | Sports Marketing Manager |
+Government and Public Administration
+Diplomat | Urban Planner | Policy Analyst | Public Relations Officer | Legislator |	City Manager | Social Worker | Tax Examiner | Customs Officer | Intelligence Analyst |
+Manufacturing and Production
+Factory Worker | Quality Control Inspector | Production Manager | Assembly Line Worker | Machinist | Maintenance Technician | Industrial Engineer | Production Planner | 	Operations Manager | Manufacturing Engineer |
+Miscellaneous
+Entrepreneur | Real Estate Developer | Nonprofit Manager | Auctioneer | Archivist | Antiques Dealer | Dog Trainer | Florist | Funeral Director | 	Tattoo Artist |
+LANGUAGES SPOKEN:
+Hausa | Yoruba | Igbo | Fulfulde (Fulani) | Kanuri | Ibibio | Tiv | Ijaw | Nupe | Edo | Urhobo | Itsekiri | Efik | Gbagyi (Gwari) | Igala | Berom | Idoma | Ebira | Bura | Isoko | Jukun | Bini | Angas (Ngas) | Kagoro | Tarok | Kuteb | Bachama | Kalabari | Okrika | Nembe | Egun | Anang | Gokana | Ogoni | Shuwa Arabic | Margi | Sukur | Koma | Kamuku | Kambari | Bade | Zarma | Mumuye | Chamba | Nigerian Sign Language |
+Proficiency (SELECT ONE)
+- Unspecified
+- Basic
+- Conversational
+- Fluent
+- Native/Billingual
+ADD MORE
+EDUCATIONAL QUALIFICATION
+Senior School Certificate | National Diploma | Higher National Diploma | Bachelor’s Degree (Honours) | Nigeria Certificate in Education | Bachelor of Education | Bachelor of Law(s) (LLB) | Bachelor of Medicine and Bachelor of Surgery (MBBS) | Bachelor of Dental Surgery (BDS) | Doctor of Veterinary Medicine (DVM) | Postgraduate Diploma | Master’s Degree | Master of Philosophy | Doctor of Philosophy | Others |
+EMPLOYMENT STATUS 
+EMPLOYED | UNEMPLOYED |
+MONTHLY INCOME RANGE
+₦ 1 - ₦ 30,000 | ₦ 30,000 - ₦ 80,000 | ₦ 80,000 - ₦ 150,000 | ₦ 150,000 - ₦ 250,000 | ₦ 250,000 - ₦ 500,000 | ₦ 500,000 - ₦ 1,500,000 | ₦ 1,500,000 - ₦ 5,000,000 | ₦ 5,000,000 – upwards |
+
+NEXT | SAVE | REVIEW
+
+STEP FIVE – PROJECT PRICING
+
+Cost per Response:  Cash - ₦ | Data - ₦ | Airtime - ₦ | (Select one option and entry the amount)
+Cost per SMS
+Cost per WhatsApp
+Cost per Email
+Total Responses: 
+
+TOTAL FEE:  Cost per Response * Total Response
+
+SAVE | REVIEW | SUBMIT 
+
+SEND E-MAIL, WHATSAPP & SMS INVITES |
+
+In the era of instant communication, individuals and businesses are constantly seeking innovative ways to gather feedback on their products and services. One powerful and efficient method gaining popularity is the use of SMS & e-mail to solicit reviews.
+
+SMS messages boast high open rates, making them an effective channel for getting customers’ attention. According to industry reports, SMS messages have an open rate of around ninety-eight percent (98%), significantly surpassing other communication methods.
+
+Using SMS and email strategically in this way can significantly boost participation in your polls, leading to more meaningful data collection and greater engagement with your audience.
+
+Price Plan
+
+
+
+Basic Plan
+Classic
+Enterprise
+SMS Cost
+₦ 10
+₦ 9
+₦ 8
+WhatsApp
+₦ 6
+₦ 5
+₦ 4
+E-Mail cost per unit
+₦ 10
+₦ 9
+₦ 8
+
+
+BUY SMS
+BUY SMS
+BUY SMS
+
+
+Dashboard
+
+Message
+
+Compose SMS
+SMS Status
+Sent Messages
+Drafts
+Delivery Reports
+
+Credit
+
+SMS Online
+
+My Marketing List
+
+List
+Upload Contacts
+
+CREATE A LIST 
+
+Name of List
+Type: Email | SMS
+Description:
+
+CREATE
+
+
+UPLOAD CONTACT
+
+Name of Contact
+Mobile Number:
+Email Address
+
+ADD CONTACT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Subscription (Price & Plans)
+
+Opinion Hub NG is set to revolutionize the way businesses, political organizations, and researchers gather insights and make data-driven decisions. By offering tailored poll services that are accessible, reliable, and cost-effective, Opinion Hub NG aims to be the go-to platform for anyone seeking to understand the pulse of Nigeria’s diverse population.
+
+At Opinion Hub NG, we understand that different organizations have varying needs and budgets. That’s why we’ve developed a range of pricing plans designed to suit everyone, from small start-ups to large enterprises and political entities.
+
+
+
+Free Plan
+Basic Plan
+Classic
+Enterprise
+Annual Price
+Free
+₦ 650,000
+₦ 950,000
+₦ 1,150,000
+Monthly
+Free
+₦ 65,000
+₦ 85,000
+₦ 120,000
+Features, Listing & Exposure
+Target Audience
+For those looking to get started with Poll Nigeria
+Small businesses, NGOs, and individual researchers
+Medium-sized businesses, political campaign teams, and educational institutions
+Large enterprises, political parties, and market research firms
+Priority Listing
+Normal
+3x more clients than basic plan
+5x more clients than basic plan
+7x more clients than 
+basic plan
+Number of Monthly Polls
+5
+50
+200
+Unlimited
+Response per Polls
+500
+5,000
+20,000
+Unlimited
+Export data and screenshots
+No
+Yes
+Yes
+Yes
+Set Number of Responders
+No
+No
+Yes
+Yes
+Question Type
+Only Multiple Choice
+All Question Type
+All Question Type
+All Question Type
+Social Media Share
+Yes
+Yes
+Yes
+Yes
+Adverts Placements
+Yes
+No
+No
+No
+Access to Paid Polls
+N/A
+50
+200
+Unlimited
+Incidence Tracking
+No
+No
+Yes
+Yes
+Change Url
+No
+Yes
+Yes
+Yes
+Branding
+Custom Branding on Polls 
+No
+Yes
+Yes
+Yes
+Messaging Cost
+SMS Invite Units
+N/A
+10,000 units
+20,000 units
+30,000 units
+SMS Cost per unit
+₦ 12
+₦ 10
+₦ 9
+₦ 8
+E-Mail Invites Units
+N/A
+500
+5,000
+10,000
+E=Mail Cost per Unit
+₦ 8
+₦ 6
+₦ 5
+₦ 4
+WhatsApp Invite
+N/A
+500 units
+10,000 units
+20,000 units
+WhatsApp per Unit
+₦ 8
+₦ 6
+₦ 5
+₦ 4
+
+
+SIGN-UP
+PAY NOW
+PAY NOW
+PAY NOW
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Databank
+
+Display all the polls create on this page. Based on the poll type selected, display the result of the poll using the charts suggested.
+
+1. Bar Chart
+
+A bar chart uses rectangular bars to represent data values. The bars can be vertical or horizontal, and their lengths are proportional to the values they represent.
+
+Example:
+A political approval poll showing the percentage of people who approve or disapprove of a candidate.
+🔹 Candidate A: 55%
+🔹 Candidate B: 35%
+🔹 Undecided: 10%
+Each category is represented by a bar of different heights.
+
+2. Pie Chart
+
+A pie chart represents data as slices of a circular pie, showing percentage proportions of different categories.
+
+Example:
+A customer satisfaction poll for a product.
+🔹 Satisfied – 60%
+🔹 Neutral – 25%
+🔹 Dissatisfied – 15%
+Each segment of the pie represents a category’s share of the total.
+
+3. Line Graph
+
+A line graph shows trends over time by connecting data points with lines. It's useful for tracking changes or patterns.
+
+Example:
+A tracking poll measuring a candidate’s popularity over several months.
+🔹 January – 45%
+🔹 February – 50%
+🔹 March – 55%
+
+The line connects the points to show the rise in approval.
+
+4. Donut Chart
+
+A donut chart is a variation of a pie chart with a hole in the center, making it easier to compare proportions visually.
+
+Example:
+A market segmentation poll showing revenue share by product category.
+🔹 Electronics – 40%
+🔹 Fashion – 30%
+🔹 Home Goods – 20%
+🔹 Others – 10%
+
+The central space can also be used to display total values.
+
+5. Heatmap
+
+A heatmap is a color-coded grid where data values are represented using different shades or intensities of a color spectrum. Darker or more intense colors indicate higher values.
+
+Example:
+A climate change poll showing temperature increase in different Nigerian cities over time.
+🔹 Lagos – 🔴 (High)
+🔹 Abuja – 🟡 (Moderate)
+🔹 Jos – 🟢 (Low)
+
+It helps in identifying patterns, such as hotspots of voter turnout or customer demand.
+
+6. Word Cloud
+
+A word cloud visualizes the frequency of words in textual data. The more frequently a word appears, the larger and bolder it is.
+
+Example:
+A public opinion poll on political issues where respondents describe their top concerns.
+🔹 Economy, Jobs, Inflation, Security, Education
+🔹 The most mentioned words appear bigger.
+
+Useful for analyzing sentiment and public discourse.
+
+7. Gauge Chart (Speedometer Style)
+
+A gauge chart looks like a speedometer, with a needle pointing to a value on a scale. It’s great for measuring performance.
+
+Example:
+A customer satisfaction poll showing overall happiness with a service.
+🔹 0-30% (Red: Poor)
+🔹 31-70% (Yellow: Average)
+🔹 71-100% (Green: Excellent)
+If the satisfaction level is 75%, the needle points to the green zone.
+
+8. Voting Map
+
+A voting map represents election or poll results using color-coded regions on a map.
+
+Example:
+A referendum poll showing state-by-state voting results in Nigeria.
+🔹 Red – Voted against
+🔹 Blue – Voted in favor
+🔹 Gray – Undecided
+This allows users to quickly see regional voting trends.
+
+9. Radar Chart
+
+A radar chart (or spider chart) shows multiple variables on a circular graph, making it useful for comparisons.
+
+Example:
+A candidate electability poll evaluating five qualities (Leadership, Communication, Trust, Experience, Policies).
+Each quality is plotted on the chart, and a candidate’s strengths and weaknesses form a shape.
+
+Useful for visualizing competitor comparisons or survey results.
+
+10. Treemap Chart
+
+A treemap chart displays hierarchical data as nested rectangles. The size of each rectangle represents a proportion.
+
+Example:
+A market share poll showing sales distribution by company.
+🔹 Apple – 40% (Biggest rectangle)
+🔹 Samsung – 30%
+🔹 Huawei – 20%
+🔹 Others – 10%
+
+It’s a great way to compare proportions within a category.
+
+11. Stacked Bar Chart
+
+A stacked bar chart divides each bar into subcategories, showing how a total is broken down.
+
+Example:
+A demographic poll showing the age distribution of voters in an election.
+🔹 18-25 (Red)
+🔹 26-40 (Blue)
+🔹 41-60 (Green)
+🔹 60+ (Yellow)
+Each age group is stacked within the same bar.
+
+12. Horizontal Bar Chart
+
+A horizontal bar chart is similar to a bar chart but rotates the bars horizontally, making it better for long text labels.
+
+Example:
+A political sentiment poll showing approval ratings for multiple candidates.
+🔹 Candidate A: ██████████ 65%
+🔹 Candidate B: ███████ 40%
+🔹 Candidate C: ███ 20%
+Longer labels (e.g., candidate names) fit better than in a vertical bar chart.
+Political Polling
+Poll Type
+Best Display Type
+Approval Poll
+Gauge Chart, Line Graph
+Favourability Poll
+Bar Chart, Pie Chart
+Head-to-Head Poll
+Bar Chart, Stacked Bar Chart
+Issue Poll
+Pie Chart, Treemap Chart
+Benchmark Poll
+Line Graph, Radar Chart
+Tracking Poll
+Line Graph, Heatmap
+Exit Poll
+Bar Chart, Donut Chart
+Push Poll
+Word Cloud, Pie Chart
+Deliberative Poll
+Radar Chart, Word Cloud
+Flash Poll
+Live Polling Feed, Bar Chart
+Opinion Poll
+Bar Chart, Pie Chart
+Straw Poll
+Pie Chart, Horizontal Bar Chart
+Referendum Poll
+Pie Chart, Voting Map
+Omnibus Poll
+Stacked Bar Chart, Radar Chart
+Sentiment Poll
+Heatmap, Word Cloud
+Ballot Test Poll
+Bar Chart, Voting Map
+Engagement Poll
+Horizontal Bar Chart, Word Cloud
+Satisfaction Poll
+Gauge Chart, Line Graph
+Electability Poll
+Pie Chart, Line Graph
+Priority Poll
+Treemap Chart, Radar Chart
+Awareness Poll
+Pie Chart, Horizontal Bar Chart
+
+
+Business and Market Research
+Poll Type
+Best Display Type
+Customer Satisfaction Poll
+Gauge Chart, Pie Chart
+Brand Awareness Poll
+Bar Chart, Word Cloud
+Market Segmentation Poll
+Treemap Chart, Radar Chart
+Product Development Poll
+Stacked Bar Chart, Radar Chart
+Pricing Poll
+Funnel Chart, Line Graph
+Advertising Effectiveness Poll
+Pie Chart, Heatmap
+Employee Satisfaction Poll
+Gauge Chart, Stacked Bar Chart
+Competitor Analysis Poll
+Bar Chart, Radar Chart
+Purchase Intent Poll
+Pie Chart, Line Graph
+Market Trend Poll
+Line Graph, Heatmap
+Customer Experience Poll
+Gauge Chart, Word Cloud
+Product Usage Poll
+Pie Chart, Stacked Bar Chart
+Demand Forecasting Poll
+Line Graph, Heatmap
+Concept Testing Poll
+Radar Chart, Word Cloud
+Brand Loyalty Poll
+Bar Chart, Pie Chart
+Economic Outlook Poll
+Line Graph, Heatmap
+Crisis Management Poll
+Word Cloud, Radar Chart
+
+
+Social Research
+Poll Type
+Best Display Type
+Community Feedback Poll
+Word Cloud, Bar Chart
+Cross-Sectional Poll
+Stacked Bar Chart, Pie Chart
+Longitudinal Poll
+Line Graph, Heatmap
+Attitudinal Poll
+Radar Chart, Word Cloud
+Behavioural Poll
+Bar Chart, Funnel Chart
+Demographic Poll
+Pie Chart, Heatmap
+Opinion Poll
+Bar Chart, Pie Chart
+Social Network Poll
+Treemap Chart, Radar Chart
+Deliberative Poll
+Word Cloud, Stacked Bar Chart
+Experimental Poll
+Radar Chart, Line Graph
+Qualitative Poll
+Word Cloud, Pie Chart
+Cultural Poll
+Pie Chart, Heatmap
+Social Mobility Poll
+Line Graph, Stacked Bar Chart
+Policy Impact Poll
+Gauge Chart, Bar Chart
+Social Norms Poll
+Word Cloud, Pie Chart
+Life Satisfaction Poll
+Gauge Chart, Heatmap
+
+
+Environment
+Poll Type
+Best Display Type
+Climate Change Poll
+Line Graph, Heatmap
+Biodiversity and Conservation Poll
+Pie Chart, Word Cloud
+Sustainability and Green Practices Poll
+Treemap Chart, Radar Chart
+Pollution and Waste Management Poll
+Stacked Bar Chart, Pie Chart
+Natural Resources and Energy Use Poll
+Line Graph, Heatmap
+Environmental Policy and Regulation Poll
+Gauge Chart, Bar Chart
+Environmental Education and Awareness Poll
+Word Cloud, Pie Chart
+Local Environmental Issues Poll
+Treemap Chart, Heatmap
+Consumer Behavior and Environmental Impact Poll
+Radar Chart, Funnel Chart
+Disaster Preparedness and Response Poll
+Line Graph, Heatmap
+
+
+Economy
+Poll Type
+Best Display Type
+Consumer Confidence Poll
+Gauge Chart, Line Graph
+Business Confidence Poll
+Pie Chart, Heatmap
+Employment Poll
+Bar Chart, Line Graph
+Inflation Expectation Poll
+Line Graph, Heatmap
+Housing Market Poll
+Bar Chart, Pie Chart
+Investment Sentiment Poll
+Gauge Chart, Treemap Chart
+Economic Policy Poll
+Bar Chart, Pie Chart
+Cost of Living Poll
+Heatmap, Line Graph
+GDP Growth Expectation Poll
+Line Graph, Pie Chart
+Poverty and Income Distribution Poll
+Treemap Chart, Stacked Bar Chart
+
+
+Health and Wellness
+Poll Type
+Best Display Type
+Physical Health Poll
+Gauge Chart, Pie Chart
+Mental Health Poll
+Word Cloud, Bar Chart
+Wellness and Lifestyle Poll
+Treemap Chart, Radar Chart
+Public Health and Policy Poll
+Heatmap, Bar Chart
+Alternative and Complementary Medicine Poll
+Pie Chart, Word Cloud
+Sexual and Reproductive Health Poll
+Gauge Chart, Treemap Chart
+
+
+Technology
+Poll Type
+Best Display Type
+Device Usage Poll
+Pie Chart, Bar Chart
+Social Media and Internet Usage Poll
+Treemap Chart, Heatmap
+Software and Applications Poll
+Stacked Bar Chart, Pie Chart
+E-commerce and Online Shopping Poll
+Bar Chart, Line Graph
+Technology Adoption and Trends Poll
+Heatmap, Radar Chart
+Data Privacy and Security Poll
+Pie Chart, Word Cloud
+Gaming and Entertainment Technology Poll
+Bar Chart, Pie Chart
+Technology in Education Poll
+Treemap Chart, Heatmap
+Remote Work Technology Poll
+Stacked Bar Chart, Line Graph
+Emerging Technologies Poll
+Radar Chart, Treemap Chart
+
+
+Travel and Leisure
+Poll Type
+Best Display Type
+Destination Preference Poll
+Pie Chart, Bar Chart
+Travel Habits Poll
+Radar Chart, Heatmap
+Accommodation Preferences Poll
+Stacked Bar Chart, Pie Chart
+Leisure Activities Poll
+Treemap Chart, Word Cloud
+Travel Planning Poll
+Bar Chart, Pie Chart
+Transportation Preferences Poll
+Gauge Chart, Treemap Chart
+Sustainability and Eco-Friendly Travel Poll
+Heatmap, Word Cloud
+Travel Insurance Poll
+Pie Chart, Bar Chart
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Advertise With Us
+
+Our platform is the premier destination for Nigerians to share their opinions on a wide range of topics, from politics and entertainment to lifestyle and technology. By advertising with us, you can connect directly with our active user base and gain valuable insights into consumer trends and public sentiment.
+
+We offer a variety of advertising options to suit your needs, including sponsored polls, banner ads, and content partnerships. 
+
+Whether you're a brand looking to launch a new product, a political campaign seeking public feedback, or a business aiming to build brand awareness, Opinionhub.ng provides a unique and effective way to reach your target audience.
+
+Let us help you amplify your message and engage with the pulse of Nigeria.
+
+ADVERT RATES
+
+Ad Placement
+Ad Size (Pixels)
+Description
+Price Per View (₦)
+Home Page - Top Banner
+728x90
+Large banner at the top of the homepage for maximum visibility
+₦ 5 per view
+Home Page - Sidebar (Right or Left)
+728x90
+Standard ad slot placed on the side for visibility.
+₦ 3 per view
+Survey & Poll Footer (Below results)
+728x90
+After the results graph or poll discussion.
+₦ 1.5 per view
+After Vote Submission (Post-poll Result Ad)
+728x90
+Immediately after voting, shown with results.
+₦ 4 per view
+Above Poll (Pre-poll Banner)
+728x90
+Just before the poll question.
+₦ 4 per view
+BUY ADVERT CREDIT
+
+
+How It Works for Advertisers
+To place your adverts on our platform, take the following steps.
+
+Create Your Free Profile
+
+It is completely free to register on Opinion Hub NG.
+
+Provide Advert Details
+
+Click on the advertise with us link and provide the required details including the advert creatives. Make payment in accordance with the number of views you want.
+
+Advert Review and Approval
+
+The advert details submitted would be reviewed and if it aligns with our advert policy, it would be approved and you can immediately see your advert on our website. If not approved, the advertiser would be contacted for refund.
+
+Advert Management
+
+Advertisers can pause and edit advert on our platform. 
+The advertisers can also view click through and view rates.
+
+ Advert Policy
+Our advertorial policy derives essentially from the spirit of our editorial policy and to that extent; it accommodates all range of commercial, opinion, view point, testimonies or contention with the strict exception of homophobia, pornography, defamation and abuse of religious and ethnic sensibilities
+To that extent we accept political and non-political adverts and all adverts must meet the ethical standards of the Advertising Practitioner Council of Nigeria (APCON).
+LOGIN |
+
+
+
+
+INSTRUCTIONS
+
+Advertisers should be able to pause adverts
+Advertisers should be able to see the number of views
+Advertise should be able to see click through rate
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+INSTRUCTIONS
+
+AGENTS
+
+Agent should be able to see earnings
+Agents should be able to request payment
+
+
+CLIENTS
+
+Clients should be able to export data collected
+Display all polls of the client
+Display on-going polls
+Display the SMS and E-mail credit balance of client
+Make provision for buying of SMS and email credits based on their plan
+GENERAL
+
+Display google ads on polls created by the admin and free accounts
+The admin should be able to create polls (free and paid)
+Between the start and end date of the poll implement – Events (Title, Date and Time) can be added to enable the users keep track of events and how they affect polling
+Prevent duplicate votes (Limit respondents to a single vote each to ensure your results aren’t unfairly weighted in favour of one opinion)
+Vote notifications (Stay up to date with your poll responses by receiving a notification by email each time a response is submitted)
+Display google adverts on polls submitted by the admin
+The admin should be able to set price for access to polls
+The admin should be able to set package subscription access to polls
+The admin should be able to change package price
+
+
+
+CATEGORIES & SUB-CATEGORIES
+
+Animals & Pets
+
+Animal Health
+Animal Parks & Zoo
+Cats & Dogs
+Horses & Riding
+Pet Services
+Pet Stores
+
+Beauty & Well-being
+
+Cosmetics & Makeup
+Hair Care & Styling
+Personal Care
+Salons & Clinics
+Tattoos & Piercings
+Wellness & Spa
+Yoga & Meditation
+
+Business Services
+
+Administration & Services
+Associations & Centres
+HR & Recruiting
+Import & Export
+IT & Communication
+Office Space & Supplies
+Print & Graphic Design
+Research & Development
+Sales & Marketing
+Shipping & Logistics
+Wholesale
+
+Construction & Manufacturing
+
+Architects & Engineers
+Building Materials
+Chemicals & Plastic
+Construction Services
+Contractors & Consultants
+Factory Equipment
+Garden & Landscaping
+Industrial Supplies
+Manufacturing
+Production Services
+Tools & Equipment
+
+Education & Training
+
+Colleges & Universities
+Courses & Classes
+Education Services
+Language Learning
+Music & Theatre Classes
+School & High School
+Specials Schools
+Vocational Training
+
+Electronics & Technology
+
+Appliances & Electronics
+Audio & Visual
+Computers & Phones
+Internet & Software
+Repair & Services
+
+Events & Entertainment
+
+Adult Entertainment
+Children's Entertainment
+Clubbing & Nightlife
+Events & Venues
+Gambling
+Gaming
+Museums & Exhibits
+Music & Movies
+Theatre & Opera
+Wedding & Party
+
+Food, Beverages & Tobacco
+
+Agriculture & Produce
+Asian Grocery Stores
+Bakery & Pastry
+Beer & Wine
+Beverages & Liquor
+Candy & Chocolate
+Coffee & Tea
+Food Production
+Fruits & Vegetables
+Grocery Stores & Markets
+Lunch & Catering
+Meat, Seafood & Eggs
+Smoking & Tobacco
+
+Health & Medical
+
+Clinics
+Dental Services
+Diagnostics & Testing
+Doctors & Surgeons
+Health Equipment
+Hospital & Emergency
+Medical Specialists
+Mental Health
+Pharmacy & Medicine
+Physical Aids
+Pregnancy & Children
+Therapy & Senior Health
+Vision & Hearing
+
+Hobbies & Crafts
+
+Art & Handicraft
+Astrology & Numerology
+Fishing & Hunting
+Hobbies
+Metal, Stone & Glass Work
+Music & Instruments
+Needlework & Knitting
+Outdoor Activities
+Painting & Paper
+
+Home & Garden
+
+Bathroom & Kitchen
+Cultural Goods
+Decoration & Interior
+Energy & Heating
+Fabric & Stationery
+Furniture Stores
+Garden & Pond
+Home & Garden Services
+Home Goods Stores
+Home Improvements
+
+Home Services
+
+Cleaning Service Providers
+Craftsman
+House Services
+House Sitting & Security
+Moving & Storage
+Plumbing & Sanitation
+Repair Service Providers
+
+Legal Services & Government
+
+Customs & Toll
+Government Department
+Law Enforcement
+Lawyers & Attorneys
+Legal Service Providers
+Libraries & Archives
+Registration Services
+Politicians
+
+Media & Publishing
+
+Books & Magazines
+Media & Information
+Photography
+Video & Sound
+
+Money & Insurance
+
+Accounting & Tax
+Banking & Money
+Credit & Debt Services
+Insurance
+Investments & Wealth
+Real Estate
+
+Public & Local Services
+
+Employment & Career
+Funeral & Memorial
+Housing Associations
+Kids & Family
+Military & Veteran
+Nature & Environment
+Professional Organizations
+Public Services & Welfare
+Religious Institutions
+Shelters & Homes
+Waste Management
+
+Restaurants & Bars
+
+African & Pacific Cuisine
+Bars & Cafes
+Chinese & Korean Cuisine
+European Cuisine
+General Restaurants
+Japanese Cuisine
+Mediterranean Cuisine
+Middle Eastern Cuisine
+North & South American Cuisine
+Southeast Asian Cuisine
+Takeaway
+Vegetarian & Diet
+
+Shopping & Fashion
+
+Accessories
+Clothing & Underwear
+Clothing Rental & Repair
+Costume & Wedding
+Jewellery & Watches
+Malls & Marketplaces
+
+Sports
+
+Ball Games
+Bat-and-ball Games
+Bowls & Lawn Sports
+Dancing & Gymnastics
+Equipment & Associations
+Extreme Sports
+Fitness & Weight Lifting
+Golf & Ultimate
+Hockey & Ice Skating
+Martial arts & Wrestling
+Outdoor & Winter Sports
+Shooting & Target Sports
+Swimming & Water Sports
+Tennis & Racquet Sports
+
+Travel & Vacation
+
+Accommodation & Lodging
+Activities & Tours
+Airlines & Air Travel
+Hotels
+Travel Agencies
+
+Utilities
+
+Energy & Power
+Oil & Fuel
+Water Utilities
+
+Vehicles & Transportation
+
+Air & Water Transport
+Airports & Parking
+Auto Parts & Wheels
+Bicycles
+Cars & Trucks
+Motorcycle & Powersports
+Other Vehicles & Trailers
+Taxis & Public Transport
+Vehicular Rental
+Vehicle Repair & Fuel
+
+
+
+About Us:
+
+In a rapidly evolving world, where data-driven decisions are becoming the cornerstone of successful strategies, the need for accurate, reliable, and insightful public opinion data cannot be overstated. 
+
+Opinion Hub NG was born out of this necessity—to provide a platform where the pulse of Nigeria's diverse population can be felt, understood, and acted upon. Whether it's understanding voter behavior, gauging public sentiment on key issues, or providing businesses with critical market insights, Opinionhub.ng is dedicated to delivering the most comprehensive and reliable polling data across Nigeria.
+
+At Opinion Hub NG, our mission is to empower individuals, organizations, and policymakers with accurate, unbiased, and actionable data. We believe that informed decisions are the foundation of a prosperous society. Our goal is to bridge the gap between public opinion and decision-making processes in Nigeria, ensuring that the voices of Nigerians are heard and considered in every aspect of societal development.
+
+Our vision is to be the leading polling and market research organization in Nigeria, recognized for our commitment to accuracy, transparency, and inclusivity. We aspire to shape the future of decision-making in Nigeria by providing data that is not only accurate but also reflective of the diverse opinions and perspectives across the country. By doing so, we aim to foster a more informed and engaged society where every voice counts.
+
+Opinion Hub NG is built on a foundation of core values that guide our operations and interactions with clients, respondents, and the public at large:
+
+Accuracy: We strive to provide the most accurate data possible by employing rigorous methodologies and ensuring that our surveys are scientifically sound.
+
+Transparency: We believe in full transparency in our processes, methodologies, and results. Our clients and the public can trust that the data we provide is free from manipulation or bias.
+
+Inclusivity: Nigeria is a diverse country with various ethnicities, languages, and cultures. We are committed to ensuring that our polls and surveys reflect this diversity, giving voice to every segment of the population.
+
+Integrity: Integrity is at the heart of everything we do. We adhere to the highest ethical standards in our research practices, ensuring that the data we collect and present is both honest and reliable.
+
+Innovation: We continuously seek to innovate and improve our methodologies and technologies to stay ahead in the rapidly changing landscape of polling and market research.
+Opinion Hub NG offers a wide range of services designed to meet the diverse needs of our clients. Whether you're a political candidate, a government agency, a business, or a non-governmental organization, we have the tools and expertise to provide you with the insights you need.
+
+1. Political Polling
+
+In Nigeria's dynamic political environment, understanding voter behavior and public opinion is crucial for political campaigns, government bodies, and policy-makers. Our political polling services include:
+
+Voter Intention Surveys: We assess the voting intentions of the electorate, providing insights into which candidates or parties are leading and why.
+Approval Ratings: We measure public approval of elected officials, policies, and government initiatives, offering a clear picture of public sentiment.
+Issue-Based Polling: We explore public opinion on key issues such as healthcare, education, security, and the economy, helping policymakers prioritize and address the concerns of Nigerians.
+2. Market Research
+
+Businesses in Nigeria face unique challenges and opportunities. Our market research services are designed to help businesses understand their customers, competitors, and market dynamics better. Our offerings include:
+
+Consumer Behavior Surveys: We analyze consumer preferences, spending habits, and brand loyalty to help businesses tailor their products and marketing strategies effectively.
+Product Testing and Feedback: Before launching a new product or service, our testing and feedback surveys help businesses understand how the market will receive their offerings.
+Brand Perception Analysis: We evaluate how the public perceives your brand, providing insights into strengths, weaknesses, and opportunities for improvement.
+3. Social Research
+
+Understanding social trends and public opinion on societal issues is essential for NGOs, government agencies, and advocacy groups. Our social research services cover:
+
+Public Opinion Surveys: We gauge public sentiment on various social issues, from healthcare to education to environmental concerns.
+Community Engagement Studies: We help organizations understand the needs, concerns, and aspirations of specific communities, enabling more effective engagement and intervention strategies.
+Impact Assessment: We conduct studies to assess the impact of policies, programs, or initiatives on specific populations or the general public.
+4. Customized Surveys
+
+We recognize that every client has unique needs. That’s why we offer customized survey solutions tailored to specific objectives. 
+
+Whether you need a survey designed from scratch or want to modify an existing one to fit your requirements, our team of experts is ready to assist.
+
+At Opinion Hub NG, we take pride in our robust and scientifically rigorous methodologies. Our approach to data collection, analysis, and reporting is designed to ensure the highest levels of accuracy and reliability. Here's how we do it:
+
+1. Sample Selection
+
+We understand that the accuracy of our polls and surveys depends heavily on the quality of our sample. We employ both random and stratified sampling techniques to ensure that our sample is representative of Nigeria's diverse population. Whether it's a national survey or a study focused on a specific demographic, our sampling methods are designed to minimize bias and ensure inclusivity.
+
+2. Survey Design
+
+Our surveys are meticulously designed to elicit clear, unbiased responses. We work closely with our clients to understand their objectives and tailor our questions accordingly. Our survey design process includes:
+
+Question Crafting: We develop questions that are clear, neutral, and designed to avoid leading respondents.
+Pilot Testing: Before launching a full survey, we conduct pilot tests to refine questions and identify any potential issues.
+Multilingual Surveys: Recognizing Nigeria's linguistic diversity, we offer surveys in multiple languages to ensure inclusivity.
+3. Data Collection
+
+We utilize a variety of data collection methods to reach respondents across Nigeria, including:
+
+Face-to-Face Interviews: Particularly useful in rural areas or where internet access is limited, our trained field agents conduct interviews in person.
+Telephone Surveys: We use telephone interviews to reach respondents quickly and efficiently, particularly in urban areas.
+Online Surveys: With the increasing penetration of the internet, online surveys are a fast and cost-effective way to gather data from tech-savvy respondents.
+SMS Surveys: For areas with limited internet access, we employ SMS based surveys to reach a wider audience.
+4. Data Analysis
+
+Once data is collected, our team of data analysts and statisticians processes and analyzes it using advanced statistical software. Our analysis process includes:
+
+Data Cleaning: We meticulously clean and verify data to ensure its accuracy and integrity.
+Statistical Analysis: Using sophisticated tools, we perform a range of statistical analyses to extract meaningful insights from the data.
+Cross-Tabulation: We examine how different variables interact, providing deeper insights into trends and correlations.
+Opinion Hub NG is powered by a team of experienced professionals who are passionate about public opinion research and committed to excellence. Our team includes:
+
+Data Scientists: Experts in data collection, analysis, and interpretation, our data scientists ensure that our findings are accurate and insightful.
+Survey Designers: With a deep understanding of survey methodologies, our designers create surveys that are effective in capturing the information our clients need.
+Field Agents: Our trained field agents conduct face-to-face interviews, ensuring that our data collection process is thorough and reliable.
+Customer Support: Our dedicated customer support team is always ready to assist clients with any queries or concerns they may have.
+Over the years, Opinion Hub NG has had the privilege of working with a diverse range of clients across various sectors, including:
+
+Government Agencies: We provide polling and research services to government bodies at the federal, state, and local levels, helping them make informed policy decisions.
+Political Campaigns: Candidates and political parties rely on our polling services to understand voter behavior and fine-tune their campaign strategies.
+Businesses: From multinational corporations to small and medium-sized enterprises, businesses across Nigeria use our market research services to gain a competitive edge.
+Non-Governmental Organizations: NGOs trust us to provide the data they need to drive their advocacy efforts and measure the impact of their programs.
+There are several reasons why clients choose Opinion Hub NG for their polling and research needs:
+
+Expertise: With years of experience in the field, we have the expertise to deliver accurate and reliable data.
+
+Comprehensive Services: We offer a wide range of services, from political polling to market research, all under one roof.
+
+Nationwide Reach: Our extensive network of field agents and data collection methods allows us to reach respondents across Nigeria, from urban centers to remote rural areas.
+
+Client-Centric Approach: We work closely with our clients to understand their needs and tailor our services accordingly.
+
+Innovation: We continuously invest in new technologies and methodologies to ensure that we stay at the forefront of the industry.
+
+Opinion Hub NG is not just about collecting data; it's about making a difference. Our work has had a significant impact on various sectors of Nigerian society, including:
+
+Informed Decision-Making: Our data has empowered policymakers, businesses, and organizations to make informed decisions that have a positive impact on society.
+    
+Enhanced Public Engagement: By giving voice to the public, we have helped to enhance public engagement in political, social, and economic issues.
+    
+Improved Products and Services: Our market research services have helped businesses improve their products and services, leading to increased customer satisfaction and business growth.
+
+Opinion Hub NG is more than just a polling and market research organization; we are a catalyst for change. Our commitment to accuracy, transparency, and inclusivity drives us to deliver the best possible data and insights to our clients. Whether you're a government agency, a political campaign, a business, or an NGO, we are here to help you understand the Nigerian public and make decisions that will shape the future of our nation.
+As we continue to grow and evolve, we remain dedicated to our mission of empowering decision-makers with the data they need to create a better Nigeria for all.
+
+Opinion Hub NG is a subsidiary of Foraminifera Market Research Limited is a leading market research firm in Nigeria. 
+
+Foraminifera Market Research Limited is a Lagos-based provider of market research reports as well as general business process services indifferent sectors of the Nigerian economy. The firm was registered with the Corporate Affairs Commission, Federal Republic of Nigeria on 20th day of December, 2012 in accordance with Companies and Allied Matters Act 1990 (pursuant to section 659).
+
+With our main focus being small and medium scale industries, we are the one stop shop for market entry solution for the manufacturing, export and import, oil/ gas, agriculture, fast-moving consumer goods (FMCG) and mining sectors of the Nigerian economy.
+
+Opinion Hub NG’s perspective is unique and our approach is refreshing. Opinion Hub NG is part of the Foraminifera Market Research family of businesses, which includes several brands such as
+
+www.foramfera.com
+www.businessplansinnigeria.ng 
+www.feasibilityreportsinnigeria.ng
+www.365marketresearchreports.com
+www.mysteryshopping.ng 
+
+Our vision is to be a strong and visible global brand in the industries we operate in by providing services that adds value to our clients business and resources to develop their business into a strong and visible global brand.
+
+
+
+
+
+
+
+
+
+
+
+
+ Contact Us:
+
+Thank you for your interest in Opinion Hub NG. Please feel free to fill out our information request form or use any of the methods below to get in touch with us.
+
+Name:
+E-Mail Address:
+Mobile Number:
+Comment:
+
+Opinion Hub NG (Foraminifera Market Research Limited)
+
+61-65 Egbe- Isolo Road,
+Iyana Ejigbo Shopping Arcade,
+Block A, Suite 19,
+Iyana Ejigbo Bus Stop,
+Ejigbo, Lagos.
+
+Tel: +234 (0) 803 3782 777; +234 (01) 29 52 413
+
+E-mail: hello@opinionhub.ng 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ Privacy Policy:
+
+At Opinion Hub NG, we understand the importance of your privacy and are committed to protecting your personal information. This privacy policy outlines how we collect, use, and safeguard the data you provide to us when participating in our surveys and using our website. By engaging with Opinion Hub NG, you consent to the practices described in this policy.
+
+Opinion Hub NG collects various types of information to enhance our services and provide accurate, meaningful insights. The information we collect includes:
+
+Personal Information: This includes details such as your name, email address, phone number, and demographic information like age, gender, and location. We collect this information when you sign up, participate in a survey, or engage with our services.
+
+Survey Responses: When you participate in our polls or surveys, we collect your responses, which may include opinions, preferences, and behaviors related to the topics being surveyed.
+
+Usage Data: We collect information about how you interact with our website, including your IP address, browser type, operating system, and the pages you visit. This data helps us understand how users navigate our site and how we can improve our services.
+
+Opinion Hub NG uses the information we collect for the following purposes:
+
+Survey Analysis: Your survey responses are aggregated and analyzed to generate insights and trends. These insights help us and our clients understand public opinion and make informed decisions.
+
+Personalization: We use your personal information to customize your experience on our website and ensure that the surveys and content we present to you are relevant to your interests.
+
+Communication: We may use your contact information to send you updates about new surveys, results, or other relevant information related to Opinion Hub NG. You can opt out of these communications at any time.
+
+Site Improvement: Usage data helps us monitor and improve our website’s functionality, ensuring that we provide a seamless and user-friendly experience.
+
+Opinion Hub NG values your trust and does not sell or share your personal information with third parties for their marketing purposes. 
+
+However, we may share aggregated and anonymized survey results with our clients, partners, and the public. These results do not include any personally identifiable information.
+
+We may also disclose your information if required by law or to protect the rights, property, or safety of Opinion Hub NG, our users, or others.
+
+We take the security of your data seriously and implement appropriate technical and organizational measures to protect it from unauthorized access, disclosure, or misuse. However, no method of transmission over the internet is entirely secure, and we cannot guarantee the absolute security of your information.
+
+You have the right to access, correct, or delete your personal information held by Opinion Hub NG. You can also choose to opt out of certain data collection practices, such as cookies, by adjusting your browser settings. Additionally, you can unsubscribe from our communications at any time.
+
+Opinion Hub NG may update this privacy policy periodically to reflect changes in our practices or legal requirements. We encourage you to review this policy regularly to stay informed about how we protect your privacy.
+
+If you have any questions or concerns about our privacy policy or how we handle your data, please contact us at hello@opinionhub.ng. We are committed to addressing your inquiries promptly and transparently.
+
+At Opinion Hub NG, your privacy is our priority. We are dedicated to ensuring that your personal information is handled with care and respect. By participating in our surveys and using our website, you help us create valuable insights while we commit to protecting your data every step of the way.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ Terms of Use:
+
+Opinion Hub NG is an online platform dedicated to providing Nigerians with a space to express their opinions on various topics, including politics, social issues, and market trends. As a user of this platform, it is crucial to understand the terms of use that govern your interaction with the site. These terms ensure that the platform remains a safe, respectful, and legally compliant space for all users.
+
+By accessing or using Opinion Hub NG, you agree to be bound by these terms of use. If you do not agree with any part of these terms, you should refrain from using the platform. The platform reserves the right to modify these terms at any time without prior notice. It is your responsibility to review the terms periodically for updates.
+
+As a user of Opinion Hub NG, you are responsible for the content you post and the way you interact with the platform. You agree not to use the platform for any unlawful activities or to post content that is harmful, defamatory, obscene, or otherwise inappropriate. 
+
+Users must respect the rights and dignity of others, ensuring that all interactions on the platform are conducted in a respectful and constructive manner.
+
+Additionally, you are responsible for maintaining the confidentiality of your account information, including your username and password. Any activity that occurs under your account is your responsibility. If you suspect unauthorized use of your account, you should notify Opinion Hub NG immediately.
+
+All content available on Opinion Hub NG, including but not limited to text, graphics, logos, and software, is the property of Opinion Hub NG or its content providers and is protected by intellectual property laws. Users may not copy, reproduce, distribute, or create derivative works from any content on the platform without explicit permission from Opinion Hub NG.
+
+When you submit content to the platform, such as poll responses, comments, or other contributions, you grant Opinion Hub NG a non-exclusive, royalty-free, perpetual, and worldwide license to use, modify, publish, and display this content in connection with the platform's operations.
+
+Opinion Hub NG is committed to protecting your privacy. The platform collects and uses your personal information in accordance with its Privacy Policy, which outlines how your data is collected, used, and shared. By using the platform, you consent to the collection and use of your data as described in the Privacy Policy.
+
+Opinion Hub NG may use your data to improve its services, provide personalized content, and for research purposes. However, the platform will not sell your personal information to third parties without your consent.
+
+Opinion Hub NG reserves the right to suspend or terminate your access to the platform at any time, with or without notice, if you violate these terms of use or engage in conduct that is harmful to the platform or its users. Termination of access may also occur if you engage in any fraudulent or illegal activities on the platform.
+
+Opinion Hub NG is provided on an "as-is" basis, and the platform makes no warranties, express or implied, regarding its operation or the accuracy of the content provided. Opinion Hub NG will not be liable for any damages arising from the use or inability to use the platform, including but not limited to direct, indirect, incidental, or consequential damages.
+
+These terms of use are governed by the laws of Nigeria. Any disputes arising from these terms or your use of Opinion Hub NG will be subject to the jurisdiction of Nigerian courts.
+
+By using Opinion Hub NG, you agree to abide by these terms of use, ensuring that the platform remains a valuable resource for public opinion and discussion in Nigeria. Adhering to these guidelines helps maintain a respectful and secure environment for all users, allowing Opinion Hub NG to continue its mission of fostering informed and constructive dialogue.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Disclaimer and Phishing Claims
+At Opinion Hub NG, your trust and security are our top priorities. As a platform committed to providing accurate and reliable polling services, we take every measure to protect our users from potential threats such as phishing and fraudulent activities. T
+
+Disclaimer
+
+1. Information Accuracy: Opinion Hub NG strives to provide accurate and up-to-date information through our polls and surveys. However, the data presented on our platform is based on the responses of participants and may not always reflect the complete picture. 
+
+The results of our polls are intended for informational purposes only and should not be considered as absolute or definitive conclusions. We encourage users to use their discretion and consider multiple sources of information when making decisions based on polling data.
+
+2. Third-Party Links: Our platform may contain links to third-party websites or services that are not owned or controlled by Opinion Hub NG. We do not endorse or assume any responsibility for the content, privacy policies, or practices of these third-party sites. Users are advised to review the terms and conditions and privacy policies of any third-party websites they visit through links on our platform.
+
+3. Limitation of Liability: Opinion Hub NG and its affiliates, employees, and partners shall not be liable for any direct, indirect, incidental, or consequential damages resulting from the use of our platform, including but not limited to the reliance on polling data, the use of third-party links, or any unauthorized access to your personal information. 
+
+By using our platform, you agree to indemnify and hold Opinion Hub NG harmless from any claims arising from your use of the site.
+
+Phishing Claims
+
+1. Understanding Phishing: Phishing is a form of online fraud where attackers impersonate legitimate entities to trick individuals into providing sensitive information, such as passwords, credit card numbers, or personal identification details. These attacks often come in the form of emails, messages, or fake websites that appear to be from a trusted source.
+
+2. Opinion Hub NG’s Commitment to Security: Opinion Hub NG is committed to safeguarding our users against phishing attempts and other fraudulent activities. We employ advanced security measures, including SSL encryption, regular security audits, and user education, to protect your data and ensure a safe polling experience.
+
+3. Identifying Phishing Attempts: It is essential to be vigilant and aware of potential phishing attempts. Here are some tips to help you identify and avoid phishing scams:
+
+Check the Sender’s Email Address: Always verify the sender’s email address. Phishing emails often come from addresses that resemble legitimate ones but contain slight misspellings or extra characters.
+
+Be Wary of Urgent Requests: Phishing attempts often involve urgent language, such as "Your account will be suspended" or "Immediate action required." Opinion Hub NG will never ask you to provide sensitive information through email or instant messaging.
+
+Look for HTTPS in the URL: Ensure that the Opinion Hub NG website URL begins with "https://", indicating that the connection is secure. Avoid entering personal information on websites that do not have this secure connection.
+
+Avoid Clicking on Suspicious Links: Hover over links before clicking to see the actual URL. If the link looks suspicious or does not match the expected destination, do not click on it.
+4. Reporting Phishing Attempts
+
+If you suspect that you have received a phishing email or message claiming to be from Opinion Hub NG, please do not respond or click on any links. Instead, forward the email to our support team at hello@opinionhub.ng so we can investigate and take appropriate action.
+
+Your security is our priority at Opinion Hub NG. We are dedicated to providing a safe and trustworthy platform for all your polling needs. 
+
+By staying informed and vigilant, you can help protect yourself from phishing attempts and ensure that your experience on Opinion Hub NG is secure. If you have any concerns or need assistance, our support team is always here to help.
+
+
+
+
+
+
+FAQ 
+
+Here you can find answers to basic questions about the site and troubleshoot some common issues. If there is anything we missed, or for any other questions, please do contact us using any of the means below
+Contact Opinion Hub NG:
+Email Us
+Call Us
+E-mail: hello@opinionhub.ng  
+Call Us: +234-01-2952-413
+
+About Opinion Hub NG
+Agents
+Orders and Delivery
+Account Registration
+Clients 
+General Queries
+Opinion Hub NG NG Policies
+Offers and Discounts
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Cookie Policy
+Opinion Hub NG is an online platform dedicated to providing Nigerians with a space to express their opinions on various topics, including politics, social issues, and market trends. As a user of this platform, it is crucial to understand the terms of use that govern your interaction with the site. These terms ensure that the platform remains a safe, respectful, and legally compliant space for all users.
+
+By accessing or using Opinion Hub NG, you agree to be bound by these terms of use. If you do not agree with any part of these terms, you should refrain from using the platform. The platform reserves the right to modify these terms at any time without prior notice. It is your responsibility to review the terms periodically for updates.
+
+As a user of Opinion Hub NG, you are responsible for the content you post and the way you interact with the platform. You agree not to use the platform for any unlawful activities or to post content that is harmful, defamatory, obscene, or otherwise inappropriate. 
+
+Users must respect the rights and dignity of others, ensuring that all interactions on the platform are conducted in a respectful and constructive manner.
+
+Additionally, you are responsible for maintaining the confidentiality of your account information, including your username and password. Any activity that occurs under your account is your responsibility. If you suspect unauthorized use of your account, you should notify Opinion Hub NG immediately.
+
+All content available on Opinion Hub NG, including but not limited to text, graphics, logos, and software, is the property of Opinion Hub NG or its content providers and is protected by intellectual property laws. Users may not copy, reproduce, distribute, or create derivative works from any content on the platform without explicit permission from Opinion Hub NG.
+
+When you submit content to the platform, such as poll responses, comments, or other contributions, you grant Opinion Hub NG a non-exclusive, royalty-free, perpetual, and worldwide license to use, modify, publish, and display this content in connection with the platform's operations.
+
+Opinion Hub NG is committed to protecting your privacy. The platform collects and uses your personal information in accordance with its Privacy Policy, which outlines how your data is collected, used, and shared. By using the platform, you consent to the collection and use of your data as described in the Privacy Policy.
+
+Opinion Hub NG may use your data to improve its services, provide personalized content, and for research purposes. However, the platform will not sell your personal information to third parties without your consent.
+
+Opinion Hub NG reserves the right to suspend or terminate your access to the platform at any time, with or without notice, if you violate these terms of use or engage in conduct that is harmful to the platform or its users. Termination of access may also occur if you engage in any fraudulent or illegal activities on the platform.
+
+Opinion Hub NG is provided on an "as-is" basis, and the platform makes no warranties, express or implied, regarding its operation or the accuracy of the content provided. Opinion Hub NG will not be liable for any damages arising from the use or inability to use the platform, including but not limited to direct, indirect, incidental, or consequential damages.
+
+These terms of use are governed by the laws of Nigeria. Any disputes arising from these terms or your use of Opinion Hub NG will be subject to the jurisdiction of Nigerian courts.
+
+By using Opinion Hub NG, you agree to abide by these terms of use, ensuring that the platform remains a valuable resource for public opinion and discussion in Nigeria. 
+
+Adhering to these guidelines helps maintain a respectful and secure environment for all users, allowing Opinion Hub NG to continue its mission of fostering informed and constructive dialogue.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Who Uses OpinionHub.ng?
+Public opinion is at the heart of every decision-making process—whether in government, business, media, academia, or consulting. Understanding what people think, how they behave, and what influences their choices helps organizations make better strategies, craft effective policies, and deliver impactful results.
+
+At OpinionHub.ng, we provide a modern, data-driven platform that allows organizations across sectors to collect insights, run surveys, conduct polls, and analyze opinions in real time. Below, we explore how different industries can benefit from leveraging our services.
+
+For Politicians & Government
+
+In today’s democracy, governance thrives on feedback. Politicians and government agencies that fail to listen to the people risk making decisions that are disconnected from reality. OpinionHub.ng bridges this gap by offering a reliable way to measure public sentiment.
+
+Policy Testing: Before rolling out a policy, governments can use surveys to gauge how citizens perceive it. This reduces the risk of backlash and helps refine implementation strategies.
+
+Approval Ratings: Politicians can monitor their approval ratings regularly, identifying areas where performance perception is low and addressing them before elections.
+
+Election Campaigns: Polls help political candidates understand voter priorities, segment electorates, and craft resonant campaign messages.
+
+Citizen Engagement: Beyond elections, consistent feedback channels allow governments to build trust, transparency, and accountability.
+
+By using data-driven insights, political leaders can make informed decisions, strengthen democracy, and maintain credibility with the public.
+
+For Brands
+
+For businesses and brands, consumer perception is everything. In a competitive market, success lies in knowing what customers think about your product, service, or overall brand image. OpinionHub.ng provides the tools for brands to stay ahead.
+
+Market Research: Businesses can test new product ideas, measure demand, and explore pricing strategies through polls and targeted surveys.
+
+Customer Feedback: Post-purchase surveys can reveal satisfaction levels, areas of improvement, and consumer expectations.
+
+Brand Health Tracking: OpinionHub.ng enables brands to track reputation, awareness, and loyalty over time.
+
+Advertising Effectiveness: Companies can test the effectiveness of marketing campaigns by gauging how audiences perceive ads, slogans, or product positioning.
+
+With these insights, brands don’t just react to trends—they create them, anticipate market shifts, and sustain customer loyalty.
+
+For Media Agencies
+
+Media is the heartbeat of public discourse, and agencies must constantly stay in touch with what audiences care about. OpinionHub.ng empowers media agencies with data that fuels content creation, advertising strategies, and audience engagement.
+
+Content Relevance: By analyzing trending topics and audience interests, media agencies can design content that resonates with readers, listeners, or viewers.
+
+Audience Segmentation: Surveys allow agencies to identify different audience demographics and tailor communication accordingly.
+
+Campaign Measurement: OpinionHub.ng provides the tools to test how well media campaigns perform and how they influence public opinion.
+
+Story Validation: Before running with a headline or investigative piece, media organizations can use polling to confirm if the issue resonates with their audience.
+
+In an era of fast-moving information, reliable audience insights give media houses a competitive edge in shaping narratives and maintaining trust.
+
+For Pollsters
+
+Pollsters live and breathe data. For them, OpinionHub.ng offers a digital hub where polling becomes faster, smarter, and more transparent.
+
+Efficient Tools: Our platform provides ready-made templates, analytics dashboards, and demographic targeting to ease the polling process.
+
+Scalability: Pollsters can conduct surveys across diverse population groups and regions in Nigeria, reaching a wider audience.
+
+Accuracy & Transparency: OpinionHub.ng leverages technology to minimize bias, track responses, and present real-time results.
+
+Collaboration Opportunities: Independent pollsters can partner with organizations, media houses, and government institutions through the platform to increase visibility.
+
+Ultimately, we give pollsters the infrastructure to deliver credible insights that influence national conversations.
+
+For Academics & Researchers
+
+Academic institutions and independent researchers often need structured data for studies on social behavior, economics, culture, and governance. OpinionHub.ng offers them a rich platform for survey design, data collection, and analysis.
+
+Social Research: Academics can investigate societal issues such as youth unemployment, healthcare access, or public trust in institutions.
+
+Behavioral Studies: Surveys on consumer patterns, cultural attitudes, and technology adoption provide valuable academic insights.
+
+Data for Publications: Reliable datasets can enrich journal articles, dissertations, and policy papers.
+
+Educational Use: OpinionHub.ng serves as a live teaching tool for students in fields like political science, sociology, marketing, and public administration.
+
+For the academic community, our platform opens up affordable, accessible, and reliable avenues for evidence-based research.
+
+For Consultancies
+
+Consultancies thrive on data-driven recommendations. Whether advising governments, NGOs, or corporations, consultants need accurate information to validate strategies. OpinionHub.ng becomes their research partner, providing critical insights to back up advisory work.
+
+Market Entry Studies: Consultants can help businesses expand by running opinion surveys on consumer readiness and competitive landscapes.
+
+Policy Advisory: Development and strategy consultants can assess the impact of interventions by gathering public feedback before and after project execution.
+
+Reputation Audits: By leveraging polls, consultants can measure brand or political reputation and suggest improvement strategies.
+
+Evidence-Based Proposals: Accurate survey data strengthens proposals and pitches, giving consultants credibility and competitive advantage.
+
+With OpinionHub.ng, consultants move beyond assumptions and deliver recommendations backed by hard data.
+
+Across politics, business, media, academia, and consultancy, data is power. Decisions made without understanding public opinion often miss the mark. OpinionHub.ng fills this gap by offering a dynamic, user-friendly, and transparent polling platform for organizations across sectors.
+
+By embracing the culture of listening, measuring, and acting on insights, stakeholders can build stronger connections with their audiences and drive meaningful change. At OpinionHub.ng, our mission is simple: to make public opinion accessible, actionable, and transformative.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Blog
+
+The admin should be able to publish articles on the platform using the following details
+
+Title:
+Photos:
+Body of Article:
+
+Sector: Animals & Pets| Beauty & Well-being| Business Services| Construction & Manufacturing| Education & Training| Electronics & Technology| Events & Entertainment| Food, Beverages & Tobacco| Health & Medical| Hobbies & Crafts| Home & Garden| Home Services| Legal Services & Government| Media & Publishing| Money & Insurance| Public & Local Services| Restaurants & Bars| Shopping & Fashion| Sports| Travel & Vacation| Utilities| Vehicles & Transportation|
+
+Tags:
+
+SUBMIT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Client Portal Features
+
+   Dashboard:
+
+        Overview of ongoing and completed surveys, including key metrics and summaries.
+        Notifications for important updates, new survey launches, and upcoming deadlines.
+
+    Survey Management:
+
+        Access to create, edit, and review surveys.
+        Options to view survey progress, response rates, and preliminary results.
+
+    Reporting and Insights:
+
+        Customizable reports and visualizations of survey data.
+        Tools for analyzing trends, generating insights, and exporting data.
+
+    Data Download:
+
+        Options to download raw data, survey responses, and analysis reports in various formats (e.g., CSV, Excel, PDF).
+
+    Client Communication:
+
+        Messaging system for interacting with agents, providing feedback, and requesting support.
+        Notifications for updates and changes to survey projects.
+
+    Survey Invitations and Management:
+
+        Tools to manage and send survey invitations to respondents.
+        Features for tracking respondent status and managing follow-ups.
+
+    Project Management:
+
+        Overview of project timelines, milestones, and deliverables.
+        Task management and progress tracking.
+
+    Customization and Preferences:
+
+        Options to customize portal settings, such as notification preferences and display options.
+        Ability to set personal or organizational preferences for surveys and reports.
+
+    Security and Access Control:
+
+        Secure login and authentication mechanisms.
+        Options for managing user access levels and permissions for multiple users within the organization.
+
+
+    Account Settings: Update your personal information, change your password, and manage payment methods.
+    Support Center: Access our knowledge base, submit support tickets, and track their status.
+    Order History: Review past orders and invoices for your records.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Agent Portal Features
+
+    Dashboard:
+
+        Overview of current projects, active polls, and recent activity.
+        Key metrics such as number of surveys completed, response rates, and client satisfaction scores.
+
+    Respondent Management:
+
+        Ability to import, segment, and manage respondent lists.
+        Tools to track respondent engagement and manage incentives or rewards.
+
+    Data Collection:
+
+        Real-time monitoring of survey responses and data collection progress.
+        Tools for setting up and managing data collection methods (e.g., online, phone, in-person).
+
+    Reporting and Analytics:
+
+        Generating detailed reports and visualizations of survey results.
+        Customizable analytics tools for tracking key performance indicators and trends.
+
+    Client Communication:
+
+        Messaging system for communicating with clients, sharing updates, and managing requests.
+        Templates for common client communications and reports.
+
+    Account Settings: Update your personal information, change your password, and manage payment methods.
+    Support Center: Access our knowledge base, submit support tickets, and track their status.
+
+
+
+
+
+
+
+
+Footer Design 
+
+Company
+
+About Us
+Contact Us
+Privacy Policy
+Cookie Policy
+Terms of Use
+Disclaimer and Phishing Claims
+Frequently Asked Question (FAQ)
+Pricing & Plan
+
+Poll
+
+Agent Portal 
+Client Portal
+Client Privacy Statement
+Agent Privacy Statement
+Become An Agent 
+Databank
+
+Services
+
+Political Polling
+Business & Market Research
+Social Research
+Environment
+Economy
+Health & Wellness 
+Technology
+Travel & Leisure
+
+Who Uses OpinionHub.ng?
+
+For Politicians & Government 
+For Brands 
+For Media Agencies 
+For Pollsters 
+For Academics & Researchers 
+For Consultancies
+

@@ -1,0 +1,122 @@
+2025-11-29 22:36:30 - Callback received
+GET: Array
+(
+    [reference] => SMS_502599236
+    [type] => agent_sms_credits
+    [package_id] => 3
+    [credits] => 100
+)
+
+SESSION: Array
+(
+    [user_id] => 2
+    [user_role] => user
+    [role] => agent
+    [error_message] => Payment verification failed. Please contact support if you were charged.
+)
+
+
+2025-11-29 22:36:46 - Callback received
+GET: Array
+(
+    [reference] => SMS_95272820
+    [type] => agent_sms_credits
+    [package_id] => 1
+    [credits] => 10
+)
+
+SESSION: Array
+(
+    [user_id] => 2
+    [user_role] => user
+    [role] => agent
+    [error_message] => Payment verification failed. Please contact support if you were charged.
+)
+
+
+2025-11-29 22:50:09 - Callback received
+GET: Array
+(
+    [reference] => WHATSAPP_55369402
+    [type] => whatsapp_credits
+    [units] => 500
+)
+
+SESSION: Array
+(
+    [user_id] => 1
+    [user_role] => client
+)
+
+
+2025-11-29 23:13:14 - Callback received
+GET: Array
+(
+    [reference] => SUB_713429056
+    [type] => subscription
+    [plan_id] => 2
+    [billing_cycle] => monthly
+)
+
+SESSION: Array
+(
+    [user_id] => 1
+    [user_role] => client
+)
+
+
+2025-11-29 23:16:10 - Callback received
+GET: Array
+(
+    [reference] => SUB_713429056
+    [type] => subscription
+    [plan_id] => 2
+    [billing_cycle] => monthly
+)
+
+SESSION: Array
+(
+    [user_id] => 1
+    [user_role] => client
+)
+
+
+2025-11-29 23:17:29 - Callback received
+GET: Array
+(
+    [reference] => SUB_951393710
+    [type] => subscription
+    [plan_id] => 2
+    [billing_cycle] => monthly
+)
+
+SESSION: Array
+(
+    [user_id] => 1
+    [user_role] => client
+    [info_message] => This payment has already been processed.
+)
+
+
+2025-11-30 20:24:41 - Callback received
+GET: Array
+(
+    [reference] => EMAIL_210984647
+    [type] => email_credits
+    [units] => 500
+)
+
+SESSION: Array
+(
+    [ads_checked] => 1
+    [ad_views] => Array
+        (
+            [0] => 2
+            [1] => 1
+        )
+
+    [user_id] => 1
+    [user_role] => client
+)
+
+
