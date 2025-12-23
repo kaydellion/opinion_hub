@@ -9,23 +9,31 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-/*local Database Configuration
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'opinionhub_ng');
-*/
+// Auto-detect environment (local vs live)
+$is_local = (in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1']) || 
+             strpos($_SERVER['HTTP_HOST'] ?? '', 'localhost') !== false);
 
-
-//live config
-define('DB_HOST', 'localhost');
-define('DB_USER', 'opinionh_opinionh');
-define('DB_PASS', 'opinionh_opinionh');
-define('DB_NAME', 'opinionh_opinionhub_ng');
-
+if ($is_local) {
+    // Local Database Configuration
+    define('DB_HOST', 'localhost');
+    define('DB_USER', 'root');
+    define('DB_PASS', '');
+    define('DB_NAME', 'opinionhub_ng');
+    define('SITE_URL', 'http://localhost/opinion/');
+} else {
+    // Live Database Configuration
+    define('DB_HOST', 'localhost');
+    define('DB_USER', 'opinionh_opinionh');
+    define('DB_PASS', 'opinionh_opinionh');
+    define('DB_NAME', 'opinionh_opinionhub_ng');
+    
+    // Auto-detect live site URL
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+    $host = $_SERVER['HTTP_HOST'] ?? 'opinionhub.ng';
+    define('SITE_URL', $protocol . $host . '/');
+}
 
 // Site Configuration
-define('SITE_URL', 'http://localhost/opinion/');
 define('SITE_NAME', 'Opinion Hub NG');
 define('SITE_TAGLINE', 'What Gets Measured, Gets Done!');
 define('SITE_EMAIL', 'hello@opinionhub.ng');
