@@ -19,9 +19,9 @@ define('DB_NAME', 'opinionhub_ng');
 
 //live config
 define('DB_HOST', 'localhost');
-define('DB_USER', 'opinionh_opinion');
+define('DB_USER', 'opinionh_opinionhub_ng');
 define('DB_PASS', 'opinionh_opinion');
-define('DB_NAME', 'opinionh_opinionhub_ng');
+define('DB_NAME', 'opinionhub_ng');
 
 
 // Site Configuration
