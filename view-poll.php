@@ -51,8 +51,108 @@ if (!$result || $result->num_rows === 0) {
 $poll = $result->fetch_assoc();
 $poll_id = $poll['id']; // For questions and responses
 
+// Check follow status for button states
+$is_following_creator = false;
+$is_following_category = false;
+
+// Get creator profile information
+$creator_info = null;
+$creator_followers_count = 0;
+$creator_following_count = 0;
+$creator_polls_count = 0;
+
+if (isLoggedIn()) {
+    $current_user_id = getCurrentUser()['id'];
+
+    // Check if following creator
+    $creator_check = $conn->query("SELECT id FROM user_follows WHERE follower_id = $current_user_id AND following_id = {$poll['created_by']}");
+    $is_following_creator = $creator_check && $creator_check->num_rows > 0;
+
+    // Check if following category
+    if ($poll['category_id']) {
+        $category_check = $conn->query("SELECT id FROM user_category_follows WHERE user_id = $current_user_id AND category_id = {$poll['category_id']}");
+        $is_following_category = $category_check && $category_check->num_rows > 0;
+    }
+}
+
+// Get creator detailed information
+$creator_query = $conn->query("SELECT * FROM users WHERE id = {$poll['created_by']}");
+if ($creator_query && $creator_query->num_rows > 0) {
+    $creator_info = $creator_query->fetch_assoc();
+
+    // Get followers count (people following this creator)
+    $followers_query = $conn->query("SELECT COUNT(*) as count FROM user_follows WHERE following_id = {$poll['created_by']}");
+    $creator_followers_count = $followers_query ? $followers_query->fetch_assoc()['count'] : 0;
+
+    // Get following count (people this creator follows)
+    $following_query = $conn->query("SELECT COUNT(*) as count FROM user_follows WHERE follower_id = {$poll['created_by']}");
+    $creator_following_count = $following_query ? $following_query->fetch_assoc()['count'] : 0;
+
+    // Get polls count (polls created by this user)
+    $polls_query = $conn->query("SELECT COUNT(*) as count FROM polls WHERE created_by = {$poll['created_by']}");
+    $creator_polls_count = $polls_query ? $polls_query->fetch_assoc()['count'] : 0;
+}
+
 // Get poll questions
 $questions = $conn->query("SELECT * FROM poll_questions WHERE poll_id = $poll_id ORDER BY question_order");
+
+// Related polls now only show polls from the same category as the current poll
+
+// Build related polls query - prioritize same category, fallback to popular polls
+$where_conditions = ["p.status = 'active'", "p.id != $poll_id"];
+$order_parts = [];
+
+// Prioritize polls from the same category, but don't exclude others completely
+if ($poll['category_id']) {
+    // First try to get polls from same category
+    $same_category_query = "SELECT DISTINCT p.*, c.name as category_name, u.first_name, u.last_name
+                           FROM polls p
+                           LEFT JOIN categories c ON p.category_id = c.id
+                           JOIN users u ON p.created_by = u.id
+                           WHERE p.status = 'active' AND p.id != $poll_id AND p.category_id = {$poll['category_id']}
+                           ORDER BY p.total_responses DESC, p.created_at DESC
+                           LIMIT 5";
+
+    $same_category_result = $conn->query($same_category_query);
+
+    if ($same_category_result && $same_category_result->num_rows >= 3) {
+        // If we have at least 3 polls from same category, use them
+        $related_polls = $same_category_result;
+    } else {
+        // Otherwise, get a mix of same category + popular polls
+        $where_conditions[] = "(p.category_id = {$poll['category_id']} OR p.category_id IS NOT NULL)";
+        // Sort by category match first, then by popularity
+        $order_parts[] = "CASE WHEN p.category_id = {$poll['category_id']} THEN 0 ELSE 1 END";
+        $order_parts[] = "p.total_responses DESC";
+        $order_parts[] = "p.created_at DESC";
+
+        $related_polls_query = "SELECT DISTINCT p.*, c.name as category_name, u.first_name, u.last_name
+                               FROM polls p
+                               LEFT JOIN categories c ON p.category_id = c.id
+                               JOIN users u ON p.created_by = u.id
+                               WHERE " . implode(' AND ', array_unique($where_conditions)) . "
+                               ORDER BY " . implode(', ', $order_parts) . "
+                               LIMIT 5";
+
+        $related_polls = $conn->query($related_polls_query);
+    }
+} else {
+    // If current poll has no category, show popular polls from any category
+    $order_parts[] = "p.total_responses DESC";
+    $order_parts[] = "p.created_at DESC";
+
+    $related_polls_query = "SELECT DISTINCT p.*, c.name as category_name, u.first_name, u.last_name
+                           FROM polls p
+                           LEFT JOIN categories c ON p.category_id = c.id
+                           JOIN users u ON p.created_by = u.id
+                           WHERE " . implode(' AND ', array_unique($where_conditions)) . "
+                           ORDER BY " . implode(', ', $order_parts) . "
+                           LIMIT 5";
+
+    $related_polls = $conn->query($related_polls_query);
+}
+
+$related_polls = $conn->query($related_polls_query);
 
 // Check if user already voted
 $already_voted = false;
@@ -60,11 +160,13 @@ if (isLoggedIn()) {
     $user_id = getCurrentUser()['id'];
     $check = $conn->query("SELECT id FROM poll_responses WHERE poll_id = $poll_id AND respondent_id = $user_id");
     $already_voted = $check && $check->num_rows > 0;
-} else {
+} elseif ($poll['one_vote_per_ip']) {
+    // Only restrict non-logged-in users if poll has IP restriction enabled
     $ip = $_SERVER['REMOTE_ADDR'];
     $check = $conn->query("SELECT id FROM poll_responses WHERE poll_id = $poll_id AND respondent_ip = '$ip'");
     $already_voted = $check && $check->num_rows > 0;
 }
+// Non-logged-in users can participate freely unless poll has IP restriction
 
 $success = isset($_GET['success']) ? true : false;
 $errors = $_SESSION['errors'] ?? [];
@@ -97,9 +199,22 @@ unset($_SESSION['errors']);
             <div class="card border-0 shadow-lg">
                 <!-- Poll Header -->
                 <div class="card-header bg-primary text-white p-4">
-                    <div class="mb-2">
-                        <span class="badge bg-light text-dark"><?php echo htmlspecialchars($poll['category_name'] ?? 'General'); ?></span>
+                    <div class="mb-2 d-flex align-items-center gap-2">
+                        <span class="badge bg-light text-dark">
+                            <?php echo htmlspecialchars($poll['category_name'] ?? 'General'); ?>
+                        </span>
+                        
                         <span class="badge bg-light text-dark"><?php echo htmlspecialchars($poll['poll_type']); ?></span>
+
+                        <?php if (isLoggedIn() && $poll['category_id']): ?>
+                                <button type="button"
+                                        class="btn btn-sm <?php echo $is_following_category ? 'btn-outline-secondary' : 'btn-outline-primary'; ?> follow-category-btn"
+                                        data-category-id="<?php echo $poll['category_id']; ?>"
+                                        <?php echo $is_following_category ? 'disabled' : ''; ?>>
+                                    <i class="fas fa-<?php echo $is_following_category ? 'star' : 'plus'; ?> me-1"></i>
+                                    <?php echo $is_following_category ? 'Following' : 'Follow Category'; ?>
+                                </button>
+                        <?php endif; ?>
                     </div>
                     <h2 class="mb-2"><?php echo htmlspecialchars($poll['title']); ?></h2>
                     <p class="mb-0"><?php echo nl2br(htmlspecialchars($poll['description'])); ?></p>
@@ -362,6 +477,11 @@ unset($_SESSION['errors']);
                                 <a href="<?php echo SITE_URL; ?>polls.php" class="btn btn-outline-secondary btn-lg">
                                     <i class="fas fa-arrow-left"></i> Back to Polls
                                 </a>
+                                <?php if (isLoggedIn()): ?>
+                                    <button type="button" class="btn btn-outline-danger btn-lg ms-2" data-bs-toggle="modal" data-bs-target="#reportModal">
+                                        <i class="fas fa-flag"></i> Report Poll
+                                    </button>
+                                <?php endif; ?>
                             </div>
                         </form>
                     <?php endif; ?>
@@ -376,7 +496,18 @@ unset($_SESSION['errors']);
                         </div>
                         <div class="col-md-4">
                             <small class="text-muted">Created By</small>
-                            <div class="fw-bold"><?php echo htmlspecialchars($poll['first_name'] . ' ' . $poll['last_name']); ?></div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold"><?php echo htmlspecialchars($poll['first_name'] . ' ' . $poll['last_name']); ?></span>
+                                <?php if (isLoggedIn() && getCurrentUser()['id'] != $poll['created_by']): ?>
+                                    <button type="button"
+                                            class="btn btn-sm <?php echo $is_following_creator ? 'btn-outline-secondary' : 'btn-outline-primary'; ?> follow-user-btn"
+                                            data-user-id="<?php echo $poll['created_by']; ?>"
+                                            <?php echo $is_following_creator ? 'disabled' : ''; ?>>
+                                        <i class="fas fa-<?php echo $is_following_creator ? 'user-check' : 'user-plus'; ?> me-1"></i>
+                                        <?php echo $is_following_creator ? 'Following' : 'Follow Creator'; ?>
+                                    </button>
+                                <?php endif; ?>
+                            </div>
                         </div>
                         <div class="col-md-4">
                             <small class="text-muted">Ends</small>
@@ -423,7 +554,67 @@ unset($_SESSION['errors']);
                 </div>
                 <?php endif; ?>
             <?php endif; ?>
-            
+
+            <!-- Creator Profile -->
+            <?php if ($creator_info): ?>
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-user"></i> Poll Creator</h6>
+                </div>
+                <div class="card-body text-center">
+                    <!-- Creator Photo -->
+                    <div class="mb-3">
+                        <?php if (!empty($creator_info['profile_image']) && file_exists('uploads/profiles/' . $creator_info['profile_image'])): ?>
+                            <img src="<?php echo SITE_URL; ?>uploads/profiles/<?php echo $creator_info['profile_image']; ?>"
+                                 alt="Creator Photo" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+                        <?php else: ?>
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center"
+                                 style="width: 80px; height: 80px; font-size: 32px;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Creator Name -->
+                    <h6 class="mb-1"><?php echo htmlspecialchars($creator_info['first_name'] . ' ' . $creator_info['last_name']); ?></h6>
+
+                    <!-- Creator Role -->
+                    <?php if (!empty($creator_info['role'])): ?>
+                        <p class="text-muted small mb-3">
+                            <span class="badge bg-secondary"><?php echo ucfirst($creator_info['role']); ?></span>
+                        </p>
+                    <?php endif; ?>
+
+                    <!-- Creator Stats -->
+                    <div class="row text-center mb-3">
+                        <div class="col-4">
+                            <div class="fw-bold text-primary"><?php echo number_format($creator_followers_count); ?></div>
+                            <small class="text-muted">Followers</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-bold text-primary"><?php echo number_format($creator_following_count); ?></div>
+                            <small class="text-muted">Following</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-bold text-primary"><?php echo number_format($creator_polls_count); ?></div>
+                            <small class="text-muted">Polls</small>
+                        </div>
+                    </div>
+
+                    <!-- Follow Button (only if not the creator themselves) -->
+                    <?php if (isLoggedIn() && getCurrentUser()['id'] != $poll['created_by']): ?>
+                        <button type="button"
+                                class="btn btn-sm <?php echo $is_following_creator ? 'btn-outline-secondary' : 'btn-outline-primary'; ?> follow-user-btn w-100"
+                                data-user-id="<?php echo $poll['created_by']; ?>"
+                                <?php echo $is_following_creator ? 'disabled' : ''; ?>>
+                            <i class="fas fa-<?php echo $is_following_creator ? 'user-check' : 'user-plus'; ?> me-1"></i>
+                            <?php echo $is_following_creator ? 'Following' : 'Follow Creator'; ?>
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <!-- Poll Stats -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white">
@@ -465,6 +656,56 @@ unset($_SESSION['errors']);
                 <?php displayAd('poll_page_sidebar'); ?>
             </div>
 
+            <!-- Related Polls -->
+            <?php if ($related_polls && $related_polls->num_rows > 0): ?>
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-list"></i> Related Polls</h6>
+                </div>
+                <div class="card-body p-0">
+                    <?php while ($related_poll = $related_polls->fetch_assoc()): ?>
+                        <div class="border-bottom p-3">
+                            <div class="d-flex align-items-start">
+                                <?php if (!empty($related_poll['image'])): ?>
+                                    <img src="<?php echo SITE_URL . 'uploads/polls/' . $related_poll['image']; ?>"
+                                         class="rounded me-3" alt="Poll image" style="width: 60px; height: 60px; object-fit: cover;">
+                                <?php else: ?>
+                                    <div class="bg-gradient text-white rounded me-3 d-flex align-items-center justify-content-center"
+                                         style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                        <i class="fas fa-poll"></i>
+                                    </div>
+                                <?php endif; ?>
+
+                                <div class="flex-grow-1 min-w-0">
+                                    <h6 class="mb-1 text-truncate">
+                                        <a href="<?php echo SITE_URL; ?>view-poll/<?php echo $related_poll['slug']; ?>"
+                                           class="text-decoration-none text-dark">
+                                            <?php echo htmlspecialchars(substr($related_poll['title'], 0, 50)); ?>
+                                            <?php if (strlen($related_poll['title']) > 50): ?>...<?php endif; ?>
+                                        </a>
+                                    </h6>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-primary badge-sm me-1"><?php echo htmlspecialchars($related_poll['category_name'] ?? 'General'); ?></span>
+                                        <small class="text-muted">
+                                            <i class="fas fa-users"></i> <?php echo $related_poll['total_responses']; ?>
+                                        </small>
+                                    </div>
+                                    <p class="mb-2 small text-muted">
+                                        <?php echo htmlspecialchars(substr($related_poll['description'], 0, 80)); ?>
+                                        <?php if (strlen($related_poll['description']) > 80): ?>...<?php endif; ?>
+                                    </p>
+                                    <a href="<?php echo SITE_URL; ?>view-poll/<?php echo $related_poll['slug']; ?>"
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-vote-yea"></i> Participate
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endwhile; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <!-- Share Poll -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white">
@@ -472,15 +713,15 @@ unset($_SESSION['errors']);
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode(SITE_URL . 'view-poll/' . $poll['slug']); ?>" 
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode(SITE_URL . 'view-poll/' . $poll['slug']); ?>"
                            target="_blank" class="btn btn-primary btn-sm">
                             <i class="fab fa-facebook"></i> Share on Facebook
                         </a>
-                        <a href="https://twitter.com/intent/tweet?url=<?php echo urlencode(SITE_URL . 'view-poll/' . $poll['slug']); ?>&text=<?php echo urlencode($poll['title']); ?>" 
+                        <a href="https://twitter.com/intent/tweet?url=<?php echo urlencode(SITE_URL . 'view-poll/' . $poll['slug']); ?>&text=<?php echo urlencode($poll['title']); ?>"
                            target="_blank" class="btn btn-info btn-sm text-white">
                             <i class="fab fa-twitter"></i> Share on Twitter
                         </a>
-                        <a href="https://wa.me/?text=<?php echo urlencode($poll['title'] . ' ' . SITE_URL . 'view-poll/' . $poll['slug']); ?>" 
+                        <a href="https://wa.me/?text=<?php echo urlencode($poll['title'] . ' ' . SITE_URL . 'view-poll/' . $poll['slug']); ?>"
                            target="_blank" class="btn btn-success btn-sm">
                             <i class="fab fa-whatsapp"></i> Share on WhatsApp
                         </a>
@@ -490,6 +731,43 @@ unset($_SESSION['errors']);
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reportModalLabel">Report Poll</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="reportForm">
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="report_poll">
+                    <input type="hidden" name="poll_id" value="<?php echo $poll_id; ?>">
+                    <div class="mb-3">
+                        <label for="reportReason" class="form-label">Reason for reporting</label>
+                        <select class="form-select" id="reportReason" name="reason" required>
+                            <option value="">Select a reason...</option>
+                            <option value="spam">Spam or misleading content</option>
+                            <option value="inappropriate">Inappropriate content</option>
+                            <option value="harassment">Harassment or hate speech</option>
+                            <option value="copyright">Copyright violation</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reportDescription" class="form-label">Additional details (optional)</label>
+                        <textarea class="form-control" id="reportDescription" name="description" rows="3" placeholder="Please provide more details about why you're reporting this poll..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Submit Report</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -607,6 +885,41 @@ unset($_SESSION['errors']);
 /* Question container */
 .mb-4.pb-4.border-bottom:last-of-type {
     border-bottom: none !important;
+}
+
+/* Related polls styling */
+.badge-sm {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.hover-shadow:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Follow system styling */
+.follow-user-btn,
+.follow-category-btn {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+}
+
+.follow-user-btn:hover,
+.follow-category-btn:hover {
+    transform: translateY(-1px);
+}
+
+.follow-btn {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+}
+
+.follow-btn:hover {
+    transform: translateY(-1px);
 }
 </style>
 
@@ -748,6 +1061,192 @@ function copyPollLink() {
         prompt('Copy this link:', pollUrl);
     });
 }
+
+// Simple follow functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle user follow buttons (only if not already following)
+    document.querySelectorAll('.follow-user-btn:not([disabled])').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const userId = this.dataset.userId;
+            console.log('Follow button clicked, userId:', userId);
+
+            // Send AJAX request
+            fetch('<?php echo SITE_URL; ?>actions.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `action=follow_user&following_id=${userId}`
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.text(); // First get as text to check if it's valid JSON
+            })
+            .then(text => {
+                console.log('Raw response:', text);
+                try {
+                    const data = JSON.parse(text);
+                    console.log('Parsed data:', data);
+                    if (data.success) {
+                        // Update button appearance to show followed state
+                        btn.classList.remove('btn-outline-primary');
+                        btn.classList.add('btn-outline-secondary');
+                        btn.innerHTML = '<i class="fas fa-user-check me-1"></i>Following';
+                        btn.disabled = true; // Prevent multiple clicks
+                        alert('You have followed this creator!');
+                    } else {
+                        alert(data.message || 'Failed to follow creator');
+                    }
+                } catch (e) {
+                    console.error('JSON parse error:', e);
+                    alert('Server returned invalid response. Check console for details.');
+                }
+            })
+            .catch(error => {
+                console.error('Network error:', error);
+                alert('Network error: ' + error.message + '. Please check console for details.');
+            });
+        });
+    });
+
+    // Handle category follow buttons (only if not already following)
+    document.querySelectorAll('.follow-category-btn:not([disabled])').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const categoryId = this.dataset.categoryId;
+            console.log('Category follow button clicked, categoryId:', categoryId);
+
+            // Send AJAX request
+            fetch('<?php echo SITE_URL; ?>actions.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `action=follow_category&category_id=${categoryId}`
+            })
+            .then(response => {
+                console.log('Category response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(text => {
+                console.log('Category raw response:', text);
+                try {
+                    const data = JSON.parse(text);
+                    console.log('Category parsed data:', data);
+                    if (data.success) {
+                        // Update button appearance to show followed state
+                        btn.classList.remove('btn-outline-primary');
+                        btn.classList.add('btn-outline-secondary');
+                        btn.innerHTML = '<i class="fas fa-star me-1"></i>Following';
+                        btn.disabled = true; // Prevent multiple clicks
+                        alert('You have followed this category!');
+                    } else {
+                        alert(data.message || 'Failed to follow category');
+                    }
+                } catch (e) {
+                    console.error('Category JSON parse error:', e);
+                    alert('Server returned invalid response. Check console for details.');
+                }
+            })
+            .catch(error => {
+                console.error('Category network error:', error);
+                alert('Network error: ' + error.message + '. Please check console for details.');
+            });
+        });
+    });
+});
+
+// Report functionality
+document.getElementById('reportForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const form = this;
+    const reasonSelect = form.querySelector('#reportReason');
+
+    // Check if form is valid
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    // Check if reason is selected
+    if (!reasonSelect.value) {
+        alert('Please select a reason for reporting.');
+        reasonSelect.focus();
+        return;
+    }
+
+    const formData = new FormData(this);
+    console.log('Report form data:');
+    for (let [key, value] of formData.entries()) {
+        console.log(key + ': ' + value);
+    }
+
+    fetch('<?php echo SITE_URL; ?>actions.php', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(response => {
+        console.log('Report response status:', response.status);
+        console.log('Report response headers:', response.headers);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.text();
+    })
+    .then(text => {
+        console.log('Report raw response:', text);
+        try {
+            const data = JSON.parse(text);
+            console.log('Report parsed data:', data);
+                if (data.success) {
+                    alert('Report submitted successfully. Thank you for helping keep our community safe!');
+                    // Close modal safely
+                    try {
+                        const modalElement = document.getElementById('reportModal');
+                        const modal = bootstrap.Modal.getInstance(modalElement);
+                        if (modal) {
+                            modal.hide();
+                        } else {
+                            // Fallback: hide using jQuery or direct method
+                            modalElement.style.display = 'none';
+                            document.body.classList.remove('modal-open');
+                            const backdrop = document.querySelector('.modal-backdrop');
+                            if (backdrop) backdrop.remove();
+                        }
+                        // Reset form
+                        document.getElementById('reportForm').reset();
+                    } catch (e) {
+                        console.error('Modal close error:', e);
+                        // Still reset form even if modal close fails
+                        document.getElementById('reportForm').reset();
+                    }
+            } else {
+                alert(data.message || 'Failed to submit report');
+            }
+        } catch (e) {
+            console.error('Report JSON parse error:', e);
+            alert('Server returned invalid response. Check console for details.');
+        }
+    })
+    .catch(error => {
+        console.error('Report network error:', error);
+        alert('Network error: ' + error.message + '. Please check console for details.');
+    });
+});
+
+// Simple follow functions - no complex state management needed
 </script>
 
 <?php include_once 'footer.php'; ?>
