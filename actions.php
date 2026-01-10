@@ -5,6 +5,11 @@
 
 include_once 'connect.php';
 
+// Ensure session is started for AJAX requests
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 $action = $_REQUEST['action'] ?? '';
 
 switch ($action) {
@@ -65,6 +70,51 @@ switch ($action) {
     case 'addBulkCredits':
         handleAddBulkCredits();
         break;
+    case 'follow_user':
+        handleFollowUser();
+        break;
+    case 'unfollow_user':
+        handleUnfollowUser();
+        break;
+    case 'follow_category':
+        handleFollowCategory();
+        break;
+    case 'unfollow_category':
+        handleUnfollowCategory();
+        break;
+    case 'report_poll':
+        handleReportPoll();
+        break;
+    case 'suspend_poll':
+        handleSuspendPoll();
+        break;
+    case 'unsuspend_poll':
+        handleUnsuspendPoll();
+        break;
+    case 'check_suspended_polls':
+        handleCheckSuspendedPolls();
+        break;
+    case 'get_poll_status':
+        handleGetPollStatus();
+        break;
+    case 'manual_suspend':
+        handleManualSuspend();
+        break;
+    case 'manual_unsuspend':
+        handleManualUnsuspend();
+        break;
+    case 'admin_delete_poll':
+        handleAdminDeletePoll();
+        break;
+    case 'test':
+        echo json_encode([
+            'success' => true,
+            'message' => 'Test successful',
+            'timestamp' => time(),
+            'user_logged_in' => isLoggedIn() ? 'yes' : 'no',
+            'user_id' => isLoggedIn() ? getCurrentUser()['id'] : null
+        ]);
+        exit;
     default:
         header("Location: " . SITE_URL);
 }
@@ -1179,6 +1229,597 @@ function handleAddBulkCredits() {
     } else {
         echo json_encode(['success' => false, 'message' => 'Failed to add credits']);
     }
-    
+
+    exit;
+}
+
+/**
+ * Handle Poll Report
+ */
+function handleReportPoll() {
+    global $conn;
+
+    // Debug logging
+    error_log("handleReportPoll called");
+    error_log("POST data: " . print_r($_POST, true));
+    error_log("FILES data: " . print_r($_FILES, true));
+    error_log("RAW input: " . file_get_contents('php://input'));
+
+    if (!isLoggedIn()) {
+        error_log("User not logged in");
+        echo json_encode(['success' => false, 'message' => 'Please login to report polls']);
+        exit;
+    }
+
+    $poll_id = (int)($_POST['poll_id'] ?? 0);
+    $reason = sanitize($_POST['reason'] ?? '');
+    $description = sanitize($_POST['description'] ?? '');
+    $user_id = getCurrentUser()['id'];
+
+    error_log("Parsed data - poll_id: $poll_id, reason: $reason, user_id: $user_id");
+
+    if (!$poll_id || empty($reason)) {
+        echo json_encode(['success' => false, 'message' => 'Poll ID and reason are required']);
+        exit;
+    }
+
+    // Check if poll exists
+    $poll_check = $conn->query("SELECT id FROM polls WHERE id = $poll_id");
+    if (!$poll_check || $poll_check->num_rows === 0) {
+        echo json_encode(['success' => false, 'message' => 'Poll not found']);
+        exit;
+    }
+
+    // Check if user already reported this poll
+    $existing_report = $conn->query("SELECT id FROM poll_reports WHERE poll_id = $poll_id AND reported_by = $user_id");
+    if ($existing_report && $existing_report->num_rows > 0) {
+        echo json_encode(['success' => false, 'message' => 'You have already reported this poll']);
+        exit;
+    }
+
+    // Check if table exists first - if not, try to create it
+    $table_check = $conn->query("SHOW TABLES LIKE 'poll_reports'");
+    if (!$table_check || $table_check->num_rows === 0) {
+        // Try to create the table automatically
+        $create_sql = "CREATE TABLE poll_reports (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            poll_id INT NOT NULL,
+            reported_by INT NOT NULL,
+            reason VARCHAR(255) NOT NULL,
+            description TEXT,
+            status ENUM('pending', 'reviewed', 'resolved') DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            reviewed_at TIMESTAMP NULL,
+            reviewed_by INT NULL,
+            FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE,
+            FOREIGN KEY (reported_by) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE SET NULL,
+            INDEX(poll_id),
+            INDEX(reported_by),
+            INDEX(status),
+            INDEX(created_at)
+        )";
+
+        if (!$conn->query($create_sql)) {
+            echo json_encode(['success' => false, 'message' => 'Reporting system not configured']);
+            exit;
+        }
+    }
+
+    // Insert report
+    $stmt = $conn->prepare("INSERT INTO poll_reports (poll_id, reported_by, reason, description) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("iiss", $poll_id, $user_id, $reason, $description);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Report submitted successfully']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to submit report']);
+    }
+
+    exit;
+}
+
+/**
+ * Handle Poll Suspension
+ */
+function handleSuspendPoll() {
+    global $conn;
+
+    // Debug logging
+    error_log("handleSuspendPoll called");
+    error_log("POST data: " . print_r($_POST, true));
+    error_log("User: " . (isLoggedIn() ? getCurrentUser()['id'] : 'not logged in'));
+
+    if (!isLoggedIn() || getCurrentUser()['role'] !== 'admin') {
+        error_log("Access denied - not admin or not logged in");
+        echo json_encode(['success' => false, 'message' => 'Admin access required']);
+        exit;
+    }
+
+    $poll_id = (int)($_POST['poll_id'] ?? 0);
+    $admin_id = getCurrentUser()['id'];
+
+    error_log("Poll ID: $poll_id, Admin ID: $admin_id");
+
+    if (!$poll_id) {
+        error_log("No poll ID provided");
+        echo json_encode(['success' => false, 'message' => 'Poll ID required']);
+        exit;
+    }
+
+    // Check if poll exists
+    $poll_check = $conn->query("SELECT id, status FROM polls WHERE id = $poll_id");
+    if (!$poll_check || $poll_check->num_rows === 0) {
+        error_log("Poll not found: $poll_id");
+        echo json_encode(['success' => false, 'message' => 'Poll not found']);
+        exit;
+    }
+
+    $current_status = $poll_check->fetch_assoc()['status'];
+    error_log("Current poll status: $current_status");
+
+    // Update poll status to paused (used for suspension)
+    $stmt = $conn->prepare("UPDATE polls SET status = 'paused', updated_at = NOW() WHERE id = ?");
+    $stmt->bind_param("i", $poll_id);
+
+    if ($stmt->execute()) {
+        error_log("Poll suspended successfully (status: paused)");
+        // Update report status if it exists
+        $conn->query("UPDATE poll_reports SET status = 'resolved', reviewed_by = $admin_id, reviewed_at = NOW() WHERE poll_id = $poll_id");
+        echo json_encode(['success' => true, 'message' => 'Poll suspended successfully']);
+    } else {
+        error_log("Failed to execute suspend query: " . $stmt->error);
+        echo json_encode(['success' => false, 'message' => 'Failed to suspend poll: ' . $stmt->error]);
+    }
+
+    exit;
+}
+
+/**
+ * Handle Poll Unsuspension
+ */
+function handleUnsuspendPoll() {
+    global $conn;
+
+    // Debug logging
+    error_log("handleUnsuspendPoll called");
+    error_log("POST data: " . print_r($_POST, true));
+
+    if (!isLoggedIn() || getCurrentUser()['role'] !== 'admin') {
+        error_log("Access denied - not admin or not logged in");
+        echo json_encode(['success' => false, 'message' => 'Admin access required']);
+        exit;
+    }
+
+    $poll_id = (int)($_POST['poll_id'] ?? 0);
+
+    error_log("Poll ID: $poll_id");
+
+    if (!$poll_id) {
+        error_log("No poll ID provided");
+        echo json_encode(['success' => false, 'message' => 'Poll ID required']);
+        exit;
+    }
+
+    // Update poll status to active (from paused/suspended)
+    $stmt = $conn->prepare("UPDATE polls SET status = 'active', updated_at = NOW() WHERE id = ?");
+    $stmt->bind_param("i", $poll_id);
+
+    if ($stmt->execute()) {
+        error_log("Poll unsuspended successfully (status: active)");
+        echo json_encode(['success' => true, 'message' => 'Poll unsuspended successfully']);
+    } else {
+        error_log("Failed to execute unsuspend query: " . $stmt->error);
+        echo json_encode(['success' => false, 'message' => 'Failed to unsuspend poll: ' . $stmt->error]);
+    }
+
+    exit;
+}
+
+/**
+ * Handle Admin Poll Deletion
+ */
+function handleAdminDeletePoll() {
+    global $conn;
+
+    if (!isLoggedIn() || getCurrentUser()['role'] !== 'admin') {
+        echo json_encode(['success' => false, 'message' => 'Admin access required']);
+        exit;
+    }
+
+    $poll_id = (int)($_POST['poll_id'] ?? 0);
+    $admin_id = getCurrentUser()['id'];
+
+    if (!$poll_id) {
+        echo json_encode(['success' => false, 'message' => 'Poll ID required']);
+        exit;
+    }
+
+    // Update poll status to deleted (soft delete)
+    $stmt = $conn->prepare("UPDATE polls SET status = 'deleted' WHERE id = ?");
+    $stmt->bind_param("i", $poll_id);
+
+    if ($stmt->execute()) {
+        // Update report status if it exists
+        $conn->query("UPDATE poll_reports SET status = 'resolved', reviewed_by = $admin_id, reviewed_at = NOW() WHERE poll_id = $poll_id");
+        echo json_encode(['success' => true, 'message' => 'Poll deleted successfully']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to delete poll']);
+    }
+
+    exit;
+}
+
+function handleCheckSuspendedPolls() {
+    global $conn;
+
+    if (!isLoggedIn() || getCurrentUser()['role'] !== 'admin') {
+        echo json_encode(['success' => false, 'message' => 'Admin access required']);
+        exit;
+    }
+
+    $query = "SELECT p.id, p.title, p.status, p.created_at, p.updated_at,
+                     CONCAT(u.first_name, ' ', u.last_name) as creator_name,
+                     COUNT(pr.id) as report_count
+              FROM polls p
+              LEFT JOIN users u ON p.created_by = u.id
+              LEFT JOIN poll_reports pr ON p.id = pr.poll_id AND pr.status IN ('pending', 'reviewed')
+              WHERE p.status = 'paused'
+              GROUP BY p.id
+              ORDER BY p.updated_at DESC";
+
+    $result = $conn->query($query);
+
+    if ($result) {
+        $suspended_polls = [];
+        while ($poll = $result->fetch_assoc()) {
+            $suspended_polls[] = $poll;
+        }
+
+        echo json_encode([
+            'success' => true,
+            'data' => $suspended_polls,
+            'count' => count($suspended_polls)
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Failed to fetch suspended polls: ' . $conn->error
+        ]);
+    }
+
+    exit;
+}
+
+function handleGetPollStatus() {
+    global $conn;
+
+    if (!isLoggedIn() || getCurrentUser()['role'] !== 'admin') {
+        echo json_encode(['success' => false, 'message' => 'Admin access required']);
+        exit;
+    }
+
+    $poll_id = (int)($_POST['poll_id'] ?? 0);
+
+    if (!$poll_id) {
+        echo json_encode(['success' => false, 'message' => 'Poll ID required']);
+        exit;
+    }
+
+    $query = "SELECT p.id, p.title, p.status, p.created_at, p.updated_at,
+                     CONCAT(u.first_name, ' ', u.last_name) as creator_name
+              FROM polls p
+              LEFT JOIN users u ON p.created_by = u.id
+              WHERE p.id = ?";
+
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $poll_id);
+
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $poll = $result->fetch_assoc();
+            echo json_encode(['success' => true, 'data' => $poll]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Poll not found']);
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to fetch poll status: ' . $conn->error]);
+    }
+
+    exit;
+}
+
+function handleManualSuspend() {
+    global $conn;
+
+    if (!isLoggedIn() || getCurrentUser()['role'] !== 'admin') {
+        echo json_encode(['success' => false, 'message' => 'Admin access required']);
+        exit;
+    }
+
+    $poll_id = (int)($_POST['poll_id'] ?? 0);
+    $admin_id = getCurrentUser()['id'];
+
+    if (!$poll_id) {
+        echo json_encode(['success' => false, 'message' => 'Poll ID required']);
+        exit;
+    }
+
+    // Update poll status to paused
+    $stmt = $conn->prepare("UPDATE polls SET status = 'paused', updated_at = NOW() WHERE id = ?");
+    $stmt->bind_param("i", $poll_id);
+
+    if ($stmt->execute()) {
+        // Update report status if it exists
+        $conn->query("UPDATE poll_reports SET status = 'resolved', reviewed_by = $admin_id, reviewed_at = NOW() WHERE poll_id = $poll_id AND status = 'pending'");
+        echo json_encode(['success' => true, 'message' => 'Poll suspended successfully']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to suspend poll: ' . $stmt->error]);
+    }
+
+    exit;
+}
+
+function handleManualUnsuspend() {
+    global $conn;
+
+    if (!isLoggedIn() || getCurrentUser()['role'] !== 'admin') {
+        echo json_encode(['success' => false, 'message' => 'Admin access required']);
+        exit;
+    }
+
+    $poll_id = (int)($_POST['poll_id'] ?? 0);
+
+    if (!$poll_id) {
+        echo json_encode(['success' => false, 'message' => 'Poll ID required']);
+        exit;
+    }
+
+    // Update poll status to active
+    $stmt = $conn->prepare("UPDATE polls SET status = 'active', updated_at = NOW() WHERE id = ?");
+    $stmt->bind_param("i", $poll_id);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Poll unsuspended successfully']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to unsuspend poll: ' . $stmt->error]);
+    }
+
+    exit;
+}
+
+/**
+ * Handle User Follow
+ */
+function handleFollowUser() {
+    global $conn;
+
+    // Debug logging
+    error_log("handleFollowUser called");
+    error_log("POST data: " . print_r($_POST, true));
+    error_log("Session data: " . print_r($_SESSION, true));
+
+    if (!isLoggedIn()) {
+        error_log("User not logged in");
+        echo json_encode(['success' => false, 'message' => 'Please login to follow users']);
+        exit;
+    }
+
+    $user_id = getCurrentUser()['id'];
+    $following_id = (int)($_POST['following_id'] ?? 0);
+
+    if ($user_id == $following_id) {
+        echo json_encode(['success' => false, 'message' => 'You cannot follow yourself']);
+        exit;
+    }
+
+    // Check if table exists first - if not, try to create it
+    $table_check = $conn->query("SHOW TABLES LIKE 'user_follows'");
+    if (!$table_check || $table_check->num_rows === 0) {
+        // Try to create the table automatically
+        $create_sql = "CREATE TABLE user_follows (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            follower_id INT NOT NULL,
+            following_id INT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (following_id) REFERENCES users(id) ON DELETE CASCADE,
+            UNIQUE KEY unique_follow (follower_id, following_id),
+            INDEX(follower_id),
+            INDEX(following_id),
+            INDEX(created_at)
+        )";
+
+        if (!$conn->query($create_sql)) {
+            echo json_encode(['success' => false, 'message' => 'Following system not configured. Table creation failed.']);
+            exit;
+        }
+    }
+
+    // Check if already following
+    $check = $conn->query("SELECT id FROM user_follows WHERE follower_id = $user_id AND following_id = $following_id");
+    if ($check && $check->num_rows > 0) {
+        echo json_encode(['success' => false, 'message' => 'Already following this user']);
+        exit;
+    }
+
+    // Add follow relationship
+    $stmt = $conn->prepare("INSERT INTO user_follows (follower_id, following_id) VALUES (?, ?)");
+    if (!$stmt) {
+        echo json_encode(['success' => false, 'message' => 'Prepare failed: ' . $conn->error]);
+        exit;
+    }
+
+    $stmt->bind_param("ii", $user_id, $following_id);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Successfully followed user', 'action' => 'followed']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to follow user: ' . $stmt->error]);
+    }
+
+    exit;
+}
+
+/**
+ * Handle User Unfollow
+ */
+function handleUnfollowUser() {
+    global $conn;
+
+    if (!isLoggedIn()) {
+        echo json_encode(['success' => false, 'message' => 'Please login to unfollow users']);
+        exit;
+    }
+
+    $user_id = getCurrentUser()['id'];
+    $following_id = (int)($_POST['following_id'] ?? 0);
+
+    // Check if table exists first - if not, try to create it
+    $table_check = $conn->query("SHOW TABLES LIKE 'user_follows'");
+    if (!$table_check || $table_check->num_rows === 0) {
+        // Try to create the table automatically
+        $create_sql = "CREATE TABLE user_follows (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            follower_id INT NOT NULL,
+            following_id INT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (following_id) REFERENCES users(id) ON DELETE CASCADE,
+            UNIQUE KEY unique_follow (follower_id, following_id),
+            INDEX(follower_id),
+            INDEX(following_id),
+            INDEX(created_at)
+        )";
+
+        if (!$conn->query($create_sql)) {
+            echo json_encode(['success' => false, 'message' => 'Following system not configured. Table creation failed.']);
+            exit;
+        }
+    }
+
+    // Remove follow relationship
+    $stmt = $conn->prepare("DELETE FROM user_follows WHERE follower_id = ? AND following_id = ?");
+    $stmt->bind_param("ii", $user_id, $following_id);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Successfully unfollowed user', 'action' => 'unfollowed']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to unfollow user']);
+    }
+
+    exit;
+}
+
+/**
+ * Handle Category Follow
+ */
+function handleFollowCategory() {
+    global $conn;
+
+    if (!isLoggedIn()) {
+        echo json_encode(['success' => false, 'message' => 'Please login to follow categories']);
+        exit;
+    }
+
+    $user_id = getCurrentUser()['id'];
+    $category_id = (int)($_POST['category_id'] ?? 0);
+
+    // Check if table exists first - if not, try to create it
+    $table_check = $conn->query("SHOW TABLES LIKE 'user_category_follows'");
+    if (!$table_check || $table_check->num_rows === 0) {
+        // Try to create the table automatically
+        $create_sql = "CREATE TABLE user_category_follows (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            user_id INT NOT NULL,
+            category_id INT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+            UNIQUE KEY unique_category_follow (user_id, category_id),
+            INDEX(user_id),
+            INDEX(category_id),
+            INDEX(created_at)
+        )";
+
+        if (!$conn->query($create_sql)) {
+            echo json_encode(['success' => false, 'message' => 'Following system not configured. Table creation failed.']);
+            exit;
+        }
+    }
+
+    // Check if already following
+    $check = $conn->query("SELECT id FROM user_category_follows WHERE user_id = $user_id AND category_id = $category_id");
+    if ($check && $check->num_rows > 0) {
+        echo json_encode(['success' => false, 'message' => 'Already following this category']);
+        exit;
+    }
+
+    // Add follow relationship
+    $stmt = $conn->prepare("INSERT INTO user_category_follows (user_id, category_id) VALUES (?, ?)");
+    if (!$stmt) {
+        echo json_encode(['success' => false, 'message' => 'Prepare failed: ' . $conn->error]);
+        exit;
+    }
+
+    $stmt->bind_param("ii", $user_id, $category_id);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Successfully followed category', 'action' => 'followed']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to follow category: ' . $stmt->error]);
+    }
+
+    exit;
+}
+
+/**
+ * Handle Category Unfollow
+ */
+function handleUnfollowCategory() {
+    global $conn;
+
+    if (!isLoggedIn()) {
+        echo json_encode(['success' => false, 'message' => 'Please login to unfollow categories']);
+        exit;
+    }
+
+    $user_id = getCurrentUser()['id'];
+    $category_id = (int)($_POST['category_id'] ?? 0);
+
+    // Check if table exists first - if not, try to create it
+    $table_check = $conn->query("SHOW TABLES LIKE 'user_category_follows'");
+    if (!$table_check || $table_check->num_rows === 0) {
+        // Try to create the table automatically
+        $create_sql = "CREATE TABLE user_category_follows (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            user_id INT NOT NULL,
+            category_id INT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+            UNIQUE KEY unique_category_follow (user_id, category_id),
+            INDEX(user_id),
+            INDEX(category_id),
+            INDEX(created_at)
+        )";
+
+        if (!$conn->query($create_sql)) {
+            echo json_encode(['success' => false, 'message' => 'Following system not configured. Table creation failed.']);
+            exit;
+        }
+    }
+
+    // Remove follow relationship
+    $stmt = $conn->prepare("DELETE FROM user_category_follows WHERE user_id = ? AND category_id = ?");
+    $stmt->bind_param("ii", $user_id, $category_id);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Successfully unfollowed category', 'action' => 'unfollowed']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to unfollow category']);
+    }
+
     exit;
 }

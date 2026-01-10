@@ -1,20 +1,30 @@
 <?php
-$page_title = "Browse Polls";
+// Get filters first
+$category = isset($_GET['category']) ? (int)$_GET['category'] : 0;
+$search = isset($_GET['search']) ? sanitize($_GET['search']) : '';
+$filter = isset($_GET['filter']) ? sanitize($_GET['filter']) : '';
+
+$page_title = ($filter === 'following') ? "Polls from People You Follow" : "Browse Polls";
 include_once 'header.php';
 
 global $conn;
 
-// Get filters
-$category = isset($_GET['category']) ? (int)$_GET['category'] : 0;
-$search = isset($_GET['search']) ? sanitize($_GET['search']) : '';
+// Build query - respect suspension status for non-admins
+$user_role = isLoggedIn() ? getCurrentUser()['role'] : null;
+$base_status = ($user_role === 'admin') ? "status IN ('active', 'paused')" : "status = 'active'";
+$where = [$base_status];
 
-// Build query
-$where = ["status = 'active'"];
 if ($category > 0) {
     $where[] = "category_id = $category";
 }
 if (!empty($search)) {
     $where[] = "(title LIKE '%$search%' OR description LIKE '%$search%')";
+}
+
+// Handle following filter for logged-in users
+if ($filter === 'following' && isLoggedIn()) {
+    $user_id = getCurrentUser()['id'];
+    $where[] = "EXISTS (SELECT 1 FROM user_follows uf WHERE uf.follower_id = $user_id AND uf.following_id = p.created_by)";
 }
 
 $where_clause = implode(' AND ', $where);
@@ -35,8 +45,13 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY name");
 <div class="container my-5">
     <div class="row mb-4">
         <div class="col-md-12">
-            <h1 class="mb-3"><i class="fas fa-poll-h"></i> Browse Polls & Surveys</h1>
-            <p class="text-muted">Participate in polls and share your opinion</p>
+            <h1 class="mb-3">
+                <i class="fas fa-<?php echo $filter === 'following' ? 'star' : 'poll-h'; ?>"></i>
+                <?php echo $filter === 'following' ? 'Polls from People You Follow' : 'Browse Polls & Surveys'; ?>
+            </h1>
+            <p class="text-muted">
+                <?php echo $filter === 'following' ? 'Stay updated with polls from creators you follow' : 'Participate in polls and share your opinion'; ?>
+            </p>
         </div>
     </div>
 

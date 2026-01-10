@@ -2,30 +2,32 @@
 // ============================================================
 // connect.php - Database Connection & Configuration
 // ============================================================
-error_reporting(E_ALL); ini_set('display_errors', 1); ini_set('log_errors', 1);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
 
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-/*local Database Configuration
+//local Database Configuration
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_NAME', 'opinionhub_ng');
-*/
+
 
 
 //live config
-define('DB_HOST', 'localhost');
+/* define('DB_HOST', 'localhost');
 define('DB_USER', 'opinionh_opinionh');
 define('DB_PASS', 'opinionh_opinionh');
-define('DB_NAME', 'opinionh_opinionhub_ng');
+define('DB_NAME', 'opinionh_opinionhub_ng'); */
 
 
 // Site Configuration
-define('SITE_URL', 'http://localhost/opinion/');
+define('SITE_URL', 'http://localhost/opinion_hub/');
 define('SITE_NAME', 'Opinion Hub NG');
 define('SITE_TAGLINE', 'What Gets Measured, Gets Done!');
 define('SITE_EMAIL', 'hello@opinionhub.ng');
@@ -51,13 +53,13 @@ define('ITEMS_PER_PAGE', 20);
 // Database Connection
 try {
     $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-    
+
     if ($conn->connect_error) {
         throw new Exception("Connection Failed: " . $conn->connect_error);
     }
-    
+
     $conn->set_charset("utf8mb4");
-    
+
 } catch (Exception $e) {
     // Log error (in production, log to file instead of displaying)
     error_log("Database Error: " . $e->getMessage());
