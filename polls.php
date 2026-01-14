@@ -30,13 +30,21 @@ if ($filter === 'following' && isLoggedIn()) {
 $where_clause = implode(' AND ', $where);
 
 // Get polls - make sure to select slug column
-$polls_query = "SELECT p.*, c.name as category_name, 
+$polls_query = "SELECT p.*, c.name as category_name,
                 (SELECT COUNT(*) FROM poll_responses WHERE poll_id = p.id) as total_responses
-                FROM polls p 
-                LEFT JOIN categories c ON p.category_id = c.id 
-                WHERE $where_clause 
+                FROM polls p
+                LEFT JOIN categories c ON p.category_id = c.id
+                WHERE $where_clause
                 ORDER BY p.created_at DESC";
 $polls = $conn->query($polls_query);
+
+// Add question count and progress to polls data
+$polls_data = [];
+while ($poll = $polls->fetch_assoc()) {
+    $poll['question_count'] = getPollQuestionCount($poll['id']);
+    $poll['progress_percentage'] = getPollProgressPercentage($poll);
+    $polls_data[] = $poll;
+}
 
 // Get categories for filter
 $categories = $conn->query("SELECT * FROM categories ORDER BY name");
@@ -96,14 +104,14 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY name");
         <!-- Left Column: Polls -->
         <div class="col-lg-9">
             <div class="row">
-            <?php if ($polls->num_rows === 0): ?>
+            <?php if (empty($polls_data)): ?>
                 <div class="col-md-12">
                     <div class="alert alert-info text-center">
                         <i class="fas fa-info-circle"></i> No polls found. Try adjusting your filters.
                     </div>
                 </div>
             <?php else: ?>
-                <?php while ($poll = $polls->fetch_assoc()): ?>
+                <?php foreach ($polls_data as $poll): ?>
                     <div class="col-md-6 mb-4">
                         <div class="card h-100 border-0 shadow-sm hover-shadow">
                             <?php if (!empty($poll['image'])): ?>
@@ -128,15 +136,32 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY name");
                                     <?php echo substr(htmlspecialchars($poll['description']), 0, 120); ?>...
                                 </p>
                                 
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <small class="text-muted">
-                                        <i class="fas fa-users"></i> <?php echo $poll['total_responses']; ?> responses
-                                    </small>
-                                    <?php if ($poll['end_date']): ?>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
                                         <small class="text-muted">
-                                            <i class="fas fa-clock"></i> Ends <?php echo date('M d', strtotime($poll['end_date'])); ?>
+                                            <i class="fas fa-users"></i> <?php echo $poll['total_responses']; ?> responses
                                         </small>
-                                    <?php endif; ?>
+                                        <small class="text-muted">
+                                            <i class="fas fa-question-circle"></i> <?php echo $poll['question_count']; ?> questions
+                                        </small>
+                                    </div>
+                                    <div class="progress mb-2" style="height: 6px;">
+                                        <div class="progress-bar bg-success" role="progressbar"
+                                             style="width: <?php echo $poll['progress_percentage']; ?>%"
+                                             aria-valuenow="<?php echo $poll['progress_percentage']; ?>"
+                                             aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-success fw-bold">
+                                            <?php echo $poll['progress_percentage']; ?>% complete
+                                        </small>
+                                        <?php if ($poll['end_date']): ?>
+                                            <small class="text-muted">
+                                                <i class="fas fa-clock"></i> Ends <?php echo date('M d', strtotime($poll['end_date'])); ?>
+                                            </small>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                                 
                                 <a href="<?php echo SITE_URL; ?>view-poll/<?php echo $poll['slug']; ?>"
@@ -146,7 +171,7 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY name");
                             </div>
                         </div>
                     </div>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
             <?php endif; ?>
             </div>
         </div>

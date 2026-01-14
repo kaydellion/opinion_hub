@@ -91,3 +91,5 @@ echo "<p>Users can now follow poll creators and categories.</p>";
 echo "<a href='polls.php'>Go to Polls</a> | <a href='index.php'>Go Home</a>";
 ?>
 
+
+

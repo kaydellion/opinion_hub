@@ -54,6 +54,7 @@ $poll_id = $poll['id']; // For questions and responses
 // Check follow status for button states
 $is_following_creator = false;
 $is_following_category = false;
+$is_bookmarked = false;
 
 // Get creator profile information
 $creator_info = null;
@@ -73,6 +74,10 @@ if (isLoggedIn()) {
         $category_check = $conn->query("SELECT id FROM user_category_follows WHERE user_id = $current_user_id AND category_id = {$poll['category_id']}");
         $is_following_category = $category_check && $category_check->num_rows > 0;
     }
+
+    // Check if poll is bookmarked
+    $bookmark_check = $conn->query("SELECT id FROM user_bookmarks WHERE user_id = $current_user_id AND poll_id = {$poll['id']}");
+    $is_bookmarked = $bookmark_check && $bookmark_check->num_rows > 0;
 }
 
 // Get creator detailed information
@@ -154,6 +159,13 @@ if ($poll['category_id']) {
 
 $related_polls = $conn->query($related_polls_query);
 
+// Get comments count for this poll
+$comments_count = 0;
+if ($poll['allow_comments']) {
+    $comments_result = $conn->query("SELECT COUNT(*) as count FROM poll_comments WHERE poll_id = $poll_id");
+    $comments_count = $comments_result ? $comments_result->fetch_assoc()['count'] : 0;
+}
+
 // Check if user already voted
 $already_voted = false;
 if (isLoggedIn()) {
@@ -215,9 +227,26 @@ unset($_SESSION['errors']);
                                     <?php echo $is_following_category ? 'Following' : 'Follow Category'; ?>
                                 </button>
                         <?php endif; ?>
+
+                        <?php if (isLoggedIn()): ?>
+                                <button type="button"
+                                        class="btn btn-sm <?php echo $is_bookmarked ? 'btn-warning' : 'btn-outline-warning'; ?> bookmark-poll-btn ms-2"
+                                        data-poll-id="<?php echo $poll['id']; ?>">
+                                    <i class="fa<?php echo $is_bookmarked ? 's' : 'r'; ?> fa-bookmark me-1"></i>
+                                    <?php echo $is_bookmarked ? 'Bookmarked' : 'Bookmark'; ?>
+                                </button>
+                        <?php endif; ?>
                     </div>
                     <h2 class="mb-2"><?php echo htmlspecialchars($poll['title']); ?></h2>
-                    <p class="mb-0"><?php echo nl2br(htmlspecialchars($poll['description'])); ?></p>
+                    <p class="mb-3"><?php echo nl2br(htmlspecialchars($poll['description'])); ?></p>
+
+                    <!-- Poll Image -->
+                    <?php if (!empty($poll['image']) && file_exists('uploads/polls/' . $poll['image'])): ?>
+                        <div class="mb-3">
+                            <img src="<?php echo SITE_URL; ?>uploads/polls/<?php echo $poll['image']; ?>"
+                                 alt="Poll Image" class="img-fluid rounded shadow-sm" style="max-height: 400px; width: auto; display: block; margin: 0 auto;">
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <div class="card-body p-4">
@@ -490,13 +519,17 @@ unset($_SESSION['errors']);
                 <!-- Poll Info -->
                 <div class="card-footer bg-light">
                     <div class="row text-center">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <small class="text-muted">Responses</small>
                             <div class="fw-bold"><?php echo $poll['total_responses']; ?></div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <small class="text-muted">Questions</small>
+                            <div class="fw-bold"><?php echo getPollQuestionCount($poll['id']); ?></div>
+                        </div>
+                        <div class="col-md-3">
                             <small class="text-muted">Created By</small>
-                            <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex align-items-center justify-content-center gap-2">
                                 <span class="fw-bold"><?php echo htmlspecialchars($poll['first_name'] . ' ' . $poll['last_name']); ?></span>
                                 <?php if (isLoggedIn() && getCurrentUser()['id'] != $poll['created_by']): ?>
                                     <button type="button"
@@ -509,7 +542,7 @@ unset($_SESSION['errors']);
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <small class="text-muted">Ends</small>
                             <div class="fw-bold">
                                 <?php echo $poll['end_date'] ? date('M d, Y', strtotime($poll['end_date'])) : 'No end date'; ?>
@@ -655,6 +688,77 @@ unset($_SESSION['errors']);
                 <small class="text-muted d-block mb-2">Advertisement</small>
                 <?php displayAd('poll_page_sidebar'); ?>
             </div>
+
+            <!-- Comments Section -->
+            <?php if ($poll['allow_comments']): ?>
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-comments"></i> Comments (<?php echo $comments_count ?? 0; ?>)</h6>
+                </div>
+                <div class="card-body">
+                    <?php if (isLoggedIn()): ?>
+                        <!-- Add Comment Form -->
+                        <form id="commentForm" class="mb-4">
+                            <input type="hidden" name="action" value="add_comment">
+                            <input type="hidden" name="poll_id" value="<?php echo $poll_id; ?>">
+                            <div class="mb-3">
+                                <label for="comment_text" class="form-label">Share your thoughts</label>
+                                <textarea class="form-control" id="comment_text" name="comment_text" rows="3" placeholder="Write a comment..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-paper-plane"></i> Post Comment
+                            </button>
+                        </form>
+                    <?php else: ?>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> <a href="<?php echo SITE_URL; ?>login.php">Login</a> to leave a comment.
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Comments List -->
+                    <div id="comments-list">
+                        <?php
+                        $comments_query = $conn->query("SELECT c.*, u.first_name, u.last_name, u.profile_image
+                                                       FROM poll_comments c
+                                                       JOIN users u ON c.user_id = u.id
+                                                       WHERE c.poll_id = $poll_id
+                                                       ORDER BY c.created_at DESC");
+                        if ($comments_query && $comments_query->num_rows > 0):
+                            while ($comment = $comments_query->fetch_assoc()):
+                        ?>
+                            <div class="comment-item border-bottom pb-3 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <img src="<?php echo $comment['profile_image'] ? SITE_URL . 'uploads/profiles/' . $comment['profile_image'] : SITE_URL . 'assets/images/default-avatar.png'; ?>"
+                                         class="rounded-circle me-3" alt="Avatar" style="width: 40px; height: 40px; object-fit: cover;">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <strong><?php echo htmlspecialchars($comment['first_name'] . ' ' . $comment['last_name']); ?></strong>
+                                                <small class="text-muted ms-2"><?php echo date('M j, Y g:i A', strtotime($comment['created_at'])); ?></small>
+                                            </div>
+                                            <?php if (isLoggedIn() && getCurrentUser()['id'] == $comment['user_id']): ?>
+                                                <button class="btn btn-sm btn-outline-danger delete-comment-btn" data-comment-id="<?php echo $comment['id']; ?>">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            <?php endif; ?>
+                                        </div>
+                                        <p class="mb-0 mt-2"><?php echo nl2br(htmlspecialchars($comment['comment_text'])); ?></p>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php
+                            endwhile;
+                        else:
+                        ?>
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-comments fa-2x mb-2"></i>
+                                <p>No comments yet. Be the first to share your thoughts!</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <!-- Related Polls -->
             <?php if ($related_polls && $related_polls->num_rows > 0): ?>
@@ -1162,6 +1266,65 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+
+    // Handle bookmark poll buttons
+    document.querySelectorAll('.bookmark-poll-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const pollId = this.dataset.pollId;
+            const isCurrentlyBookmarked = this.classList.contains('btn-warning');
+            const action = isCurrentlyBookmarked ? 'unbookmark_poll' : 'bookmark_poll';
+
+            console.log('Bookmark button clicked, pollId:', pollId, 'action:', action);
+
+            // Send AJAX request
+            fetch('<?php echo SITE_URL; ?>actions.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `action=${action}&poll_id=${pollId}`
+            })
+            .then(response => {
+                console.log('Bookmark response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(text => {
+                console.log('Bookmark raw response:', text);
+                try {
+                    const data = JSON.parse(text);
+                    console.log('Bookmark parsed data:', data);
+                    if (data.success) {
+                        // Update button appearance
+                        if (data.action === 'bookmarked') {
+                            // Now bookmarked
+                            btn.classList.remove('btn-outline-warning');
+                            btn.classList.add('btn-warning');
+                            btn.innerHTML = '<i class="fas fa-bookmark me-1"></i>Bookmarked';
+                        } else if (data.action === 'unbookmarked') {
+                            // Now unbookmarked
+                            btn.classList.remove('btn-warning');
+                            btn.classList.add('btn-outline-warning');
+                            btn.innerHTML = '<i class="far fa-bookmark me-1"></i>Bookmark';
+                        }
+                        alert(data.message);
+                    } else {
+                        alert(data.message || 'Failed to update bookmark');
+                    }
+                } catch (e) {
+                    console.error('Bookmark JSON parse error:', e);
+                    alert('Server returned invalid response. Check console for details.');
+                }
+            })
+            .catch(error => {
+                console.error('Bookmark network error:', error);
+                alert('Network error: ' + error.message + '. Please check console for details.');
+            });
+        });
+    });
 });
 
 // Report functionality
@@ -1244,6 +1407,77 @@ document.getElementById('reportForm').addEventListener('submit', function(e) {
         console.error('Report network error:', error);
         alert('Network error: ' + error.message + '. Please check console for details.');
     });
+});
+
+// Comment form handling
+document.getElementById('commentForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+
+    fetch('<?php echo SITE_URL; ?>actions.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload the page to show the new comment
+            location.reload();
+        } else {
+            alert(data.message || 'Failed to add comment');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    })
+    .catch(error => {
+        console.error('Comment error:', error);
+        alert('Network error. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+});
+
+// Delete comment handling
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('delete-comment-btn') || e.target.closest('.delete-comment-btn')) {
+        const btn = e.target.classList.contains('delete-comment-btn') ? e.target : e.target.closest('.delete-comment-btn');
+        const commentId = btn.getAttribute('data-comment-id');
+
+        if (confirm('Are you sure you want to delete this comment?')) {
+            const formData = new FormData();
+            formData.append('action', 'delete_comment');
+            formData.append('comment_id', commentId);
+
+            fetch('<?php echo SITE_URL; ?>actions.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove the comment from the DOM
+                    btn.closest('.comment-item').remove();
+                    // Update comment count if it exists
+                    const commentCountEl = document.querySelector('h6 i.fa-comments').parentElement;
+                    if (commentCountEl) {
+                        const currentCount = parseInt(commentCountEl.textContent.match(/\d+/)[0]);
+                        commentCountEl.innerHTML = `<i class="fas fa-comments"></i> Comments (${currentCount - 1})`;
+                    }
+                } else {
+                    alert(data.message || 'Failed to delete comment');
+                }
+            })
+            .catch(error => {
+                console.error('Delete comment error:', error);
+                alert('Network error. Please try again.');
+            });
+        }
+    }
 });
 
 // Simple follow functions - no complex state management needed

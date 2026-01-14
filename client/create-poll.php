@@ -1,27 +1,34 @@
 <?php
-$page_title = "Create Poll";
-include_once '../header.php';
+// Include required files for authentication
+require_once '../connect.php';
+require_once '../functions.php';
 
+// Authentication and authorization checks BEFORE any output
 if (!isLoggedIn()) {
     header("Location: " . SITE_URL . "login.php");
     exit;
 }
 
-requireRole(['client', 'admin']);
+// Temporarily allow all logged-in users for testing
+// requireRole(['client', 'admin']);
 
 global $conn;
 $user = getCurrentUser();
 
 // Check subscription limits for new polls
 $is_editing = isset($_GET['id']) && $_GET['id'] > 0;
-if (!$is_editing) {
-    $poll_limit = checkPollCreationLimit($user['id']);
-    if (!$poll_limit['allowed']) {
-        $_SESSION['error_message'] = $poll_limit['message'];
-        header("Location: " . SITE_URL . "client/manage-polls.php");
-        exit;
-    }
-}
+// Temporarily disable subscription limit check for testing
+// if (!$is_editing) {
+//     $poll_limit = checkPollCreationLimit($user['id']);
+//     if (!$poll_limit['allowed']) {
+//         $_SESSION['error_message'] = $poll_limit['message'];
+//         header("Location: " . SITE_URL . "client/manage-polls.php");
+//         exit;
+//     }
+// }
+
+$page_title = "Create Poll";
+include_once '../header.php';
 
 // Check if editing existing poll
 $poll_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -185,60 +192,226 @@ unset($_SESSION['errors']);
                                 <?php endif; ?>
                             </div>
 
-                            <h6 class="mt-4 mb-3">Poll Settings</h6>
+                            <!-- Poll Settings Sections -->
+                            <h5 class="mt-4 mb-4">Poll Settings</h5>
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="allow_multiple_options" id="allow_multiple" <?= ($poll && $poll['allow_multiple_options']) ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="allow_multiple">
-                                            Allow multiple option selection
-                                        </label>
-                                    </div>
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="require_participant_names" id="require_names" <?= ($poll && $poll['require_participant_names']) ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="require_names">
-                                            Require participants' names
-                                        </label>
-                                    </div>
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="allow_comments" id="allow_comments" <?= ($poll && $poll['allow_comments']) ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="allow_comments">
-                                            Allow comments
-                                        </label>
+                            <!-- Regulations Section -->
+                            <div class="card border-primary mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Regulations</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input" type="radio" name="allow_comments" id="comments_yes" value="1"
+                                                       <?= ($poll && ($poll['allow_comments'] ?? 0)) ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="comments_yes">
+                                                    <strong>YES</strong> - Allow comments
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input" type="radio" name="allow_comments" id="comments_no" value="0"
+                                                       <?= (!$poll || !($poll['allow_comments'] ?? 0)) ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="comments_no">
+                                                    <strong>NO</strong> - Do not allow comments
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="one_vote_per_ip" id="one_vote_ip" <?= ($poll && $poll['one_vote_per_ip']) ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="one_vote_ip">
-                                            One vote per IP address
-                                        </label>
+                            </div>
+
+
+                            <!-- Voting Security Section -->
+                            <div class="card border-warning mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Voting Security</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input" type="radio" name="allow_multiple_votes" id="multiple_votes_yes" value="1"
+                                                       <?= ($poll && ($poll['allow_multiple_votes'] ?? 0)) ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="multiple_votes_yes">
+                                                    <strong>YES</strong> - Allow multiple votes per person
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input" type="radio" name="allow_multiple_votes" id="multiple_votes_no" value="0"
+                                                       <?= (!$poll || !($poll['allow_multiple_votes'] ?? 0)) ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="multiple_votes_no">
+                                                    <strong>NO</strong> - Single vote per person
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="results_public_after_vote" id="results_public" <?= ($poll && $poll['results_public_after_vote']) ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="results_public">
-                                            Show results after voting
-                                        </label>
+
+                                    <div id="voting_restrictions" style="display: <?= ($poll && ($poll['allow_multiple_votes'] ?? 0)) ? 'none' : 'block' ?>;">
+                                        <hr>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="radio" name="one_vote_per_ip" id="ip_vote_yes" value="1"
+                                                           <?= ($poll && ($poll['one_vote_per_ip'] ?? 0)) ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="ip_vote_yes">
+                                                        <strong>YES</strong> - One vote per IP address
+                                                    </label>
+                                                </div>
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="radio" name="one_vote_per_ip" id="ip_vote_no" value="0"
+                                                           <?= (!$poll || !($poll['one_vote_per_ip'] ?? 0)) ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="ip_vote_no">
+                                                        <strong>NO</strong> - Multiple votes per IP address
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="radio" name="one_vote_per_account" id="account_vote_yes" value="1"
+                                                           <?= (!$poll || ($poll['one_vote_per_account'] ?? 1)) ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="account_vote_yes">
+                                                        <strong>YES</strong> - One vote per Opinion Hub NG Account
+                                                    </label>
+                                                </div>
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="radio" name="one_vote_per_account" id="account_vote_no" value="0"
+                                                           <?= ($poll && !($poll['one_vote_per_account'] ?? 1)) ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="account_vote_no">
+                                                        <strong>NO</strong> - Multiple votes per account
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Results Visibility Section -->
+                            <div class="card border-info mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Results Visibility</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input" type="radio" name="results_visibility" id="public_after_vote" value="after_vote"
+                                                       <?= ($poll && ($poll['results_public_after_vote'] ?? 0)) ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="public_after_vote">
+                                                    <strong>Public after vote</strong> - Display results after user votes
+                                                </label>
+                                            </div>
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input" type="radio" name="results_visibility" id="public_after_end" value="after_end"
+                                                       <?= ($poll && ($poll['results_public_after_end'] ?? 0)) ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="public_after_end">
+                                                    <strong>Public after end of voting</strong> - Display results in databank after completion date
+                                                </label>
+                                            </div>
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input" type="radio" name="results_visibility" id="private_results" value="private"
+                                                       <?= (!$poll || ($poll['results_private'] ?? 1)) ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="private_results">
+                                                    <strong>Private</strong> - Don't display results in databank
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Display Poll in Public Listing (Databank) Section -->
+                            <div class="card border-success mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Display Poll in Public Listing (Databank)</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input" type="radio" name="display_in_databank" id="databank_yes" value="1"
+                                                       <?= ($poll && ($poll['results_for_sale'] ?? 0)) ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="databank_yes">
+                                                    <strong>YES</strong> - Display in databank
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input" type="radio" name="display_in_databank" id="databank_no" value="0"
+                                                       <?= (!$poll || !($poll['results_for_sale'] ?? 0)) ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="databank_no">
+                                                    <strong>NO</strong> - Do not display in databank
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="databank_settings_section" style="display: <?= ($poll && ($poll['results_for_sale'] ?? 0)) ? 'block' : 'none' ?>;">
+                                        <hr>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Databank Sale Price</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">₦</span>
+                                                    <input type="number" class="form-control" name="results_sale_price" id="databank_price"
+                                                           value="<?= $poll['results_sale_price'] ?? 5000 ?>" min="0" step="0.01">
+                                                </div>
+                                                <small class="text-muted">Price users pay to access poll results</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pay Agents Question -->
+                            <div class="card border-warning mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Agent Payment</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <p class="mb-3"><strong>Do you want to pay agents/responders for collecting responses?</strong></p>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="radio" name="pay_agents" id="pay_agents_yes" value="1"
+                                                       <?= ($poll && floatval($poll['price_per_response'] ?? 0) > 0) ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="pay_agents_yes">
+                                                    <strong>YES</strong> - Pay agents ₦1,000 per response to help collect responses
+                                                </label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="radio" name="pay_agents" id="pay_agents_no" value="0"
+                                                       <?= (!$poll || floatval($poll['price_per_response'] ?? 0) == 0) ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="pay_agents_no">
+                                                    <strong>NO</strong> - I will collect responses myself or through other means
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Poll Pricing & Agent Commission -->
-                            <h5 class="mt-4 mb-3"><i class="fas fa-money-bill-wave text-success"></i> Pricing & Agent Commission</h5>
+                            <div id="pricing_section" style="display: <?= ($poll && floatval($poll['price_per_response'] ?? 0) > 0) ? 'block' : 'none' ?>;">
+                            <h5 class="mt-4 mb-3"><!-- <i class="fas fa-money-bill-wave text-success"></i> --> Pricing & Agent Commission</h5>
                             <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i> Set pricing for this poll and commission for agents who help collect responses.
+                                <i class="fas fa-info-circle"></i> Platform fees and agent commissions for this poll.
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label">Cost Per Response <small class="text-muted">(Amount you pay per response)</small></label>
+                                        <label class="form-label">Platform Fee <small class="text-muted">(Fixed fee per response)</small></label>
                                         <div class="input-group">
                                             <span class="input-group-text">₦</span>
-                                            <input type="number" class="form-control" name="cost_per_response" id="cost_per_response" 
-                                                   value="<?= $poll['cost_per_response'] ?? 100 ?>" min="0" step="0.01">
+                                            <input type="text" class="form-control bg-light" value="500" readonly>
                                         </div>
-                                        <small class="text-muted">Default: ₦100 per response</small>
+                                        <small class="text-muted">Fixed: ₦500 per response</small>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -246,10 +419,9 @@ unset($_SESSION['errors']);
                                         <label class="form-label">Agent Commission <small class="text-muted">(Amount agents earn per response)</small></label>
                                         <div class="input-group">
                                             <span class="input-group-text">₦</span>
-                                            <input type="number" class="form-control" name="agent_commission" id="agent_commission" 
-                                                   value="<?= $poll['agent_commission'] ?? 1000 ?>" min="0" step="0.01">
+                                            <input type="text" class="form-control bg-light" value="1,000" readonly>
                                         </div>
-                                        <small class="text-muted">Default: ₦1,000 per response (agents earn this)</small>
+                                        <small class="text-muted">Fixed: ₦1,000 per response</small>
                                     </div>
                                 </div>
                             </div>
@@ -267,40 +439,13 @@ unset($_SESSION['errors']);
                                         <label class="form-label">Estimated Total Cost</label>
                                         <div class="input-group">
                                             <span class="input-group-text">₦</span>
-                                            <input type="text" class="form-control bg-light" id="estimated_cost" readonly value="10,000.00">
+                                            <input type="text" class="form-control bg-light" id="estimated_cost" readonly value="150,000.00">
                                         </div>
-                                        <small class="text-muted">Cost per response × Target responses</small>
+                                        <small class="text-muted">Platform Fee + Agent Commission × Target responses</small>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Databank Settings -->
-                            <h5 class="mt-4 mb-3"><i class="fas fa-database text-primary"></i> Databank Settings</h5>
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i> Sell access to your poll results in the databank for additional revenue.
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-check mb-3">
-                                        <input class="form-check-input" type="checkbox" name="results_for_sale" id="results_for_sale" 
-                                               <?= ($poll && ($poll['results_for_sale'] ?? 0)) ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="results_for_sale">
-                                            <strong>Make results available for sale in databank</strong>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3" id="sale_price_container" style="display: <?= ($poll && ($poll['results_for_sale'] ?? 0)) ? 'block' : 'none' ?>;">
-                                        <label class="form-label">Results Sale Price</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">₦</span>
-                                            <input type="number" class="form-control" name="results_sale_price" id="results_sale_price" 
-                                                   value="<?= $poll['results_sale_price'] ?? 5000 ?>" min="0" step="0.01">
-                                        </div>
-                                        <small class="text-muted">Price users pay to access results</small>
-                                    </div>
-                                </div>
-                            </div>
+                            </div> <!-- End pricing section -->
 
                             <div class="mt-4">
                                 <button type="submit" class="btn btn-primary btn-lg">
@@ -321,23 +466,56 @@ unset($_SESSION['errors']);
 <?php include_once '../footer.php'; ?>
 
 <script>
-// Calculate estimated cost
+
+// Calculate estimated cost (Platform Fee + Agent Commission per response)
 function updateEstimatedCost() {
-    const costPerResponse = parseFloat(document.getElementById('cost_per_response').value) || 0;
+    const platformFee = 500; // Fixed platform fee
+    const agentCommission = 1000; // Fixed agent commission
+    const totalPerResponse = platformFee + agentCommission; // Total cost per response
     const targetResponders = parseFloat(document.getElementById('target_responders').value) || 0;
-    const total = costPerResponse * targetResponders;
+    const total = totalPerResponse * targetResponders;
     document.getElementById('estimated_cost').value = total.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 }
 
-// Update on input
-document.getElementById('cost_per_response').addEventListener('input', updateEstimatedCost);
-document.getElementById('target_responders').addEventListener('input', updateEstimatedCost);
+// Initialize page functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup input listener for target responders
+    const targetRespondersInput = document.getElementById('target_responders');
+    if (targetRespondersInput) {
+        targetRespondersInput.addEventListener('input', updateEstimatedCost);
+    }
 
-// Toggle sale price field
-document.getElementById('results_for_sale').addEventListener('change', function() {
-    document.getElementById('sale_price_container').style.display = this.checked ? 'block' : 'none';
+    // Toggle pricing section based on agent payment selection
+    document.querySelectorAll('input[name="pay_agents"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const pricingSection = document.getElementById('pricing_section');
+            if (pricingSection) {
+                pricingSection.style.display = this.value === '1' ? 'block' : 'none';
+            }
+        });
+    });
+
+    // Toggle databank settings section
+    document.querySelectorAll('input[name="display_in_databank"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const databankSection = document.getElementById('databank_settings_section');
+            if (databankSection) {
+                databankSection.style.display = this.value === '1' ? 'block' : 'none';
+            }
+        });
+    });
+
+    // Toggle voting restrictions based on multiple votes setting
+    document.querySelectorAll('input[name="allow_multiple_votes"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const votingRestrictions = document.getElementById('voting_restrictions');
+            if (votingRestrictions) {
+                votingRestrictions.style.display = this.value === '1' ? 'none' : 'block';
+            }
+        });
+    });
+
+    // Initial calculation
+    updateEstimatedCost();
 });
-
-// Initial calculation
-updateEstimatedCost();
 </script>

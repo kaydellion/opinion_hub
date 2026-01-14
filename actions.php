@@ -43,6 +43,12 @@ switch ($action) {
     case 'resume_poll':
         handleResumePoll();
         break;
+    case 'add_comment':
+        handleAddComment();
+        break;
+    case 'delete_comment':
+        handleDeleteComment();
+        break;
     case 'delete_poll':
         handleDeletePoll();
         break;
@@ -81,6 +87,12 @@ switch ($action) {
         break;
     case 'unfollow_category':
         handleUnfollowCategory();
+        break;
+    case 'bookmark_poll':
+        handleBookmarkPoll();
+        break;
+    case 'unbookmark_poll':
+        handleUnbookmarkPoll();
         break;
     case 'report_poll':
         handleReportPoll();
@@ -262,11 +274,11 @@ function handleLogin() {
 function handleCreatePoll() {
     global $conn;
     requireRole(['client', 'admin']);
-    
+
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         die("Invalid request");
     }
-    
+
     $user = getCurrentUser();
     $title = sanitize($_POST['title'] ?? '');
     $description = sanitize($_POST['description'] ?? '');
@@ -275,18 +287,28 @@ function handleCreatePoll() {
     $start_date = sanitize($_POST['start_date'] ?? '');
     $end_date = sanitize($_POST['end_date'] ?? '');
     
-    // Settings checkboxes
-    $allow_multiple = isset($_POST['allow_multiple_options']) ? 1 : 0;
-    $require_names = isset($_POST['require_participant_names']) ? 1 : 0;
-    $allow_comments = isset($_POST['allow_comments']) ? 1 : 0;
-    $one_vote_ip = isset($_POST['one_vote_per_ip']) ? 1 : 0;
-    $results_public = isset($_POST['results_public_after_vote']) ? 1 : 0;
-    
-    // Pricing and commission fields
-    $price_per_response = floatval($_POST['cost_per_response'] ?? 100);
+    // Poll Settings - Radio buttons (values are 0 or 1 as strings)
+    $allow_comments = intval($_POST['allow_comments'] ?? 0);
+    $allow_multiple_votes = intval($_POST['allow_multiple_votes'] ?? 0);
+    $one_vote_ip = intval($_POST['one_vote_per_ip'] ?? 0);
+    $one_vote_account = intval($_POST['one_vote_per_account'] ?? 1); // Default to 1 (YES)
+
+    // Results visibility logic
+    $results_visibility = $_POST['results_visibility'] ?? 'private';
+    $results_public_after_vote = ($results_visibility === 'after_vote') ? 1 : 0;
+    $results_public_after_end = ($results_visibility === 'after_end') ? 1 : 0;
+    $results_private = ($results_visibility === 'private') ? 1 : 0;
+
+    // Agent payment settings
+    $pay_agents = intval($_POST['pay_agents'] ?? 0);
+
+    // Databank display settings - only if paying agents
+    $display_in_databank = $pay_agents ? intval($_POST['display_in_databank'] ?? 0) : 0;
+    $results_sale_price = $pay_agents ? floatval($_POST['results_sale_price'] ?? 5000) : 0;
+
+    // Pricing fields - only set if paying agents
+    $price_per_response = $pay_agents ? 500 : 0; // Platform fee only if paying agents
     $target_responders = intval($_POST['target_responders'] ?? 100);
-    $results_for_sale = isset($_POST['results_for_sale']) ? 1 : 0;
-    $results_sale_price = floatval($_POST['results_sale_price'] ?? 5000);
     
     $errors = [];
     if (empty($title)) $errors[] = "Poll title is required";
@@ -315,17 +337,16 @@ function handleCreatePoll() {
     // Generate unique slug from title
     $slug = generateUniquePollSlug($title);
     
-    $query = "INSERT INTO polls 
+    $query = "INSERT INTO polls
               (created_by, title, slug, description, category_id, poll_type, image,
-               start_date, end_date, allow_multiple_options, require_participant_names,
-               allow_comments, one_vote_per_session, results_public_after_vote, status,
-               price_per_response, target_responders,
-               results_for_sale, results_sale_price) 
-              VALUES ({$user['id']}, '$title', '$slug', '$description', $category_id, 
-              '$poll_type', '$image', '$start_date', '$end_date', 
-              $allow_multiple, $require_names, $allow_comments, $one_vote_ip, $results_public, 'draft',
-              $price_per_response, $target_responders,
-              $results_for_sale, $results_sale_price)";
+               start_date, end_date, allow_comments, allow_multiple_votes, one_vote_per_ip,
+               one_vote_per_account, results_public_after_vote, results_public_after_end,
+               results_private, status, price_per_response, target_responders)
+              VALUES ({$user['id']}, '$title', '$slug', '$description', $category_id,
+              '$poll_type', '$image', '$start_date', '$end_date',
+              $allow_comments, $allow_multiple_votes, $one_vote_ip, $one_vote_account,
+              $results_public_after_vote, $results_public_after_end, $results_private, 'draft',
+              $price_per_response, $target_responders)";
     
     if ($conn->query($query)) {
         $poll_id = $conn->insert_id;
@@ -376,13 +397,29 @@ function handleUpdatePoll() {
     $start_date = sanitize($_POST['start_date'] ?? '');
     $end_date = sanitize($_POST['end_date'] ?? '');
     
-    // Settings checkboxes
-    $allow_multiple = isset($_POST['allow_multiple_options']) ? 1 : 0;
-    $require_names = isset($_POST['require_participant_names']) ? 1 : 0;
-    $allow_comments = isset($_POST['allow_comments']) ? 1 : 0;
-    $one_vote_ip = isset($_POST['one_vote_per_ip']) ? 1 : 0;
-    $results_public = isset($_POST['results_public_after_vote']) ? 1 : 0;
-    
+    // Poll Settings - Radio buttons (values are 0 or 1 as strings)
+    $allow_comments = intval($_POST['allow_comments'] ?? 0);
+    $allow_multiple_votes = intval($_POST['allow_multiple_votes'] ?? 0);
+    $one_vote_ip = intval($_POST['one_vote_per_ip'] ?? 0);
+    $one_vote_account = intval($_POST['one_vote_per_account'] ?? 1); // Default to 1 (YES)
+
+    // Results visibility logic
+    $results_visibility = $_POST['results_visibility'] ?? 'private';
+    $results_public_after_vote = ($results_visibility === 'after_vote') ? 1 : 0;
+    $results_public_after_end = ($results_visibility === 'after_end') ? 1 : 0;
+    $results_private = ($results_visibility === 'private') ? 1 : 0;
+
+    // Agent payment settings
+    $pay_agents = intval($_POST['pay_agents'] ?? 0);
+
+    // Databank display settings - only if paying agents
+    $display_in_databank = $pay_agents ? intval($_POST['display_in_databank'] ?? 0) : 0;
+    $results_sale_price = $pay_agents ? floatval($_POST['results_sale_price'] ?? 5000) : 0;
+
+    // Pricing fields - only set if paying agents
+    $price_per_response = $pay_agents ? 500 : 0; // Platform fee only if paying agents
+    $target_responders = intval($_POST['target_responders'] ?? 100);
+
     $errors = [];
     if (empty($title)) $errors[] = "Poll title is required";
     if (empty($description)) $errors[] = "Poll description is required";
@@ -411,11 +448,15 @@ function handleUpdatePoll() {
               poll_type = '$poll_type',
               start_date = '$start_date',
               end_date = '$end_date',
-              allow_multiple_options = $allow_multiple,
-              require_participant_names = $require_names,
               allow_comments = $allow_comments,
-              one_vote_per_session = $one_vote_ip,
-              results_public_after_vote = $results_public
+              allow_multiple_votes = $allow_multiple_votes,
+              one_vote_per_ip = $one_vote_ip,
+              one_vote_per_account = $one_vote_account,
+              results_public_after_vote = $results_public_after_vote,
+              results_public_after_end = $results_public_after_end,
+              results_private = $results_private,
+              price_per_response = $price_per_response,
+              target_responders = $target_responders
               $image_update
               WHERE id = $poll_id";
     
@@ -1239,14 +1280,7 @@ function handleAddBulkCredits() {
 function handleReportPoll() {
     global $conn;
 
-    // Debug logging
-    error_log("handleReportPoll called");
-    error_log("POST data: " . print_r($_POST, true));
-    error_log("FILES data: " . print_r($_FILES, true));
-    error_log("RAW input: " . file_get_contents('php://input'));
-
     if (!isLoggedIn()) {
-        error_log("User not logged in");
         echo json_encode(['success' => false, 'message' => 'Please login to report polls']);
         exit;
     }
@@ -1255,8 +1289,6 @@ function handleReportPoll() {
     $reason = sanitize($_POST['reason'] ?? '');
     $description = sanitize($_POST['description'] ?? '');
     $user_id = getCurrentUser()['id'];
-
-    error_log("Parsed data - poll_id: $poll_id, reason: $reason, user_id: $user_id");
 
     if (!$poll_id || empty($reason)) {
         echo json_encode(['success' => false, 'message' => 'Poll ID and reason are required']);
@@ -1325,10 +1357,6 @@ function handleReportPoll() {
 function handleSuspendPoll() {
     global $conn;
 
-    // Debug logging
-    error_log("handleSuspendPoll called");
-    error_log("POST data: " . print_r($_POST, true));
-    error_log("User: " . (isLoggedIn() ? getCurrentUser()['id'] : 'not logged in'));
 
     if (!isLoggedIn() || getCurrentUser()['role'] !== 'admin') {
         error_log("Access denied - not admin or not logged in");
@@ -1356,14 +1384,12 @@ function handleSuspendPoll() {
     }
 
     $current_status = $poll_check->fetch_assoc()['status'];
-    error_log("Current poll status: $current_status");
 
     // Update poll status to paused (used for suspension)
     $stmt = $conn->prepare("UPDATE polls SET status = 'paused', updated_at = NOW() WHERE id = ?");
     $stmt->bind_param("i", $poll_id);
 
     if ($stmt->execute()) {
-        error_log("Poll suspended successfully (status: paused)");
         // Update report status if it exists
         $conn->query("UPDATE poll_reports SET status = 'resolved', reviewed_by = $admin_id, reviewed_at = NOW() WHERE poll_id = $poll_id");
         echo json_encode(['success' => true, 'message' => 'Poll suspended successfully']);
@@ -1381,9 +1407,6 @@ function handleSuspendPoll() {
 function handleUnsuspendPoll() {
     global $conn;
 
-    // Debug logging
-    error_log("handleUnsuspendPoll called");
-    error_log("POST data: " . print_r($_POST, true));
 
     if (!isLoggedIn() || getCurrentUser()['role'] !== 'admin') {
         error_log("Access denied - not admin or not logged in");
@@ -1406,7 +1429,6 @@ function handleUnsuspendPoll() {
     $stmt->bind_param("i", $poll_id);
 
     if ($stmt->execute()) {
-        error_log("Poll unsuspended successfully (status: active)");
         echo json_encode(['success' => true, 'message' => 'Poll unsuspended successfully']);
     } else {
         error_log("Failed to execute unsuspend query: " . $stmt->error);
@@ -1595,10 +1617,6 @@ function handleManualUnsuspend() {
 function handleFollowUser() {
     global $conn;
 
-    // Debug logging
-    error_log("handleFollowUser called");
-    error_log("POST data: " . print_r($_POST, true));
-    error_log("Session data: " . print_r($_SESSION, true));
 
     if (!isLoggedIn()) {
         error_log("User not logged in");
@@ -1819,6 +1837,206 @@ function handleUnfollowCategory() {
         echo json_encode(['success' => true, 'message' => 'Successfully unfollowed category', 'action' => 'unfollowed']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Failed to unfollow category']);
+    }
+
+    exit;
+}
+
+/**
+ * Handle Poll Bookmark
+ */
+function handleBookmarkPoll() {
+    global $conn;
+
+    if (!isLoggedIn()) {
+        echo json_encode(['success' => false, 'message' => 'Please login to bookmark polls']);
+        exit;
+    }
+
+    $user_id = getCurrentUser()['id'];
+    $poll_id = (int)($_POST['poll_id'] ?? 0);
+
+    if (!$poll_id) {
+        echo json_encode(['success' => false, 'message' => 'Invalid poll ID']);
+        exit;
+    }
+
+    // Check if table exists first - if not, try to create it
+    $table_check = $conn->query("SHOW TABLES LIKE 'user_bookmarks'");
+    if (!$table_check || $table_check->num_rows === 0) {
+        // Try to create the table automatically
+        $create_sql = "CREATE TABLE user_bookmarks (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            user_id INT NOT NULL,
+            poll_id INT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE,
+            UNIQUE KEY unique_bookmark (user_id, poll_id),
+            INDEX(user_id),
+            INDEX(poll_id),
+            INDEX(created_at)
+        )";
+
+        if (!$conn->query($create_sql)) {
+            echo json_encode(['success' => false, 'message' => 'Bookmarks system not configured. Table creation failed.']);
+            exit;
+        }
+    }
+
+    // Check if already bookmarked
+    $check = $conn->query("SELECT id FROM user_bookmarks WHERE user_id = $user_id AND poll_id = $poll_id");
+    if ($check && $check->num_rows > 0) {
+        echo json_encode(['success' => false, 'message' => 'Poll already bookmarked']);
+        exit;
+    }
+
+    // Add bookmark
+    $stmt = $conn->prepare("INSERT INTO user_bookmarks (user_id, poll_id) VALUES (?, ?)");
+    if (!$stmt) {
+        echo json_encode(['success' => false, 'message' => 'Prepare failed: ' . $conn->error]);
+        exit;
+    }
+
+    $stmt->bind_param("ii", $user_id, $poll_id);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Poll bookmarked successfully', 'action' => 'bookmarked']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to bookmark poll: ' . $stmt->error]);
+    }
+
+    exit;
+}
+
+/**
+ * Handle Poll Unbookmark
+ */
+function handleUnbookmarkPoll() {
+    global $conn;
+
+    if (!isLoggedIn()) {
+        echo json_encode(['success' => false, 'message' => 'Please login to unbookmark polls']);
+        exit;
+    }
+
+    $user_id = getCurrentUser()['id'];
+    $poll_id = (int)($_POST['poll_id'] ?? 0);
+
+    if (!$poll_id) {
+        echo json_encode(['success' => false, 'message' => 'Invalid poll ID']);
+        exit;
+    }
+
+    // Check if table exists first - if not, try to create it
+    $table_check = $conn->query("SHOW TABLES LIKE 'user_bookmarks'");
+    if (!$table_check || $table_check->num_rows === 0) {
+        // Try to create the table automatically
+        $create_sql = "CREATE TABLE user_bookmarks (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            user_id INT NOT NULL,
+            poll_id INT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE,
+            UNIQUE KEY unique_bookmark (user_id, poll_id),
+            INDEX(user_id),
+            INDEX(poll_id),
+            INDEX(created_at)
+        )";
+
+        if (!$conn->query($create_sql)) {
+            echo json_encode(['success' => false, 'message' => 'Bookmarks system not configured. Table creation failed.']);
+            exit;
+        }
+    }
+
+    // Remove bookmark
+    $stmt = $conn->prepare("DELETE FROM user_bookmarks WHERE user_id = ? AND poll_id = ?");
+    $stmt->bind_param("ii", $user_id, $poll_id);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Poll unbookmarked successfully', 'action' => 'unbookmarked']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to unbookmark poll']);
+    }
+
+    exit;
+}
+
+/**
+ * Handle Add Comment
+ */
+function handleAddComment() {
+    global $conn;
+
+    if (!isLoggedIn()) {
+        echo json_encode(['success' => false, 'message' => 'Please login to comment']);
+        exit;
+    }
+
+    $user = getCurrentUser();
+    $poll_id = (int)($_POST['poll_id'] ?? 0);
+    $comment_text = trim(sanitize($_POST['comment_text'] ?? ''));
+
+    if (empty($comment_text)) {
+        echo json_encode(['success' => false, 'message' => 'Comment cannot be empty']);
+        exit;
+    }
+
+    if (strlen($comment_text) > 1000) {
+        echo json_encode(['success' => false, 'message' => 'Comment is too long (max 1000 characters)']);
+        exit;
+    }
+
+    // Check if poll exists and allows comments
+    $poll_check = $conn->query("SELECT id, allow_comments FROM polls WHERE id = $poll_id AND allow_comments = 1");
+    if (!$poll_check || $poll_check->num_rows === 0) {
+        echo json_encode(['success' => false, 'message' => 'Comments are not allowed for this poll']);
+        exit;
+    }
+
+    // Insert comment
+    $stmt = $conn->prepare("INSERT INTO poll_comments (poll_id, user_id, comment_text) VALUES (?, ?, ?)");
+    $stmt->bind_param("iis", $poll_id, $user['id'], $comment_text);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Comment added successfully']);
+    } else {
+        error_log("Comment insertion failed: " . $conn->error);
+        echo json_encode(['success' => false, 'message' => 'Failed to add comment']);
+    }
+
+    exit;
+}
+
+/**
+ * Handle Delete Comment
+ */
+function handleDeleteComment() {
+    global $conn;
+
+    if (!isLoggedIn()) {
+        echo json_encode(['success' => false, 'message' => 'Please login to delete comments']);
+        exit;
+    }
+
+    $user = getCurrentUser();
+    $comment_id = (int)($_POST['comment_id'] ?? 0);
+
+    // Check if comment exists and belongs to user
+    $comment_check = $conn->query("SELECT id FROM poll_comments WHERE id = $comment_id AND user_id = {$user['id']}");
+    if (!$comment_check || $comment_check->num_rows === 0) {
+        echo json_encode(['success' => false, 'message' => 'Comment not found or access denied']);
+        exit;
+    }
+
+    // Delete comment
+    if ($conn->query("DELETE FROM poll_comments WHERE id = $comment_id")) {
+        echo json_encode(['success' => true, 'message' => 'Comment deleted successfully']);
+    } else {
+        error_log("Comment deletion failed: " . $conn->error);
+        echo json_encode(['success' => false, 'message' => 'Failed to delete comment']);
     }
 
     exit;
