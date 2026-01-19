@@ -276,6 +276,11 @@ if (isLoggedIn()) {
                                                                 class="badge bg-primary"><?php echo htmlspecialchars($poll['category_name'] ?? 'General'); ?></span>
                                                             <span
                                                                 class="badge bg-info"><?php echo htmlspecialchars($poll['poll_type']); ?></span>
+                                                            <?php if (($poll['price_per_response'] ?? 0) > 0): ?>
+                                                                <span class="badge bg-success"><i class="fas fa-money-bill-wave"></i> Paid</span>
+                                                            <?php else: ?>
+                                                                <span class="badge bg-secondary"><i class="fas fa-gift"></i> Free</span>
+                                                            <?php endif; ?>
                                                         </div>
                                                         <h5 class="card-title"><?php echo htmlspecialchars($poll['title']); ?></h5>
                                                         <p class="card-text text-muted">
@@ -361,6 +366,11 @@ if (isLoggedIn()) {
                                 <span class="badge bg-danger"><i class="fas fa-fire"></i> Trending</span>
                                 <span
                                     class="badge bg-primary"><?php echo htmlspecialchars($poll['category_name'] ?? 'General'); ?></span>
+                                <?php if (($poll['price_per_response'] ?? 0) > 0): ?>
+                                    <span class="badge bg-success"><i class="fas fa-money-bill-wave"></i> Paid</span>
+                                <?php else: ?>
+                                    <span class="badge bg-secondary"><i class="fas fa-gift"></i> Free</span>
+                                <?php endif; ?>
                             </div>
                             <h5 class="card-title"><?php echo htmlspecialchars($poll['title']); ?></h5>
                             <p class="card-text text-muted">
@@ -415,6 +425,11 @@ if (isLoggedIn()) {
                                     <span class="badge bg-success"><i class="fas fa-user-friends"></i> Following</span>
                                     <span
                                         class="badge bg-primary"><?php echo htmlspecialchars($poll['category_name'] ?? 'General'); ?></span>
+                                    <?php if (($poll['price_per_response'] ?? 0) > 0): ?>
+                                        <span class="badge bg-warning"><i class="fas fa-money-bill-wave"></i> Paid</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary"><i class="fas fa-gift"></i> Free</span>
+                                    <?php endif; ?>
                                 </div>
                                 <h5 class="card-title"><?php echo htmlspecialchars($poll['title']); ?></h5>
                                 <p class="text-muted small mb-2">

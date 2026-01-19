@@ -6,6 +6,7 @@ requireRole('client');
 
 $user = getCurrentUser();
 
+
 // Get current subscription
 $current_sub = $conn->query("SELECT us.*, sp.* 
                              FROM user_subscriptions us 
@@ -158,14 +159,38 @@ include '../header.php';
                         
                         <div class="price-monthly" style="display: block;">
                             <h2 class="text-primary mb-0">
-                                <?= $is_free ? 'Free' : formatCurrency($plan['monthly_price']) ?>
+                                <?php
+                                if ($is_free) {
+                                    echo 'Free';
+                                } elseif ($plan['type'] === 'basic') {
+                                    echo '₦' . number_format(getSetting('subscription_price_basic_monthly', '35000'));
+                                } elseif ($plan['type'] === 'classic') {
+                                    echo '₦' . number_format(getSetting('subscription_price_classic_monthly', '65000'));
+                                } elseif ($plan['type'] === 'enterprise') {
+                                    echo '₦' . number_format(getSetting('subscription_price_enterprise_monthly', '100000'));
+                                } else {
+                                    echo formatCurrency($plan['monthly_price']);
+                                }
+                                ?>
                             </h2>
                             <small class="text-muted"><?= $is_free ? 'Forever' : 'per month' ?></small>
                         </div>
-                        
+
                         <div class="price-annual" style="display: none;">
                             <h2 class="text-primary mb-0">
-                                <?= $is_free ? 'Free' : formatCurrency($plan['annual_price']) ?>
+                                <?php
+                                if ($is_free) {
+                                    echo 'Free';
+                                } elseif ($plan['type'] === 'basic') {
+                                    echo '₦' . number_format(getSetting('subscription_price_basic_annual', '392000'));
+                                } elseif ($plan['type'] === 'classic') {
+                                    echo '₦' . number_format(getSetting('subscription_price_classic_annual', '735000'));
+                                } elseif ($plan['type'] === 'enterprise') {
+                                    echo '₦' . number_format(getSetting('subscription_price_enterprise_annual', '1050000'));
+                                } else {
+                                    echo formatCurrency($plan['annual_price']);
+                                }
+                                ?>
                             </h2>
                             <small class="text-muted"><?= $is_free ? 'Forever' : 'per year' ?></small>
                         </div>
@@ -173,30 +198,108 @@ include '../header.php';
                         <hr>
                         
                         <ul class="list-unstyled text-start small">
-                            <li class="mb-2">
-                                <i class="fas fa-check text-success me-2"></i>
-                                <strong><?= $plan['max_polls_per_month'] == 999 ? 'Unlimited' : $plan['max_polls_per_month'] ?></strong> polls/month
+                            <li class="mb-2 text-muted">
+                                <strong>Target Audience:</strong><br>
+                                <?php
+                                if ($plan['type'] === 'free') {
+                                    echo 'For those looking to get started with Poll Nigeria';
+                                } elseif ($plan['type'] === 'basic') {
+                                    echo 'Small businesses, NGOs, and individual researchers';
+                                } elseif ($plan['type'] === 'classic') {
+                                    echo 'Medium-sized businesses, political campaign teams, and educational institutions';
+                                } elseif ($plan['type'] === 'enterprise') {
+                                    echo 'Large enterprises, political parties, and market research firms';
+                                }
+                                ?>
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
-                                <strong><?= number_format($plan['responses_per_poll']) ?></strong> responses/poll
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-<?= $plan['export_data'] ? 'check text-success' : 'times text-muted' ?> me-2"></i>
-                                Export data
+                                <strong>
+                                <?php
+                                if ($plan['type'] === 'free') {
+                                    echo '1';
+                                } elseif ($plan['type'] === 'basic') {
+                                    echo '50';
+                                } elseif ($plan['type'] === 'classic') {
+                                    echo '200';
+                                } elseif ($plan['type'] === 'enterprise') {
+                                    echo 'Unlimited';
+                                } else {
+                                    echo $plan['max_polls_per_month'] == 999 ? 'Unlimited' : $plan['max_polls_per_month'];
+                                }
+                                ?>
+                                </strong> polls/month
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
-                                <strong><?= number_format($plan['sms_invite_units']) ?></strong> free SMS
+                                <strong>
+                                <?php
+                                if ($plan['type'] === 'free') {
+                                    echo '50';
+                                } elseif ($plan['type'] === 'basic') {
+                                    echo '5,000';
+                                } elseif ($plan['type'] === 'classic') {
+                                    echo '20,000';
+                                } elseif ($plan['type'] === 'enterprise') {
+                                    echo 'Unlimited';
+                                } else {
+                                    echo number_format($plan['responses_per_poll']);
+                                }
+                                ?>
+                                </strong> responses/poll
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
-                                <strong><?= number_format($plan['email_invite_units']) ?></strong> free emails
+                                Export Data & Screenshots
                             </li>
                             <li class="mb-2">
-                                <i class="fas fa-<?= $plan['custom_branding'] ? 'check text-success' : 'times text-muted' ?> me-2"></i>
-                                Custom branding
+                                <i class="fas fa-check text-success me-2"></i>
+                                Social Media Share
                             </li>
+                            <?php if ($plan['type'] !== 'free'): ?>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <strong>
+                                <?php
+                                if ($plan['type'] === 'basic') {
+                                    echo '5,000';
+                                } elseif ($plan['type'] === 'classic') {
+                                    echo '10,000';
+                                } elseif ($plan['type'] === 'enterprise') {
+                                    echo '15,000';
+                                }
+                                ?>
+                                </strong> SMS credits (annual)
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <strong>
+                                <?php
+                                if ($plan['type'] === 'basic') {
+                                    echo '5,000';
+                                } elseif ($plan['type'] === 'classic') {
+                                    echo '10,000';
+                                } elseif ($plan['type'] === 'enterprise') {
+                                    echo '15,000';
+                                }
+                                ?>
+                                </strong> Email credits (annual)
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <strong>
+                                <?php
+                                if ($plan['type'] === 'basic') {
+                                    echo '1,000';
+                                } elseif ($plan['type'] === 'classic') {
+                                    echo '5,000';
+                                } elseif ($plan['type'] === 'enterprise') {
+                                    echo '10,000';
+                                }
+                                ?>
+                                </strong> WhatsApp credits (annual)
+                            </li>
+                            <?php endif; ?>
                         </ul>
                         
                         <?php if ($is_free): ?>
@@ -239,8 +342,8 @@ include '../header.php';
                     <thead class="table-light">
                         <tr>
                             <th>Feature</th>
-                            <th>Free</th>
-                            <th>Basic</th>
+                            <th>Free Plan</th>
+                            <th>Basic Plan</th>
                             <th>Classic</th>
                             <th>Enterprise</th>
                         </tr>
@@ -254,46 +357,74 @@ include '../header.php';
                         }
                         ?>
                         <tr>
-                            <td><strong>Polls per Month</strong></td>
-                            <td><?= $plans_array['free']['max_polls_per_month'] ?></td>
-                            <td><?= $plans_array['basic']['max_polls_per_month'] ?></td>
-                            <td><?= $plans_array['classic']['max_polls_per_month'] ?></td>
+                            <td><strong>Number of Monthly Polls</strong></td>
+                            <td>1</td>
+                            <td>50</td>
+                            <td>200</td>
                             <td>Unlimited</td>
                         </tr>
                         <tr>
                             <td><strong>Responses per Poll</strong></td>
-                            <td><?= number_format($plans_array['free']['responses_per_poll']) ?></td>
-                            <td><?= number_format($plans_array['basic']['responses_per_poll']) ?></td>
-                            <td><?= number_format($plans_array['classic']['responses_per_poll']) ?></td>
+                            <td>50</td>
+                            <td>5,000</td>
+                            <td>20,000</td>
                             <td>Unlimited</td>
                         </tr>
                         <tr>
-                            <td><strong>Free SMS Invites</strong></td>
+                            <td><strong>Export Data & Screenshots</strong></td>
+                            <td><i class="fas fa-check text-success"></i></td>
+                            <td><i class="fas fa-check text-success"></i></td>
+                            <td><i class="fas fa-check text-success"></i></td>
+                            <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Social Media Share</strong></td>
+                            <td><i class="fas fa-check text-success"></i></td>
+                            <td><i class="fas fa-check text-success"></i></td>
+                            <td><i class="fas fa-check text-success"></i></td>
+                            <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+                        <tr>
+                            <td><strong>SMS Invite Credits | Annual Plan</strong></td>
+                            <td>N/A</td>
+                            <td>5,000</td>
+                            <td>10,000</td>
+                            <td>15,000</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SMS Invite Credits | Monthly Plan</strong></td>
                             <td>-</td>
-                            <td><?= number_format($plans_array['basic']['sms_invite_units']) ?></td>
-                            <td><?= number_format($plans_array['classic']['sms_invite_units']) ?></td>
-                            <td><?= number_format($plans_array['enterprise']['sms_invite_units']) ?></td>
+                            <td>500</td>
+                            <td>1,000</td>
+                            <td>1,500</td>
                         </tr>
                         <tr>
-                            <td><strong>Free Email Invites</strong></td>
+                            <td><strong>E-Mail Invites Credits | Annual Plan</strong></td>
+                            <td>N/A</td>
+                            <td>5,000</td>
+                            <td>10,000</td>
+                            <td>15,000</td>
+                        </tr>
+                        <tr>
+                            <td><strong>E-Mail Invites Credits | Monthly Plan</strong></td>
                             <td>-</td>
-                            <td><?= number_format($plans_array['basic']['email_invite_units']) ?></td>
-                            <td><?= number_format($plans_array['classic']['email_invite_units']) ?></td>
-                            <td><?= number_format($plans_array['enterprise']['email_invite_units']) ?></td>
+                            <td>500</td>
+                            <td>1,000</td>
+                            <td>1,500</td>
                         </tr>
                         <tr>
-                            <td><strong>Export Data</strong></td>
-                            <td><i class="fas fa-times text-danger"></i></td>
-                            <td><i class="fas fa-times text-danger"></i></td>
-                            <td><i class="fas fa-times text-danger"></i></td>
-                            <td><i class="fas fa-times text-danger"></i></td>
+                            <td><strong>WhatsApp Invite Credits | Annual Plan</strong></td>
+                            <td>N/A</td>
+                            <td>1,000</td>
+                            <td>5,000</td>
+                            <td>10,000</td>
                         </tr>
                         <tr>
-                            <td><strong>Custom Branding</strong></td>
-                            <td><i class="fas fa-times text-danger"></i></td>
-                            <td><i class="fas fa-times text-danger"></i></td>
-                            <td><i class="fas fa-times text-danger"></i></td>
-                            <td><i class="fas fa-times text-danger"></i></td>
+                            <td><strong>WhatsApp Invite Credits | Monthly Plan</strong></td>
+                            <td>N/A</td>
+                            <td>100</td>
+                            <td>500</td>
+                            <td>1,000</td>
                         </tr>
                     </tbody>
                 </table>

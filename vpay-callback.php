@@ -161,9 +161,21 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
             $admin_commission = $amount - $agent_total;
             
             // Record transaction with poll_id and admin_commission
-            $stmt = $conn->prepare("UPDATE transactions SET poll_id = ?, admin_commission = ?, transaction_type = 'poll_payment' WHERE reference = ?");
-            $stmt->bind_param("ids", $poll_id, $admin_commission, $reference);
-            $stmt->execute();
+            // First check if transaction already exists
+            $existing = $conn->query("SELECT id FROM transactions WHERE reference = '$reference'")->fetch_assoc();
+
+            if ($existing) {
+                // Update existing transaction
+                $stmt = $conn->prepare("UPDATE transactions SET poll_id = ?, admin_commission = ?, transaction_type = 'poll_payment', status = 'completed' WHERE reference = ?");
+                $stmt->bind_param("ids", $poll_id, $admin_commission, $reference);
+                $stmt->execute();
+            } else {
+                // Insert new transaction record
+                $stmt = $conn->prepare("INSERT INTO transactions (user_id, amount, reference, transaction_type, poll_id, admin_commission, status, created_at)
+                                       VALUES (?, ?, ?, 'poll_payment', ?, ?, 'completed', NOW())");
+                $stmt->bind_param("idsid", $user_id, $amount, $reference, $poll_id, $admin_commission);
+                $stmt->execute();
+            }
             
             createNotification(
                 $user_id,
@@ -231,8 +243,9 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
         // Databank access purchases
         if ($transaction_type === 'databank_access' || strpos($transaction_type, 'databank') !== false) {
             $poll_id = intval($_GET['poll_id'] ?? 0);
-            
-            error_log("vPay callback - Databank purchase: user_id=$user_id, poll_id=$poll_id");
+            $dataset_format = sanitize($_GET['format'] ?? 'combined');
+
+            error_log("vPay callback - Databank purchase: user_id=$user_id, poll_id=$poll_id, format=$dataset_format");
             
             if ($poll_id) {
                 // Check if user already has access
@@ -279,46 +292,139 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
                     }
                     $stmt->bind_param("iid", $user_id, $poll_id, $amount_paid);
                     $stmt->execute();
-                    
-                    error_log("vPay callback - Access granted: user_id=$user_id, poll_id=$poll_id");
-                    
+
+                    // Record the dataset format download
+                    $download_stmt = $conn->prepare("INSERT INTO dataset_downloads (user_id, poll_id, dataset_format, time_period) VALUES (?, ?, ?, 'monthly')");
+                    $download_stmt->bind_param("iis", $user_id, $poll_id, $dataset_format);
+                    $download_stmt->execute();
+
+                    error_log("vPay callback - Access granted: user_id=$user_id, poll_id=$poll_id, format=$dataset_format");
+
                     // Get poll details for notification
                     $poll_query = $conn->query("SELECT title, created_by FROM polls WHERE id = $poll_id");
                     $poll = $poll_query->fetch_assoc();
-                    
+
                     // Notify buyer
                     createNotification(
                         $user_id,
                         'success',
                         "Poll Results Purchased",
-                        "You now have lifetime access to poll results: " . $poll['title']
+                        "You now have lifetime access to poll results: " . $poll['title'] . " (" . strtoupper($dataset_format) . " format)"
                     );
-                    
+
+                    // Send email notification to buyer
+                    $buyer_info = $conn->query("SELECT first_name, last_name, email FROM users WHERE id = $user_id")->fetch_assoc();
+                    if ($buyer_info) {
+                        $buyer_email_subject = "Dataset Purchase Confirmation - " . $poll['title'];
+                        $buyer_email_message = "Dear {$buyer_info['first_name']} {$buyer_info['last_name']},
+
+Thank you for purchasing dataset access!
+
+Purchase Details:
+- Dataset: {$poll['title']}
+- Format: " . strtoupper($dataset_format) . "
+- Amount Paid: ₦" . number_format($amount_paid, 2) . "
+- Purchase Date: " . date('F j, Y \a\t g:i A') . "
+- Access: Lifetime
+
+You can now access your purchased dataset at:
+" . SITE_URL . "view-purchased-result.php?id=$poll_id&format=$dataset_format
+
+Dataset Formats Available:
+- COMBINED: Aggregated responses with trend analysis
+- SINGLE: Individual responses from each participant
+
+Access your purchased datasets anytime from your account dashboard.
+
+If you have any questions about your dataset, please contact our support team.
+
+Best regards,
+Opinion Hub NG Team
+hello@opinionhub.ng
++234 (0) 803 3782 777";
+
+                        sendTemplatedEmail(
+                            $buyer_info['email'],
+                            "{$buyer_info['first_name']} {$buyer_info['last_name']}",
+                            $buyer_email_subject,
+                            nl2br($buyer_email_message),
+                            "View Dataset",
+                            SITE_URL . "view-purchased-result.php?id=$poll_id&format=$dataset_format"
+                        );
+                    }
+
                     // Credit the poll creator (client)
                     if ($poll && $poll['created_by']) {
                         $creator_id = $poll['created_by'];
-                        
+
                         // Add earnings to creator (you might want to take a platform fee)
                         $creator_earnings = $amount_paid; // 100% to creator, adjust if you want platform fee
-                        
+
                         // Update creator's balance or earnings
                         $conn->query("UPDATE users SET sms_credits = sms_credits + " . ($creator_earnings * 100) . " WHERE id = $creator_id");
-                        
+
                         createNotification(
                             $creator_id,
                             'success',
                             "Poll Results Sold!",
                             "Your poll \"" . $poll['title'] . "\" results were purchased for ₦" . number_format($amount_paid, 2)
                         );
+
+                        // Send email notification to poll creator
+                        $creator_info = $conn->query("SELECT first_name, last_name, email FROM users WHERE id = $creator_id")->fetch_assoc();
+                        if ($creator_info) {
+                            $creator_email_subject = "Poll Dataset Sold - " . $poll['title'];
+                            $creator_email_message = "Dear {$creator_info['first_name']} {$creator_info['last_name']},
+
+Congratulations! Your poll dataset has been purchased!
+
+Sale Details:
+- Poll Title: {$poll['title']}
+- Dataset Format: " . strtoupper($dataset_format) . "
+- Amount Earned: ₦" . number_format($creator_earnings, 2) . "
+- Sale Date: " . date('F j, Y \a\t g:i A') . "
+
+The earnings have been added to your account as messaging credits.
+You can use these credits to send SMS, email, or WhatsApp invitations for your polls.
+
+View your earnings: " . SITE_URL . "client/manage-polls.php
+Purchase more credits: " . SITE_URL . "client/buy-credits.php
+
+Thank you for using Opinion Hub NG!
+
+Best regards,
+Opinion Hub NG Team
+hello@opinionhub.ng
++234 (0) 803 3782 777";
+
+                            sendTemplatedEmail(
+                                $creator_info['email'],
+                                "{$creator_info['first_name']} {$creator_info['last_name']}",
+                                $creator_email_subject,
+                                nl2br($creator_email_message),
+                                "View Earnings",
+                                SITE_URL . "client/manage-polls.php"
+                            );
+                        }
                     }
                     
-                    $_SESSION['success_message'] = "Purchase successful! You now have lifetime access to these poll results.";
-                    header('Location: view-purchased-result.php?id=' . $poll_id);
+                    $_SESSION['success_message'] = "Purchase successful! You now have lifetime access to these poll results in " . strtoupper($dataset_format) . " format.";
+                    header('Location: view-purchased-result.php?id=' . $poll_id . '&format=' . $dataset_format);
                     exit;
                 } else {
-                    error_log("vPay callback - User already has access: user_id=$user_id, poll_id=$poll_id");
-                    $_SESSION['info_message'] = "You already have access to these results.";
-                    header('Location: view-purchased-result.php?id=' . $poll_id);
+                    // User already has access - just record the format preference
+                    $download_stmt = $conn->prepare("INSERT INTO dataset_downloads (user_id, poll_id, dataset_format, time_period)
+                                                   VALUES (?, ?, ?, 'monthly')
+                                                   ON DUPLICATE KEY UPDATE
+                                                   dataset_format = VALUES(dataset_format),
+                                                   download_date = NOW(),
+                                                   download_count = download_count + 1");
+                    $download_stmt->bind_param("iis", $user_id, $poll_id, $dataset_format);
+                    $download_stmt->execute();
+
+                    error_log("vPay callback - User already has access, updated format preference: user_id=$user_id, poll_id=$poll_id, format=$dataset_format");
+                    $_SESSION['success_message'] = "You already have access to these results. Viewing in " . strtoupper($dataset_format) . " format.";
+                    header('Location: view-purchased-result.php?id=' . $poll_id . '&format=' . $dataset_format);
                     exit;
                 }
             }

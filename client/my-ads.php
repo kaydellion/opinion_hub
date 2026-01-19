@@ -25,7 +25,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_ad'])) {
     $ad_url = sanitize($_POST['ad_url']);
     $start_date = sanitize($_POST['start_date']);
     $end_date = sanitize($_POST['end_date']);
-    $duration = (strtotime($end_date) - strtotime($start_date)) / (60 * 60 * 24);
+
+    // Validate dates
+    if (empty($start_date) || empty($end_date)) {
+        $_SESSION['error'] = "Both start date and end date are required";
+        header("Location: my-ads.php");
+        exit;
+    }
+
+    $start_timestamp = strtotime($start_date);
+    $end_timestamp = strtotime($end_date);
+    $today_timestamp = strtotime(date('Y-m-d'));
+
+    if ($start_timestamp < $today_timestamp) {
+        $_SESSION['error'] = "Start date cannot be in the past";
+        header("Location: my-ads.php");
+        exit;
+    }
+
+    if ($end_timestamp <= $start_timestamp) {
+        $_SESSION['error'] = "End date must be at least one day after start date";
+        header("Location: my-ads.php");
+        exit;
+    }
+
+    $duration = ($end_timestamp - $start_timestamp) / (60 * 60 * 24);
     
     // Calculate amount based on pricing
     $pricing = [
@@ -163,9 +187,10 @@ include_once '../header.php';
         'pending' => 0,
         'paused' => 0,
         'total_views' => 0,
-        'total_clicks' => 0
+        'total_clicks' => 0,
+        'total_revenue' => 0
     ];
-    
+
     $my_ads_copy = $my_ads;
     mysqli_data_seek($my_ads, 0);
     while ($ad = $my_ads->fetch_assoc()) {
@@ -173,12 +198,16 @@ include_once '../header.php';
         $stats[$ad['status']]++;
         $stats['total_views'] += $ad['total_views'];
         $stats['total_clicks'] += $ad['click_throughs'];
+        // Only count revenue from paid/active advertisements
+        if ($ad['status'] === 'active' && $ad['amount_paid'] > 0) {
+            $stats['total_revenue'] += $ad['amount_paid'];
+        }
     }
     mysqli_data_seek($my_ads, 0);
     ?>
 
     <div class="row mb-4">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card border-0 shadow-sm">
                 <div class="card-body text-center">
                     <h3 class="text-primary mb-0"><?= $stats['total'] ?></h3>
@@ -186,7 +215,7 @@ include_once '../header.php';
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card border-0 shadow-sm">
                 <div class="card-body text-center">
                     <h3 class="text-success mb-0"><?= $stats['active'] ?></h3>
@@ -194,7 +223,7 @@ include_once '../header.php';
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card border-0 shadow-sm">
                 <div class="card-body text-center">
                     <h3 class="text-info mb-0"><?= number_format($stats['total_views']) ?></h3>
@@ -202,11 +231,19 @@ include_once '../header.php';
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card border-0 shadow-sm">
                 <div class="card-body text-center">
                     <h3 class="text-warning mb-0"><?= number_format($stats['total_clicks']) ?></h3>
                     <small class="text-muted">Total Clicks</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-success text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">₦<?= number_format($stats['total_revenue'], 2) ?></h3>
+                    <small>Total Revenue</small>
                 </div>
             </div>
         </div>
@@ -322,7 +359,7 @@ include_once '../header.php';
 <div class="modal fade" id="createAdModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form method="POST" enctype="multipart/form-data">
+            <form method="POST" enctype="multipart/form-data" id="createAdForm">
                 <div class="modal-header">
                     <h5 class="modal-title">Create New Advertisement</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -365,12 +402,12 @@ include_once '../header.php';
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Start Date *</label>
-                            <input type="date" name="start_date" id="start_date" class="form-control" 
+                            <input type="date" name="start_date" id="start_date" class="form-control" min="<?php echo date('Y-m-d'); ?>" 
                                    min="<?= date('Y-m-d') ?>" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">End Date *</label>
-                            <input type="date" name="end_date" id="end_date" class="form-control" required>
+                            <input type="date" name="end_date" id="end_date" class="form-control" disabled required>
                         </div>
                     </div>
 
@@ -404,19 +441,37 @@ include_once '../header.php';
 </div>
 
 <script>
-// Date validation
+// Date handling - disable end date until start date is selected
 document.addEventListener('DOMContentLoaded', function() {
     const startDate = document.getElementById('start_date');
     const endDate = document.getElementById('end_date');
-    
+
+    // Initially disable end date
+    endDate.disabled = true;
+    endDate.placeholder = "Select start date first";
+
+    // Set minimum date for start date (today)
+    const today = new Date().toISOString().split('T')[0];
+    startDate.min = today;
+
     startDate.addEventListener('change', function() {
-        endDate.min = this.value;
-    });
-    
-    endDate.addEventListener('change', function() {
-        if (this.value && startDate.value && this.value < startDate.value) {
-            alert('End date must be after start date');
-            this.value = '';
+        if (this.value) {
+            // Enable end date and set minimum to day after start date
+            const startDateObj = new Date(this.value);
+            const minEndDate = new Date(startDateObj);
+            minEndDate.setDate(startDateObj.getDate() + 1);
+
+            endDate.disabled = false;
+            endDate.min = minEndDate.toISOString().split('T')[0];
+            endDate.placeholder = "Select end date";
+
+            // Clear any existing end date
+            endDate.value = '';
+        } else {
+            // Disable end date if start date is cleared
+            endDate.disabled = true;
+            endDate.placeholder = "Select start date first";
+            endDate.value = '';
         }
     });
 });

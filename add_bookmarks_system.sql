@@ -14,3 +14,8 @@ CREATE TABLE user_bookmarks (
     INDEX(poll_id),
     INDEX(created_at)
 );
+
+
+
+
+

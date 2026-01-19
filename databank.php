@@ -13,11 +13,13 @@ $offset = ($page_num - 1) * $limit;
 // Filters
 $category = isset($_GET['category']) ? (int)$_GET['category'] : 0;
 $search = isset($_GET['search']) ? sanitize($_GET['search']) : '';
+$location = isset($_GET['location']) ? sanitize($_GET['location']) : '';
 
 // Build WHERE clause - ONLY show polls marked for sale
 $where = ["p.results_for_sale = 1", "p.status = 'active'"];
 if ($category > 0) $where[] = "p.category_id = $category";
 if ($search) $where[] = "p.title LIKE '%$search%'";
+if (!empty($location)) $where[] = "(p.agent_state_criteria = '$location' OR p.agent_location_all = 1)";
 $where_clause = implode(' AND ', $where);
 
 // Get polls for sale with access check
@@ -52,9 +54,19 @@ $stats_query = $conn->query("SELECT
     FROM polls WHERE results_for_sale = 1 AND status = 'active'");
 $stats = $stats_query ? $stats_query->fetch_assoc() : ['total_polls' => 0, 'avg_price' => 0];
 
-$responses_query = $conn->query("SELECT SUM((SELECT COUNT(*) FROM poll_responses WHERE poll_id = polls.id)) as total_responses 
+$responses_query = $conn->query("SELECT SUM((SELECT COUNT(*) FROM poll_responses WHERE poll_id = polls.id)) as total_responses
                                  FROM polls WHERE results_for_sale = 1 AND status = 'active'");
 $stats['total_responses'] = $responses_query ? ($responses_query->fetch_assoc()['total_responses'] ?? 0) : 0;
+
+// Get latest 6 blog articles
+$latest_articles = $conn->query("SELECT bp.*, CONCAT(u.first_name, ' ', u.last_name) as author_name,
+                                 (SELECT COUNT(*) FROM blog_likes WHERE post_id = bp.id) as like_count,
+                                 (SELECT COUNT(*) FROM blog_comments WHERE post_id = bp.id) as comment_count
+                                 FROM blog_posts bp
+                                 JOIN users u ON bp.user_id = u.id
+                                 WHERE bp.status = 'approved'
+                                 ORDER BY bp.created_at DESC
+                                 LIMIT 6");
 ?>
 
 <div class="container my-5">
@@ -108,10 +120,10 @@ $stats['total_responses'] = $responses_query ? ($responses_query->fetch_assoc()[
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
             <form method="GET" class="row g-3">
-                <div class="col-md-5">
+                <div class="col-md-3">
                     <input type="text" name="search" class="form-control" placeholder="Search polls..." value="<?php echo htmlspecialchars($search); ?>">
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-3">
                     <select class="form-select" name="category">
                         <option value="">All Categories</option>
                         <?php if ($categories): ?>
@@ -123,7 +135,25 @@ $stats['total_responses'] = $responses_query ? ($responses_query->fetch_assoc()[
                         <?php endif; ?>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
+                    <select class="form-select" name="location">
+                        <option value="">All Locations</option>
+                        <?php
+                        $nigerian_states = [
+                            'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno',
+                            'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe',
+                            'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara',
+                            'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau',
+                            'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara'
+                        ];
+                        foreach ($nigerian_states as $state): ?>
+                            <option value="<?php echo $state; ?>" <?php echo $location === $state ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($state); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i> Search</button>
                 </div>
             </form>
@@ -164,15 +194,20 @@ $stats['total_responses'] = $responses_query ? ($responses_query->fetch_assoc()[
                         
                         <div class="d-flex justify-content-between align-items-center">
                             <h4 class="mb-0 text-success">₦<?php echo number_format($poll['results_sale_price'] ?? 0, 2); ?></h4>
-                            
+
                             <?php if ($has_access): ?>
-                                <a href="<?php echo SITE_URL; ?>view-purchased-result.php?id=<?php echo $poll['id']; ?>" class="btn btn-success">
-                                    <i class="fas fa-eye"></i> View
-                                </a>
+                                <div class="btn-group" role="group">
+                                    <a href="<?php echo SITE_URL; ?>view-purchased-result.php?id=<?php echo $poll['id']; ?>&format=combined" class="btn btn-success btn-sm">
+                                        <i class="fas fa-chart-line"></i> Combined
+                                    </a>
+                                    <a href="<?php echo SITE_URL; ?>view-purchased-result.php?id=<?php echo $poll['id']; ?>&format=single" class="btn btn-info btn-sm">
+                                        <i class="fas fa-users"></i> Single
+                                    </a>
+                                </div>
                             <?php elseif ($current_user): ?>
-                                <button onclick="purchasePollResults(<?php echo $poll['id']; ?>, <?php echo $poll['results_sale_price'] ?? 0; ?>, '<?php echo htmlspecialchars(addslashes($poll['title'])); ?>')" 
+                                <button onclick="showFormatSelection(<?php echo $poll['id']; ?>, <?php echo $poll['results_sale_price'] ?? 0; ?>, '<?php echo htmlspecialchars(addslashes($poll['title'])); ?>')"
                                         class="btn btn-primary">
-                                    <i class="fas fa-shopping-cart"></i> Purchase
+                                    <i class="fas fa-shopping-cart"></i> Purchase Dataset
                                 </button>
                             <?php else: ?>
                                 <a href="<?php echo SITE_URL; ?>signin.php" class="btn btn-outline-primary">
@@ -192,7 +227,7 @@ $stats['total_responses'] = $responses_query ? ($responses_query->fetch_assoc()[
             <ul class="pagination justify-content-center">
                 <?php if ($page_num > 1): ?>
                     <li class="page-item">
-                        <a class="page-link" href="?page=<?php echo $page_num - 1; ?>&category=<?php echo $category; ?>&search=<?php echo urlencode($search); ?>">Previous</a>
+                        <a class="page-link" href="?page=<?php echo $page_num - 1; ?>&category=<?php echo $category; ?>&search=<?php echo urlencode($search); ?>&location=<?php echo urlencode($location); ?>">Previous</a>
                     </li>
                 <?php endif; ?>
                 
@@ -202,13 +237,13 @@ $stats['total_responses'] = $responses_query ? ($responses_query->fetch_assoc()[
                 for ($i = $start; $i <= $end; $i++): 
                 ?>
                     <li class="page-item <?php echo $i === $page_num ? 'active' : ''; ?>">
-                        <a class="page-link" href="?page=<?php echo $i; ?>&category=<?php echo $category; ?>&search=<?php echo urlencode($search); ?>"><?php echo $i; ?></a>
+                        <a class="page-link" href="?page=<?php echo $i; ?>&category=<?php echo $category; ?>&search=<?php echo urlencode($search); ?>&location=<?php echo urlencode($location); ?>"><?php echo $i; ?></a>
                     </li>
                 <?php endfor; ?>
                 
                 <?php if ($page_num < $total_pages): ?>
                     <li class="page-item">
-                        <a class="page-link" href="?page=<?php echo $page_num + 1; ?>&category=<?php echo $category; ?>&search=<?php echo urlencode($search); ?>">Next</a>
+                        <a class="page-link" href="?page=<?php echo $page_num + 1; ?>&category=<?php echo $category; ?>&search=<?php echo urlencode($search); ?>&location=<?php echo urlencode($location); ?>">Next</a>
                     </li>
                 <?php endif; ?>
             </ul>
@@ -254,24 +289,177 @@ $stats['total_responses'] = $responses_query ? ($responses_query->fetch_assoc()[
             </div>
         </div>
     </div>
+
+    <!-- Latest Blog Articles -->
+    <?php if ($latest_articles && $latest_articles->num_rows > 0): ?>
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-blog me-2"></i> Latest Blog Articles</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <?php while ($article = $latest_articles->fetch_assoc()): ?>
+                            <div class="col-lg-4 col-md-6 mb-4">
+                                <div class="card h-100 border-0 shadow-sm hover-shadow">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            <a href="<?php echo SITE_URL; ?>blog/view.php?slug=<?php echo urlencode($article['slug']); ?>"
+                                               class="text-decoration-none text-dark">
+                                                <?php echo htmlspecialchars(substr($article['title'], 0, 60)); ?>
+                                                <?php if (strlen($article['title']) > 60) echo '...'; ?>
+                                            </a>
+                                        </h6>
+                                        <p class="card-text text-muted small mb-2">
+                                            <?php echo htmlspecialchars(substr(strip_tags($article['content']), 0, 100)); ?>...
+                                        </p>
+                                        <div class="d-flex justify-content-between align-items-center text-muted small">
+                                            <span><i class="fas fa-user me-1"></i> <?php echo htmlspecialchars($article['author_name']); ?></span>
+                                            <span><i class="fas fa-calendar me-1"></i> <?php echo date('M d, Y', strtotime($article['created_at'])); ?></span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                            <div class="text-muted small">
+                                                <i class="fas fa-heart text-danger me-1"></i> <?php echo $article['like_count']; ?>
+                                                <i class="fas fa-comment text-primary ms-2 me-1"></i> <?php echo $article['comment_count']; ?>
+                                            </div>
+                                            <a href="<?php echo SITE_URL; ?>blog/view.php?slug=<?php echo urlencode($article['slug']); ?>"
+                                               class="btn btn-outline-primary btn-sm">
+                                                Read More <i class="fas fa-arrow-right ms-1"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endwhile; ?>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="<?php echo SITE_URL; ?>blog.php" class="btn btn-primary">
+                            <i class="fas fa-blog me-2"></i> View All Articles
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+</div>
+
+<!-- Dataset Format Selection Modal -->
+<div class="modal fade" id="formatSelectionModal" tabindex="-1" aria-labelledby="formatSelectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formatSelectionModalLabel">Choose Dataset Format</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <h6>Select the dataset format you want to purchase:</h6>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="card border-primary">
+                            <div class="card-body text-center">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="dataset_format" id="format_combined" value="combined" checked>
+                                    <label class="form-check-label" for="format_combined">
+                                        <h5 class="text-primary mb-2"><i class="fas fa-chart-line me-2"></i>COMBINED Format</h5>
+                                        <p class="text-muted mb-2">Aggregated responses with trend analysis and patterns</p>
+                                        <small class="text-success">
+                                            <i class="fas fa-check-circle me-1"></i>Includes: Pie charts, bar charts, line graphs, trend analysis (Daily/Weekly/Monthly/Annually)
+                                        </small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card border-info">
+                            <div class="card-body text-center">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="dataset_format" id="format_single" value="single">
+                                    <label class="form-check-label" for="format_single">
+                                        <h5 class="text-info mb-2"><i class="fas fa-users me-2"></i>SINGLE Format</h5>
+                                        <p class="text-muted mb-2">Individual responses from each participant</p>
+                                        <small class="text-success">
+                                            <i class="fas fa-check-circle me-1"></i>Includes: All individual responses with pagination, detailed view of each participant's answers
+                                        </small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Note:</strong> Both formats provide lifetime access to the poll results. You can download/export the data in multiple formats (PDF, CSV, etc.).
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmPurchaseBtn" onclick="confirmPurchase()">
+                    <i class="fas fa-credit-card me-2"></i>Proceed to Payment
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <?php if ($current_user): ?>
 <script>
-function purchasePollResults(pollId, amount, title) {
-    if (!confirm('Purchase "' + title + '" for ₦' + amount.toLocaleString() + '?')) {
+// Global variables for format selection
+let selectedPollId = null;
+let selectedAmount = null;
+let selectedTitle = null;
+
+function showFormatSelection(pollId, amount, title) {
+    selectedPollId = pollId;
+    selectedAmount = amount;
+    selectedTitle = title;
+
+    // Reset radio buttons
+    document.getElementById('format_combined').checked = true;
+    document.getElementById('format_single').checked = false;
+
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('formatSelectionModal'));
+    modal.show();
+}
+
+function confirmPurchase() {
+    const selectedFormat = document.querySelector('input[name="dataset_format"]:checked').value;
+
+    if (!selectedFormat) {
+        alert('Please select a dataset format.');
         return;
     }
-    
+
+    if (!confirm('Purchase "' + selectedTitle + '" (' + selectedFormat.toUpperCase() + ' format) for ₦' + selectedAmount.toLocaleString() + '?')) {
+        return;
+    }
+
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('formatSelectionModal'));
+    modal.hide();
+
+    // Proceed with payment
+    proceedToPayment(selectedPollId, selectedAmount, selectedTitle, selectedFormat);
+}
+
+function proceedToPayment(pollId, amount, title, format) {
     const reference = 'DATABANK_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9).toUpperCase();
-    
+
     // Check if VPayDropin is loaded
     if (!window.VPayDropin) {
         console.error('VPayDropin not found. Current window properties:', Object.keys(window).filter(k => k.toLowerCase().includes('vpay')));
         alert('Payment system not loaded. Please refresh the page and try again.');
         return;
     }
-    
+
     const options = {
         amount: amount,
         currency: 'NGN',
@@ -285,13 +473,13 @@ function purchasePollResults(pollId, amount, title) {
         txn_charge_type: 'flat',
         onSuccess: function(response) {
             console.log('Payment successful:', response);
-            window.location.href = '<?php echo SITE_URL; ?>vpay-callback.php?reference=' + reference + '&type=databank_access&poll_id=' + pollId + '&amount=' + amount;
+            window.location.href = '<?php echo SITE_URL; ?>vpay-callback.php?reference=' + reference + '&type=databank_access&poll_id=' + pollId + '&amount=' + amount + '&format=' + format;
         },
         onExit: function(response) {
             console.log('Payment cancelled');
         }
     };
-    
+
     try {
         const { open, exit } = VPayDropin.create(options);
         open();
@@ -299,6 +487,11 @@ function purchasePollResults(pollId, amount, title) {
         console.error('VPayDropin error:', error);
         alert('Payment initialization failed: ' + error.message);
     }
+}
+
+// Legacy function for backward compatibility
+function purchasePollResults(pollId, amount, title) {
+    showFormatSelection(pollId, amount, title);
 }
 </script>
 <?php endif; ?>
