@@ -35,49 +35,61 @@ include_once 'header.php';
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">
                     <h3 class="mb-3">Advertising Options & Pricing</h3>
-                    <p class="mb-4">We offer flexible advertising packages to suit businesses of all sizes. Below are our current rates:</p>
+                    <p class="mb-4">We offer flexible advertising packages with duration-based pricing. Choose your placement and duration to get started:</p>
 
                     <div class="table-responsive">
-                        <table class="table table-bordered">
+                        <table class="table table-bordered table-sm">
                             <thead class="table-light">
                                 <tr>
                                     <th>Ad Placement</th>
-                                    <th>Size/Format</th>
-                                    <th>Price per View</th>
-                                    <th>Description</th>
+                                    <th>7 Days</th>
+                                    <th>14 Days</th>
+                                    <th>30 Days</th>
+                                    <th>Daily Rate</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><strong>Top Banner Ad</strong></td>
-                                    <td>728x90 pixels</td>
-                                    <td>₦5.00</td>
-                                    <td>Prime position at the top of the homepage, visible on every page load</td>
+                                    <td><strong>Homepage Top Banner</strong><br><small>728x90 pixels - Prime placement</small></td>
+                                    <td>₦25,000</td>
+                                    <td>₦45,000</td>
+                                    <td>₦80,000</td>
+                                    <td>₦4,000/day</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Sidebar Ad</strong></td>
-                                    <td>300x250 pixels</td>
-                                    <td>₦3.00</td>
-                                    <td>Positioned on the right sidebar of survey pages</td>
+                                    <td><strong>Homepage Sidebar</strong><br><small>300x250 pixels - High visibility</small></td>
+                                    <td>₦20,000</td>
+                                    <td>₦35,000</td>
+                                    <td>₦60,000</td>
+                                    <td>₦3,000/day</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Footer Ad</strong></td>
-                                    <td>728x90 pixels</td>
-                                    <td>₦1.50</td>
-                                    <td>Appears at the bottom of pages, ideal for brand awareness</td>
+                                    <td><strong>Poll Page Top Banner</strong><br><small>728x90 pixels - Targeted reach</small></td>
+                                    <td>₦30,000</td>
+                                    <td>₦55,000</td>
+                                    <td>₦100,000</td>
+                                    <td>₦5,000/day</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>In-Poll Sponsored Message</strong></td>
-                                    <td>Text/Image</td>
-                                    <td>₦4.00</td>
-                                    <td>A brief sponsored message displayed within a poll before or after questions</td>
+                                    <td><strong>Poll Page Sidebar</strong><br><small>300x250 pixels - Contextual placement</small></td>
+                                    <td>₦22,000</td>
+                                    <td>₦40,000</td>
+                                    <td>₦70,000</td>
+                                    <td>₦3,500/day</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Dashboard Ad</strong><br><small>Exclusive placement for premium visibility</small></td>
+                                    <td>₦18,000</td>
+                                    <td>₦30,000</td>
+                                    <td>₦50,000</td>
+                                    <td>₦2,500/day</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
                     <div class="alert alert-info mt-3">
-                        <i class="fas fa-info-circle"></i> <strong>Custom Packages Available:</strong> If you need a tailored advertising solution, contact us to discuss bulk rates, seasonal campaigns, or exclusive sponsorships.
+                        <i class="fas fa-info-circle"></i> <strong>Package Benefits:</strong> Longer duration packages offer better value. For campaigns longer than 30 days, the daily rate will be applied. All placements include detailed analytics and click tracking.
                     </div>
                 </div>
             </div>

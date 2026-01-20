@@ -375,9 +375,18 @@ function sendEmail_Brevo($to_email, $subject, $htmlContent, $to_name = '', $use_
         $htmlContent = getEmailTemplate($subject, $htmlContent);
     }
     
+    // Get Brevo settings from database
+    $brevo_api_key = getSetting('brevo_api_key', '');
+    $brevo_from_email = getSetting('brevo_from_email', 'noreply@opinionhub.ng');
+    $brevo_from_name = getSetting('brevo_from_name', 'Opinion Hub NG');
+    
+    if (empty($brevo_api_key)) {
+        return ['success' => false, 'error' => 'Brevo API key not configured'];
+    }
+    
     $url = 'https://api.brevo.com/v3/smtp/email';
     $payload = [
-        'sender' => ['name' => BREVO_FROM_NAME, 'email' => BREVO_FROM_EMAIL],
+        'sender' => ['name' => $brevo_from_name, 'email' => $brevo_from_email],
         'to' => [[ 'email' => $to_email, 'name' => $to_name ]],
         'subject' => $subject,
         'htmlContent' => $htmlContent
@@ -391,7 +400,7 @@ function sendEmail_Brevo($to_email, $subject, $htmlContent, $to_name = '', $use_
         CURLOPT_POSTFIELDS => json_encode($payload),
         CURLOPT_HTTPHEADER => [
             'Content-Type: application/json',
-            'api-key: ' . BREVO_API_KEY
+            'api-key: ' . $brevo_api_key
         ]
     ]);
 
@@ -861,6 +870,57 @@ function deductCredits($user_id, $type, $units = 1) {
         return $conn->query("UPDATE messaging_credits SET whatsapp_balance = $new WHERE user_id = $user_id");
     }
     return false;
+}
+
+/**
+ * Award Referral Bonus
+ * Awards bonus to referrer when referred user makes a purchase
+ */
+function awardReferralBonus($user_id, $purchase_type = 'sms_credits', $amount = 500) {
+    global $conn;
+    
+    // Get the user who referred this user
+    $user = $conn->query("SELECT referred_by FROM users WHERE id = $user_id")->fetch_assoc();
+    
+    if (!$user || !$user['referred_by']) {
+        return false; // No referrer
+    }
+    
+    $referrer_id = $user['referred_by'];
+    
+    // Define referral bonuses
+    $bonus_amount = 0;
+    switch ($purchase_type) {
+        case 'sms_credits':
+            $bonus_amount = 1000; // ₦1000 bonus for SMS purchase
+            break;
+        case 'subscription':
+            $bonus_amount = 5000; // ₦5000 bonus for subscription
+            break;
+        case 'poll_payment':
+            $bonus_amount = $amount * 0.10; // 10% of poll payment
+            break;
+        default:
+            $bonus_amount = 500;
+    }
+    
+    // Award to referrer's earnings
+    $conn->query("UPDATE users SET total_earnings = total_earnings + $bonus_amount WHERE id = $referrer_id");
+    
+    // Create earnings record
+    $description = "Referral bonus from {$purchase_type}";
+    $conn->query("INSERT INTO agent_earnings (agent_id, earning_type, amount, description, status) 
+                 VALUES ($referrer_id, 'referral_bonus', $bonus_amount, '$description', 'completed')");
+    
+    // Notify referrer
+    createNotification(
+        $referrer_id,
+        'success',
+        'Referral Bonus Earned!',
+        "You earned ₦" . number_format($bonus_amount, 2) . " from a referral bonus ($purchase_type)"
+    );
+    
+    return true;
 }
 
 /**

@@ -135,6 +135,9 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
             "Your payment of ₦" . number_format($transaction['amount'] / 100, 2) . " was successful. $units $credit_type credits have been added to your account."
         );
         
+        // Award referral bonus if applicable
+        awardReferralBonus($user_id, $credit_type . '_credits', $transaction['amount'] / 100);
+        
         $_SESSION['success_message'] = "Payment successful! $units $credit_type credits have been added to your account.";
         
         // Redirect based on user role
@@ -190,7 +193,7 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
             $expiry_date = date('Y-m-d', strtotime("+$duration days"));
             
             // Update user subscription
-            $stmt = $conn->prepare("UPDATE users SET subscription_status = 'active', subscription_plan = ?, subscription_expiry = ? WHERE user_id = ?");
+            $stmt = $conn->prepare("UPDATE users SET subscription_status = 'active', subscription_plan = ?, subscription_expiry = ? WHERE id = ?");
             $stmt->bind_param("ssi", $plan, $expiry_date, $user_id);
             $stmt->execute();
             
@@ -200,6 +203,10 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
                 "Subscription Activated",
                 "Your $plan subscription is now active until " . date('F j, Y', strtotime($expiry_date))
             );
+            
+            // Award referral bonus if applicable
+            $plan_amount = ($plan === 'yearly') ? 50000 : 10000; // Estimate
+            awardReferralBonus($user_id, 'subscription', $plan_amount);
             
             $_SESSION['success_message'] = "Subscription activated successfully!";
             header('Location: client/subscription.php');

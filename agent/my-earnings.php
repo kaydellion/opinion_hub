@@ -163,7 +163,7 @@ include_once '../header.php';
                         <option value="all" <?php echo $type_filter === 'all' ? 'selected' : ''; ?>>All Types</option>
                         <option value="poll_response" <?php echo $type_filter === 'poll_response' ? 'selected' : ''; ?>>Poll Response</option>
                         <option value="poll_share" <?php echo $type_filter === 'poll_share' ? 'selected' : ''; ?>>Poll Share</option>
-                        <option value="referral" <?php echo $type_filter === 'referral' ? 'selected' : ''; ?>>Referral</option>
+                        <option value="referral_bonus" <?php echo $type_filter === 'referral_bonus' ? 'selected' : ''; ?>>Referral Bonus</option>
                         <option value="bonus" <?php echo $type_filter === 'bonus' ? 'selected' : ''; ?>>Bonus</option>
                     </select>
                 </div>
@@ -218,7 +218,7 @@ include_once '../header.php';
                                 $type_badges = [
                                     'poll_response' => '<span class="badge bg-primary">Response</span>',
                                     'poll_share' => '<span class="badge bg-info">Share</span>',
-                                    'referral' => '<span class="badge bg-success">Referral</span>',
+                                    'referral_bonus' => '<span class="badge bg-success">Referral Bonus</span>',
                                     'bonus' => '<span class="badge bg-warning">Bonus</span>',
                                     'other' => '<span class="badge bg-secondary">Other</span>'
                                 ];

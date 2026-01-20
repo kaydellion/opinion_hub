@@ -151,6 +151,11 @@ if (!$recent_responses) {
                             </a>
                         </div>
                         <div class="col-md-3 mb-3">
+                            <a href="<?php echo SITE_URL; ?>agent/buy-vtu.php" class="btn btn-danger btn-lg w-100">
+                                <i class="fas fa-phone-alt"></i> Buy Airtime/Data
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
                             <a href="<?php echo SITE_URL; ?>agent/payouts.php" class="btn btn-warning btn-lg w-100 text-dark">
                                 <i class="fas fa-money-bill-wave"></i> Request Payout
                             </a>

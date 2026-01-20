@@ -106,6 +106,12 @@ switch ($action) {
     case 'admin_delete_poll':
         handleAdminDeletePoll();
         break;
+    case 'agent_send_airtime':
+        handleAgentSendAirtime();
+        break;
+    case 'agent_send_data':
+        handleAgentSendData();
+        break;
     case 'test':
         echo json_encode([
             'success' => true,
@@ -162,9 +168,22 @@ function handleRegister() {
     $password_hash = hashPassword($password);
     $username = strtolower($first_name . $last_name . rand(100, 999));
     
+    // Generate unique referral code
+    $referral_code = strtoupper(bin2hex(random_bytes(6)));
+    
+    // Get referrer if ref code provided
+    $referred_by = null;
+    if (isset($_GET['ref']) || isset($_POST['ref'])) {
+        $ref_code = sanitize($_GET['ref'] ?? $_POST['ref'] ?? '');
+        $referrer = $conn->query("SELECT id FROM users WHERE referral_code = '$ref_code'")->fetch_assoc();
+        if ($referrer) {
+            $referred_by = $referrer['id'];
+        }
+    }
+    
     $query = "INSERT INTO users 
-              (username, email, password_hash, first_name, last_name, phone, role) 
-              VALUES ('$username', '$email', '$password_hash', '$first_name', '$last_name', '$phone', '$role')";
+              (username, email, password_hash, first_name, last_name, phone, role, referral_code, referred_by) 
+              VALUES ('$username', '$email', '$password_hash', '$first_name', '$last_name', '$phone', '$role', '$referral_code', " . ($referred_by ? $referred_by : "NULL") . ")";
     
     if ($conn->query($query)) {
         $user_id = $conn->insert_id;
@@ -947,7 +966,7 @@ function handleRequestPayout() {
     
     if ($stmt->execute()) {
         // Update user's pending_earnings
-        $conn->query("UPDATE users SET pending_earnings = pending_earnings + $amount WHERE user_id = $agent_id");
+        $conn->query("UPDATE users SET pending_earnings = pending_earnings + $amount WHERE id = $agent_id");
         
         echo json_encode(['success' => true, 'message' => 'Payout request submitted successfully']);
     } else {
@@ -1785,6 +1804,128 @@ function handleUnfollowCategory() {
         exit;
     }
 
+/**
+ * Handle Agent Sending Airtime via VTU
+ */
+function handleAgentSendAirtime() {
+    global $conn;
+    
+    header('Content-Type: application/json');
+    
+    if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'agent') {
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit;
+    }
+    
+    $agent_id = $_SESSION['user_id'];
+    $phone = sanitize($_POST['phone'] ?? '');
+    $network = sanitize($_POST['network'] ?? '');
+    $amount = (float)($_POST['amount'] ?? 0);
+    
+    // Validation
+    if (empty($phone) || !preg_match('/^234\d{10}$/', $phone)) {
+        echo json_encode(['success' => false, 'message' => 'Invalid phone number format']);
+        exit;
+    }
+    
+    if (empty($network) || !in_array($network, ['mtn', 'glo', 'airtel', 'etisalat'])) {
+        echo json_encode(['success' => false, 'message' => 'Invalid network']);
+        exit;
+    }
+    
+    if ($amount < 50) {
+        echo json_encode(['success' => false, 'message' => 'Minimum airtime amount is ₦50']);
+        exit;
+    }
+    
+    // Check wallet balance
+    $balance_result = $conn->query("SELECT sms_balance FROM messaging_credits WHERE user_id = $agent_id");
+    if (!$balance_result || !($balance_row = $balance_result->fetch_assoc()) || $balance_row['sms_balance'] < $amount) {
+        echo json_encode(['success' => false, 'message' => 'Insufficient wallet balance']);
+        exit;
+    }
+    
+    // Send airtime
+    $result = vtpass_send_airtime($phone, $network, $amount);
+    
+    if ($result['success']) {
+        // Deduct from wallet
+        $conn->query("UPDATE messaging_credits SET sms_balance = sms_balance - $amount WHERE user_id = $agent_id");
+        
+        // Record transaction
+        $description = "Airtime sent to $phone ($network) - ₦$amount";
+        $conn->query("INSERT INTO agent_earnings (agent_id, earning_type, amount, description, status) 
+                     VALUES ($agent_id, 'vtu_airtime', $amount, '$description', 'completed')");
+        
+        echo json_encode(['success' => true, 'message' => 'Airtime sent successfully!', 'data' => $result]);
+    } else {
+        echo json_encode(['success' => false, 'message' => $result['message'] ?? 'Failed to send airtime', 'data' => $result]);
+    }
+    
+    exit;
+}
+
+/**
+ * Handle Agent Sending Data via VTU
+ */
+function handleAgentSendData() {
+    global $conn;
+    
+    header('Content-Type: application/json');
+    
+    if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'agent') {
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit;
+    }
+    
+    $agent_id = $_SESSION['user_id'];
+    $phone = sanitize($_POST['phone'] ?? '');
+    $variation_code = sanitize($_POST['variation_code'] ?? '');
+    
+    // Validation
+    if (empty($phone) || !preg_match('/^234\d{10}$/', $phone)) {
+        echo json_encode(['success' => false, 'message' => 'Invalid phone number format']);
+        exit;
+    }
+    
+    if (empty($variation_code)) {
+        echo json_encode(['success' => false, 'message' => 'Please select a data bundle']);
+        exit;
+    }
+    
+    // Get variation details from VTPASS to get the amount
+    $variation_amount = 0; // Will be fetched from API if needed
+    
+    // Check wallet balance (estimate based on typical data prices)
+    $balance_result = $conn->query("SELECT sms_balance FROM messaging_credits WHERE user_id = $agent_id");
+    if (!$balance_result || !($balance_row = $balance_result->fetch_assoc()) || $balance_row['sms_balance'] < 100) {
+        echo json_encode(['success' => false, 'message' => 'Insufficient wallet balance for data bundle']);
+        exit;
+    }
+    
+    // Send data
+    $result = vtpass_send_data($phone, $variation_code);
+    
+    if ($result['success']) {
+        // Get amount from result or estimate
+        $amount = $result['amount'] ?? 1000;
+        
+        // Deduct from wallet
+        $conn->query("UPDATE messaging_credits SET sms_balance = sms_balance - $amount WHERE user_id = $agent_id");
+        
+        // Record transaction
+        $description = "Data bundle ($variation_code) sent to $phone";
+        $conn->query("INSERT INTO agent_earnings (agent_id, earning_type, amount, description, status) 
+                     VALUES ($agent_id, 'vtu_data', $amount, '$description', 'completed')");
+        
+        echo json_encode(['success' => true, 'message' => 'Data bundle sent successfully!', 'data' => $result]);
+    } else {
+        echo json_encode(['success' => false, 'message' => $result['message'] ?? 'Failed to send data', 'data' => $result]);
+    }
+    
+    exit;
+}
+
     $user_id = getCurrentUser()['id'];
     $category_id = (int)($_POST['category_id'] ?? 0);
 
@@ -1823,3 +1964,5 @@ function handleUnfollowCategory() {
 
     exit;
 }
+
+
