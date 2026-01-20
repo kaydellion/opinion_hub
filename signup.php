@@ -134,8 +134,8 @@ unset($_SESSION['errors']);
                             <!-- LGA -->
                             <div class="mb-3">
                                 <label for="lga" class="form-label">Local Government Area</label>
-                                <select class="form-select" id="lga" name="lga">
-                                    <option value="">Select LGA</option>
+                                <select class="form-select" id="lga" name="lga" disabled>
+                                    <option value="">Select State First</option>
                                 </select>
                             </div>
 
@@ -469,6 +469,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('date_of_birth').required = true;
                 document.getElementById('gender').required = true;
                 document.getElementById('state').required = true;
+                // LGA will be enabled when state is selected
                 document.getElementById('occupation').required = true;
                 document.getElementById('education').required = true;
                 document.getElementById('employment_status').required = true;
@@ -479,6 +480,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('date_of_birth').required = false;
                 document.getElementById('gender').required = false;
                 document.getElementById('state').required = false;
+                if (document.getElementById('lga')) {
+                    document.getElementById('lga').required = false;
+                    document.getElementById('lga').disabled = true;
+                }
                 document.getElementById('occupation').required = false;
                 document.getElementById('education').required = false;
                 document.getElementById('employment_status').required = false;
@@ -487,30 +492,53 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // LGA data for each state (simplified - you may want to load this from a database or API)
-    const lgaData = {
-        'Abia': ['Aba North', 'Aba South', 'Arochukwu', 'Bende', 'Ikwuano', 'Isiala Ngwa North', 'Isiala Ngwa South', 'Isuikwuato', 'Obi Ngwa', 'Ohafia', 'Osisioma Ngwa', 'Ugwunagbo', 'Ukwa East', 'Ukwa West', 'Umuahia North', 'Umuahia South', 'Umu Nneochi'],
-        'Adamawa': ['Demsa', 'Fufore', 'Ganaye', 'Gireri', 'Gombi', 'Guyuk', 'Hong', 'Jada', 'Lamurde', 'Madagali', 'Maiha', 'Mayo-Belwa', 'Michika', 'Mubi North', 'Mubi South', 'Numan', 'Shelleng', 'Song', 'Toungo', 'Yola North', 'Yola South'],
-        'Lagos': ['Agege', 'Ajeromi-Ifelodun', 'Alimosho', 'Amuwo-Odofin', 'Apapa', 'Badagry', 'Epe', 'Eti Osa', 'Ibeju-Lekki', 'Ifako-Ijaiye', 'Ikeja', 'Ikorodu', 'Kosofe', 'Lagos Island', 'Lagos Mainland', 'Mushin', 'Ojo', 'Oshodi-Isolo', 'Port Harcourt', 'Shomolu', 'Surulere']
-        // Add more states and their LGAs as needed
-    };
+    // Load LGA data from JSON file
+    let lgasData = {};
+    
+    fetch('<?php echo SITE_URL; ?>assets/data/nigeria-states-lgas.json')
+        .then(response => response.json())
+        .then(data => {
+            lgasData = data;
+            
+            // Populate LGA dropdown based on selected state
+            if (stateSelect && lgaSelect) {
+                stateSelect.addEventListener('change', function() {
+                    const selectedState = this.value;
+                    lgaSelect.innerHTML = '<option value="">Select LGA</option>';
 
-    // Populate LGA dropdown based on selected state
-    if (stateSelect && lgaSelect) {
-        stateSelect.addEventListener('change', function() {
-            const selectedState = this.value;
-            lgaSelect.innerHTML = '<option value="">Select LGA</option>';
-
-            if (selectedState && lgaData[selectedState]) {
-                lgaData[selectedState].forEach(function(lga) {
-                    const option = document.createElement('option');
-                    option.value = lga.toLowerCase().replace(/\s+/g, '_');
-                    option.textContent = lga;
-                    lgaSelect.appendChild(option);
+                    if (selectedState && lgasData[selectedState]) {
+                        // Enable LGA select
+                        lgaSelect.disabled = false;
+                        lgaSelect.required = true;
+                        
+                        // Populate LGA options
+                        lgasData[selectedState].forEach(function(lga) {
+                            const option = document.createElement('option');
+                            option.value = lga;
+                            option.textContent = lga;
+                            lgaSelect.appendChild(option);
+                        });
+                    } else {
+                        // Disable LGA select if no state selected
+                        lgaSelect.disabled = true;
+                        lgaSelect.required = false;
+                    }
                 });
             }
+        })
+        .catch(error => {
+            console.error('Error loading LGA data:', error);
+            // Fallback: enable manual input if JSON fails to load
+            if (lgaSelect) {
+                const fallbackLga = document.createElement('input');
+                fallbackLga.type = 'text';
+                fallbackLga.className = 'form-select';
+                fallbackLga.id = 'lga';
+                fallbackLga.name = 'lga';
+                fallbackLga.placeholder = 'Local Government Area';
+                lgaSelect.parentNode.replaceChild(fallbackLga, lgaSelect);
+            }
         });
-    }
 });
 </script>
 

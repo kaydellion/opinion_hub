@@ -63,3 +63,4 @@ INSERT INTO settings (setting_key, setting_value, setting_type, description) VAL
 ('whatsapp_credits_enterprise_annual', '10000', 'int', 'WhatsApp credits for Enterprise annual plan');;
 
 
+

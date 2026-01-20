@@ -6,3 +6,4 @@ ALTER TABLE polls
 ADD COLUMN disclaimer TEXT NULL AFTER description;
 
 
+

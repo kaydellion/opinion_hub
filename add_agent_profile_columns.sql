@@ -24,3 +24,4 @@ CREATE INDEX idx_agent_income ON users (income_range);
 
 
 
+

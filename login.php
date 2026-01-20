@@ -1,11 +1,14 @@
 <?php
-$page_title = "Login";
-include_once 'header.php';
+// Check if user is logged in BEFORE including header
+include_once 'connect.php';
 
 if (isLoggedIn()) {
     header("Location: " . SITE_URL . "dashboard.php");
     exit;
 }
+
+$page_title = "Login";
+include_once 'header.php';
 
 $errors = $_SESSION['errors'] ?? [];
 unset($_SESSION['errors']);

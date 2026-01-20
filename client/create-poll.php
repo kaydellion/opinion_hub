@@ -529,7 +529,7 @@ unset($_SESSION['errors']);
                                                     <option value="Edo">Edo</option>
                                                     <option value="Ekiti">Ekiti</option>
                                                     <option value="Enugu">Enugu</option>
-                                                    <option value="FCT">Federal Capital Territory</option>
+                                                    <option value="FCT">FCT</option>
                                                     <option value="Gombe">Gombe</option>
                                                     <option value="Imo">Imo</option>
                                                     <option value="Jigawa">Jigawa</option>
@@ -556,8 +556,8 @@ unset($_SESSION['errors']);
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label small">LGA (Optional)</label>
-                                                <select class="form-select" name="agent_lga" id="agent_lga">
-                                                    <option value="">Select LGA</option>
+                                                <select class="form-select" name="agent_lga" id="agent_lga" disabled>
+                                                    <option value="">Select State First</option>
                                                 </select>
                                             </div>
                                             <div class="form-check">
@@ -965,6 +965,79 @@ function initializeAgentFilters() {
 // Initialize agent filters when page loads
 document.addEventListener('DOMContentLoaded', function() {
     initializeAgentFilters();
+    
+    // Load and populate LGAs for agent state selection
+    const agentStateSelect = document.getElementById('agent_state');
+    const agentLgaSelect = document.getElementById('agent_lga');
+    const locationAllCheckbox = document.getElementById('location_all');
+    let lgasData = {};
+    
+    // Load LGA data from JSON file
+    fetch('<?php echo SITE_URL; ?>assets/data/nigeria-states-lgas.json')
+        .then(response => response.json())
+        .then(data => {
+            lgasData = data;
+            
+            // Handle state selection change
+            if (agentStateSelect && agentLgaSelect) {
+                agentStateSelect.addEventListener('change', function() {
+                    const selectedState = this.value;
+                    agentLgaSelect.innerHTML = '<option value="">Select LGA</option>';
+                    
+                    if (selectedState && lgasData[selectedState]) {
+                        // Enable LGA select
+                        agentLgaSelect.disabled = false;
+                        
+                        // Populate LGA options
+                        lgasData[selectedState].forEach(function(lga) {
+                            const option = document.createElement('option');
+                            option.value = lga;
+                            option.textContent = lga;
+                            agentLgaSelect.appendChild(option);
+                        });
+                    } else {
+                        // Disable LGA select if no state selected
+                        agentLgaSelect.disabled = true;
+                    }
+                });
+            }
+            
+            // Handle "SELECT ALL (NIGERIA)" checkbox
+            if (locationAllCheckbox) {
+                locationAllCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        // Disable state and LGA fields when "SELECT ALL" is checked
+                        if (agentStateSelect) {
+                            agentStateSelect.disabled = true;
+                            agentStateSelect.value = '';
+                        }
+                        if (agentLgaSelect) {
+                            agentLgaSelect.disabled = true;
+                            agentLgaSelect.innerHTML = '<option value="">Select LGA</option>';
+                        }
+                    } else {
+                        // Enable state field when "SELECT ALL" is unchecked
+                        if (agentStateSelect) {
+                            agentStateSelect.disabled = false;
+                        }
+                        // LGA will be enabled when a state is selected
+                    }
+                });
+                
+                // Initial state: if checkbox is checked, disable fields
+                if (locationAllCheckbox.checked) {
+                    if (agentStateSelect) {
+                        agentStateSelect.disabled = true;
+                    }
+                    if (agentLgaSelect) {
+                        agentLgaSelect.disabled = true;
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error loading LGA data:', error);
+        });
 });
 
 // Calculate estimated cost (Platform Fee + Agent Commission per response)

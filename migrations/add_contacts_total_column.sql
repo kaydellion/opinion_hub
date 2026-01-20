@@ -7,3 +7,4 @@ UPDATE contact_lists SET total_contacts = (
 );
 
 
+

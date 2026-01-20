@@ -13,3 +13,4 @@ ALTER TABLE poll_questions ADD INDEX idx_question_image (question_image);
 
 
 
+

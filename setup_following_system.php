@@ -98,3 +98,4 @@ echo "<a href='polls.php'>Go to Polls</a> | <a href='index.php'>Go Home</a>";
 
 
 
+
