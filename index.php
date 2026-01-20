@@ -31,6 +31,14 @@ $latest_polls = $conn->query("SELECT p.*, c.name as category_name,
                                ORDER BY p.created_at DESC
                                LIMIT 8");
 
+// Add question count to latest polls
+$latest_polls_data = [];
+while ($poll = $latest_polls->fetch_assoc()) {
+    $poll['question_count'] = getPollQuestionCount($poll['id']);
+    $poll['progress_percentage'] = getPollProgressPercentage($poll);
+    $latest_polls_data[] = $poll;
+}
+
 // Get trending polls (most responses)
 $trending_polls = $conn->query("SELECT p.*, c.name as category_name,
                                 (SELECT COUNT(*) FROM poll_responses WHERE poll_id = p.id) as total_responses
@@ -39,6 +47,14 @@ $trending_polls = $conn->query("SELECT p.*, c.name as category_name,
                                 WHERE {$status_filter}
                                 ORDER BY total_responses DESC
                                 LIMIT 6");
+
+// Add question count to trending polls
+$trending_polls_data = [];
+while ($poll = $trending_polls->fetch_assoc()) {
+    $poll['question_count'] = getPollQuestionCount($poll['id']);
+    $poll['progress_percentage'] = getPollProgressPercentage($poll);
+    $trending_polls_data[] = $poll;
+}
 
 // Get personalized polls for logged-in users (from followed creators)
 $personalized_polls = null;
@@ -62,6 +78,14 @@ if (isLoggedIn()) {
                                           AND uf.follower_id = $user_id
                                           ORDER BY p.created_at DESC
                                           LIMIT 6");
+
+        // Add question count to personalized polls
+        $personalized_polls_data = [];
+        while ($poll = $personalized_polls->fetch_assoc()) {
+            $poll['question_count'] = getPollQuestionCount($poll['id']);
+            $poll['progress_percentage'] = getPollProgressPercentage($poll);
+            $personalized_polls_data[] = $poll;
+        }
     }
 }
 ?>
@@ -228,11 +252,7 @@ if (isLoggedIn()) {
                     <div id="pollsCarousel" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner">
                             <?php
-                            $polls_array = [];
-                            while ($poll = $latest_polls->fetch_assoc()) {
-                                $polls_array[] = $poll;
-                            }
-                            $chunks = array_chunk($polls_array, 2);
+                            $chunks = array_chunk($latest_polls_data, 2);
                             foreach ($chunks as $index => $chunk):
                                 ?>
                                 <div class="carousel-item <?php echo $index === 0 ? 'active' : ''; ?>">
@@ -261,16 +281,30 @@ if (isLoggedIn()) {
                                                         <p class="card-text text-muted">
                                                             <?php echo substr(htmlspecialchars($poll['description']), 0, 100); ?>...
                                                         </p>
-                                                        <div class="d-flex justify-content-between align-items-center">
-                                                            <small class="text-muted">
-                                                                <i class="fas fa-users"></i> <?php echo $poll['total_responses']; ?>
-                                                                responses
+                                                        <div class="mb-2">
+                                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                <small class="text-muted">
+                                                                    <i class="fas fa-users"></i> <?php echo $poll['total_responses']; ?> responses
+                                                                </small>
+                                                                <small class="text-muted">
+                                                                    <i class="fas fa-question-circle"></i> <?php echo $poll['question_count']; ?> questions
+                                                                </small>
+                                                            </div>
+                                                            <div class="progress" style="height: 6px;">
+                                                                <div class="progress-bar bg-success" role="progressbar"
+                                                                     style="width: <?php echo $poll['progress_percentage']; ?>%"
+                                                                     aria-valuenow="<?php echo $poll['progress_percentage']; ?>"
+                                                                     aria-valuemin="0" aria-valuemax="100">
+                                                                </div>
+                                                            </div>
+                                                            <small class="text-muted d-block text-end mt-1">
+                                                                <?php echo $poll['progress_percentage']; ?>% complete
                                                             </small>
-                                                            <a href="<?php echo SITE_URL; ?>view-poll/<?php echo $poll['slug']; ?>"
-                                                                class="btn btn-primary btn-sm">
-                                                                Take Poll <i class="fas fa-arrow-right"></i>
-                                                            </a>
                                                         </div>
+                                                        <a href="<?php echo SITE_URL; ?>view-poll/<?php echo $poll['slug']; ?>"
+                                                            class="btn btn-primary btn-sm w-100">
+                                                            Take Poll <i class="fas fa-arrow-right"></i>
+                                                        </a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -312,14 +346,14 @@ if (isLoggedIn()) {
 <?php endif; ?>
 
 <!-- Trending Polls -->
-<?php if ($trending_polls && $trending_polls->num_rows > 0): ?>
+<?php if (!empty($trending_polls_data)): ?>
     <div class="container my-5">
         <div class="text-center mb-4">
             <h2 class="display-6 fw-bold">Trending Polls</h2>
             <p class="text-muted">Most popular polls right now</p>
         </div>
         <div class="row">
-            <?php while ($poll = $trending_polls->fetch_assoc()): ?>
+            <?php foreach ($trending_polls_data as $poll): ?>
                 <div class="col-md-4 mb-4">
                     <div class="card border-0 shadow-sm h-100 hover-scale">
                         <div class="card-body">
@@ -332,33 +366,48 @@ if (isLoggedIn()) {
                             <p class="card-text text-muted">
                                 <?php echo substr(htmlspecialchars($poll['description']), 0, 80); ?>...
                             </p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-success fw-bold">
-                                    <i class="fas fa-users"></i> <?php echo number_format($poll['total_responses']); ?> votes
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small class="text-success fw-bold">
+                                        <i class="fas fa-users"></i> <?php echo number_format($poll['total_responses']); ?> votes
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="fas fa-question-circle"></i> <?php echo $poll['question_count']; ?> questions
+                                    </small>
+                                </div>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar bg-danger" role="progressbar"
+                                         style="width: <?php echo $poll['progress_percentage']; ?>%"
+                                         aria-valuenow="<?php echo $poll['progress_percentage']; ?>"
+                                         aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                                <small class="text-muted d-block text-end mt-1">
+                                    <?php echo $poll['progress_percentage']; ?>% complete
                                 </small>
-                                <a href="<?php echo SITE_URL; ?>view-poll/<?php echo $poll['slug']; ?>"
-                                    class="btn btn-outline-primary btn-sm">
-                                    Vote Now
-                                </a>
                             </div>
+                            <a href="<?php echo SITE_URL; ?>view-poll/<?php echo $poll['slug']; ?>"
+                                class="btn btn-outline-primary btn-sm w-100">
+                                Vote Now
+                            </a>
                         </div>
                     </div>
                 </div>
-            <?php endwhile; ?>
+            <?php endforeach; ?>
         </div>
     </div>
 <?php endif; ?>
 
 <!-- Polls for You (Personalized Feed) -->
-<?php if ($personalized_polls && $personalized_polls->num_rows > 0): ?>
+<?php if (!empty($personalized_polls_data)): ?>
     <div class="bg-light py-5">
         <div class="container">
             <div class="text-center mb-4">
-                <h2 class="display-6 fw-bold"></i>Polls for You</h2>
+                <h2 class="display-6 fw-bold">Polls for You</h2>
                 <p class="text-muted">Polls from creators you follow</p>
             </div>
             <div class="row">
-                <?php while ($poll = $personalized_polls->fetch_assoc()): ?>
+                <?php foreach ($personalized_polls_data as $poll): ?>
                     <div class="col-md-4 mb-4">
                         <div class="card border-0 shadow-sm h-100 hover-scale">
                             <div class="card-body">
@@ -376,20 +425,34 @@ if (isLoggedIn()) {
                                     <?php echo substr(htmlspecialchars($poll['description']), 0, 80); ?>
                                     <?php echo strlen($poll['description']) > 80 ? '...' : ''; ?>
                                 </p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-primary fw-bold">
-                                        <i class="fas fa-users"></i> <?php echo number_format($poll['total_responses']); ?>
-                                        responses
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <small class="text-primary fw-bold">
+                                            <i class="fas fa-users"></i> <?php echo number_format($poll['total_responses']); ?> responses
+                                        </small>
+                                        <small class="text-muted">
+                                            <i class="fas fa-question-circle"></i> <?php echo $poll['question_count']; ?> questions
+                                        </small>
+                                    </div>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-primary" role="progressbar"
+                                             style="width: <?php echo $poll['progress_percentage']; ?>%"
+                                             aria-valuenow="<?php echo $poll['progress_percentage']; ?>"
+                                             aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted d-block text-end mt-1">
+                                        <?php echo $poll['progress_percentage']; ?>% complete
                                     </small>
-                                    <a href="<?php echo SITE_URL; ?>view-poll/<?php echo $poll['slug']; ?>"
-                                        class="btn btn-outline-primary btn-sm">
-                                        Take Poll <i class="fas fa-arrow-right"></i>
-                                    </a>
                                 </div>
+                                <a href="<?php echo SITE_URL; ?>view-poll/<?php echo $poll['slug']; ?>"
+                                    class="btn btn-outline-primary btn-sm w-100">
+                                    Take Poll <i class="fas fa-arrow-right"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
             </div>
             <!-- <div class="text-center mt-4">
                 <a href="<?php echo SITE_URL; ?>polls.php?filter=following" class="btn btn-success btn-lg px-4">

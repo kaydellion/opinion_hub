@@ -14,15 +14,24 @@ if (!$poll) {
     die('Poll not found');
 }
 
-// Calculate costs
-$price_per_response = floatval($poll['price_per_response'] ?? 100);
-$target_responders = intval($poll['target_responders'] ?? 100);
-$agent_total = $price_per_response * $target_responders;
+// Check if client wants to pay agents (price_per_response > 0)
+$wants_to_pay_agents = floatval($poll['price_per_response'] ?? 0) > 0;
 
-// Get admin commission percentage
-$admin_commission_percent = floatval(getSetting('admin_commission_percent', '10'));
-$admin_commission = ($agent_total * $admin_commission_percent) / 100;
-$total_cost = $agent_total + $admin_commission;
+// Calculate costs based on payment preference
+if ($wants_to_pay_agents) {
+    $platform_fee = 500; // Fixed platform fee per response
+    $agent_commission = 1000; // Fixed agent commission per response
+    $total_per_response = $platform_fee + $agent_commission; // ₦1,500 per response
+    $target_responders = intval($poll['target_responders'] ?? 100);
+    $total_cost = $total_per_response * $target_responders;
+} else {
+    // No payment required
+    $platform_fee = 0;
+    $agent_commission = 0;
+    $total_per_response = 0;
+    $target_responders = intval($poll['target_responders'] ?? 100);
+    $total_cost = 0;
+}
 
 // Check if already paid
 $already_paid = $conn->query("SELECT id FROM transactions 
@@ -44,11 +53,11 @@ include_once '../header.php';
                 </div>
                 <div class="card-body">
                     
-                    <?php if ($already_paid): ?>
+                    <?php if ($already_paid || !$wants_to_pay_agents): ?>
                         <div class="alert alert-success">
                             <i class="fas fa-check-circle"></i>
-                            <strong>Payment Completed!</strong><br>
-                            This poll has already been paid for. You can publish it now.
+                            <strong><?php echo $wants_to_pay_agents ? 'Payment Completed!' : 'Ready to Publish!'; ?></strong><br>
+                            <?php echo $wants_to_pay_agents ? 'This poll has already been paid for.' : 'No payment required for this poll.'; ?> You can publish it now.
                         </div>
                         <a href="<?php echo SITE_URL; ?>actions.php?action=publish_poll&poll_id=<?php echo $poll_id; ?>" class="btn btn-success">
                             <i class="fas fa-rocket"></i> Publish Poll Now
@@ -61,27 +70,34 @@ include_once '../header.php';
                     <hr>
                     
                     <h6 class="text-primary">Payment Breakdown</h6>
-                    
+
                     <table class="table">
                         <tbody>
                             <tr>
                                 <td><strong>Target Responders:</strong></td>
                                 <td class="text-end"><?php echo number_format($target_responders); ?></td>
                             </tr>
+                            <?php if ($wants_to_pay_agents): ?>
                             <tr>
-                                <td><strong>Payment per Response:</strong></td>
-                                <td class="text-end">₦<?php echo number_format($price_per_response, 2); ?></td>
+                                <td><strong>Platform Fee per Response:</strong></td>
+                                <td class="text-end">₦<?php echo number_format($platform_fee, 2); ?></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Agent Commission per Response:</strong></td>
+                                <td class="text-end">₦<?php echo number_format($agent_commission, 2); ?></td>
                             </tr>
                             <tr class="table-light">
-                                <td><strong>Agent Payments Total:</strong></td>
-                                <td class="text-end"><strong>₦<?php echo number_format($agent_total, 2); ?></strong></td>
+                                <td><strong>Total per Response:</strong></td>
+                                <td class="text-end"><strong>₦<?php echo number_format($total_per_response, 2); ?></strong></td>
                             </tr>
-                            <tr>
-                                <td><strong>Platform Commission (<?php echo $admin_commission_percent; ?>%):</strong></td>
-                                <td class="text-end">₦<?php echo number_format($admin_commission, 2); ?></td>
+                            <?php else: ?>
+                            <tr class="table-light">
+                                <td><strong>Payment Required:</strong></td>
+                                <td class="text-end"><strong>No payment required</strong></td>
                             </tr>
+                            <?php endif; ?>
                             <tr class="table-primary">
-                                <td><h5 class="mb-0">Total Amount:</h5></td>
+                                <td><h5 class="mb-0">Estimated Total Cost:</h5></td>
                                 <td class="text-end"><h5 class="mb-0">₦<?php echo number_format($total_cost, 2); ?></h5></td>
                             </tr>
                         </tbody>
@@ -91,10 +107,17 @@ include_once '../header.php';
                         <i class="fas fa-info-circle"></i>
                         <strong>Payment Information:</strong>
                         <ul class="mb-0 mt-2">
-                            <li>Agent payments will be distributed as responses are completed</li>
-                            <li>Platform commission covers hosting, maintenance, and agent management</li>
+                            <?php if ($wants_to_pay_agents): ?>
+                            <li>₦500 Platform Fee covers hosting, maintenance, and poll management</li>
+                            <li>₦1,000 Agent Commission is paid to agents who help collect responses</li>
+                            <li>Agent commissions will be distributed as responses are completed</li>
                             <li>Once paid, your poll will be published immediately</li>
-                            <li>Unused credits will be refunded if poll doesn't reach target</li>
+                            <li>Unused funds will be refunded if poll doesn't reach target</li>
+                            <?php else: ?>
+                            <li>No payment is required for this poll</li>
+                            <li>You will collect responses through your own means</li>
+                            <li>Your poll will be published immediately</li>
+                            <?php endif; ?>
                         </ul>
                     </div>
                     

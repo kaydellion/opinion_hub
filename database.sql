@@ -121,6 +121,7 @@ CREATE TABLE polls (
     cost_per_sms DECIMAL(10, 2),
     cost_per_whatsapp DECIMAL(10, 2),
     cost_per_email DECIMAL(10, 2),
+    agent_commission DECIMAL(10, 2) DEFAULT 1000,
     target_responders INT,
     allow_multiple_options BOOLEAN DEFAULT FALSE,
     require_participant_names BOOLEAN DEFAULT FALSE,
@@ -133,6 +134,8 @@ CREATE TABLE polls (
     results_public_after_vote BOOLEAN DEFAULT FALSE,
     results_public_after_end BOOLEAN DEFAULT FALSE,
     results_private BOOLEAN DEFAULT TRUE,
+    results_for_sale BOOLEAN DEFAULT FALSE,
+    results_sale_price DECIMAL(10, 2) DEFAULT 0,
     subscription_plan_access INT,
     total_responses INT DEFAULT 0,
     total_cost DECIMAL(15, 2) DEFAULT 0,
@@ -169,6 +172,21 @@ CREATE TABLE poll_question_options (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(question_id) REFERENCES poll_questions(id) ON DELETE CASCADE,
     INDEX(question_id)
+);
+
+-- Poll Comments Table
+CREATE TABLE poll_comments (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    poll_id INT NOT NULL,
+    user_id INT NOT NULL,
+    comment_text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY(poll_id) REFERENCES polls(id) ON DELETE CASCADE,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX(poll_id),
+    INDEX(user_id),
+    INDEX(created_at)
 );
 
 -- Poll Responses Table

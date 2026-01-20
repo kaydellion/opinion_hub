@@ -50,3 +50,5 @@ if (isset($_SESSION['user_id'])) {
 
 echo "<p><a href='index.php'>Back to Home</a></p>";
 ?>
+
+

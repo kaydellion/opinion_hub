@@ -1946,3 +1946,28 @@ function getVPayConfig() {
         'script_url' => getVPayScriptUrl()
     ];
 }
+
+/**
+ * Get Question Count for a Poll
+ * @param int $poll_id
+ * @return int
+ */
+function getPollQuestionCount($poll_id) {
+    global $conn;
+    $result = $conn->query("SELECT COUNT(*) as count FROM poll_questions WHERE poll_id = $poll_id");
+    return $result ? $result->fetch_assoc()['count'] : 0;
+}
+
+/**
+ * Get Poll Progress Percentage
+ * @param array $poll
+ * @return float
+ */
+function getPollProgressPercentage($poll) {
+    $target = intval($poll['target_responders'] ?? 100);
+    $responses = intval($poll['total_responses'] ?? 0);
+
+    if ($target <= 0) return 0;
+
+    return min(100, round(($responses / $target) * 100, 1));
+}
