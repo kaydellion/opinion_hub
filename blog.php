@@ -9,21 +9,21 @@ $per_page = 9;
 $offset = ($page - 1) * $per_page;
 
 // Get total count
-$count_query = "SELECT COUNT(*) as total FROM blog_posts WHERE status = 'approved'";
+$count_query = "SELECT COUNT(*) as total FROM blog_articles WHERE status = 'published'";
 $count_result = $conn->query($count_query);
 $total_posts = $count_result->fetch_assoc()['total'];
 $total_pages = ceil($total_posts / $per_page);
 
-// Get approved blog posts with stats
-$articles_query = "SELECT bp.*, 
+// Get published blog articles with stats
+$articles_query = "SELECT ba.*,
                    CONCAT(u.first_name, ' ', u.last_name) as author_name,
-                   (SELECT COUNT(*) FROM blog_likes WHERE post_id = bp.id) as like_count,
-                   (SELECT COUNT(*) FROM blog_comments WHERE post_id = bp.id) as comment_count,
-                   (SELECT COUNT(*) FROM blog_shares WHERE post_id = bp.id) as share_count
-                   FROM blog_posts bp 
-                   JOIN users u ON bp.user_id = u.id 
-                   WHERE bp.status = 'approved' 
-                   ORDER BY bp.created_at DESC
+                   (SELECT COUNT(*) FROM blog_likes WHERE post_id = ba.id) as like_count,
+                   (SELECT COUNT(*) FROM blog_comments WHERE post_id = ba.id) as comment_count,
+                   (SELECT COUNT(*) FROM blog_shares WHERE post_id = ba.id) as share_count
+                   FROM blog_articles ba
+                   JOIN users u ON ba.author_id = u.id
+                   WHERE ba.status = 'published'
+                   ORDER BY ba.created_at DESC
                    LIMIT ? OFFSET ?";
 
 $stmt = $conn->prepare($articles_query);
@@ -33,6 +33,24 @@ if (!$stmt) {
 $stmt->bind_param("ii", $per_page, $offset);
 $stmt->execute();
 $articles = $stmt->get_result();
+
+// Get latest 3 polls
+$latest_polls = $conn->query("SELECT p.*, c.name as category_name,
+                              (SELECT COUNT(*) FROM poll_responses WHERE poll_id = p.id) as total_responses
+                              FROM polls p
+                              LEFT JOIN categories c ON p.category_id = c.id
+                              WHERE p.status = 'active'
+                              ORDER BY p.created_at DESC
+                              LIMIT 3");
+
+// Get latest 3 datasets from databank
+$latest_datasets = $conn->query("SELECT p.*, c.name as category_name,
+                                 (SELECT COUNT(*) FROM poll_responses WHERE poll_id = p.id) as response_count
+                                 FROM polls p
+                                 LEFT JOIN categories c ON p.category_id = c.id
+                                 WHERE p.results_for_sale = 1 AND p.status = 'active'
+                                 ORDER BY p.created_at DESC
+                                 LIMIT 3");
 
 $page_title = 'Blog - Opinion Hub NG';
 include 'header.php';
@@ -183,6 +201,120 @@ include 'header.php';
             </ul>
         </nav>
     <?php endif; ?>
+
+    <!-- Latest Polls and Datasets Section -->
+    <div class="row mt-5">
+        <!-- Latest Polls -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-poll me-2"></i>Latest Polls</h5>
+                </div>
+                <div class="card-body">
+                    <?php if ($latest_polls && $latest_polls->num_rows > 0): ?>
+                        <div class="row">
+                            <?php while ($poll = $latest_polls->fetch_assoc()): ?>
+                                <div class="col-md-12 mb-3">
+                                    <div class="d-flex align-items-start">
+                                        <?php if (!empty($poll['image'])): ?>
+                                            <img src="<?php echo SITE_URL; ?>uploads/polls/<?php echo $poll['image']; ?>"
+                                                 class="rounded me-3" alt="Poll" style="width: 60px; height: 60px; object-fit: cover;">
+                                        <?php else: ?>
+                                            <div class="bg-primary text-white rounded d-flex align-items-center justify-content-center me-3"
+                                                 style="width: 60px; height: 60px;">
+                                                <i class="fas fa-poll fa-lg"></i>
+                                            </div>
+                                        <?php endif; ?>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">
+                                                <a href="<?php echo SITE_URL; ?>view-poll/<?php echo $poll['slug']; ?>"
+                                                   class="text-decoration-none text-dark">
+                                                    <?php echo htmlspecialchars(substr($poll['title'], 0, 50)); ?>
+                                                    <?php if (strlen($poll['title']) > 50) echo '...'; ?>
+                                                </a>
+                                            </h6>
+                                            <p class="text-muted small mb-1">
+                                                <i class="fas fa-folder"></i> <?php echo htmlspecialchars($poll['category_name'] ?? 'General'); ?>
+                                            </p>
+                                            <p class="text-muted small mb-0">
+                                                <i class="fas fa-users"></i> <?php echo $poll['total_responses']; ?> responses
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endwhile; ?>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="<?php echo SITE_URL; ?>polls.php" class="btn btn-outline-primary btn-sm">
+                                View All Polls <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    <?php else: ?>
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-poll fa-3x mb-3"></i>
+                            <p>No polls available yet.</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Latest Datasets from Databank -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-database me-2"></i>Latest Datasets</h5>
+                </div>
+                <div class="card-body">
+                    <?php if ($latest_datasets && $latest_datasets->num_rows > 0): ?>
+                        <div class="row">
+                            <?php while ($dataset = $latest_datasets->fetch_assoc()): ?>
+                                <div class="col-md-12 mb-3">
+                                    <div class="d-flex align-items-start">
+                                        <?php if (!empty($dataset['image'])): ?>
+                                            <img src="<?php echo SITE_URL; ?>uploads/polls/<?php echo $dataset['image']; ?>"
+                                                 class="rounded me-3" alt="Dataset" style="width: 60px; height: 60px; object-fit: cover;">
+                                        <?php else: ?>
+                                            <div class="bg-success text-white rounded d-flex align-items-center justify-content-center me-3"
+                                                 style="width: 60px; height: 60px;">
+                                                <i class="fas fa-database fa-lg"></i>
+                                            </div>
+                                        <?php endif; ?>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">
+                                                <a href="<?php echo SITE_URL; ?>databank.php"
+                                                   class="text-decoration-none text-dark">
+                                                    <?php echo htmlspecialchars(substr($dataset['title'], 0, 50)); ?>
+                                                    <?php if (strlen($dataset['title']) > 50) echo '...'; ?>
+                                                </a>
+                                            </h6>
+                                            <p class="text-muted small mb-1">
+                                                <i class="fas fa-folder"></i> <?php echo htmlspecialchars($dataset['category_name'] ?? 'General'); ?>
+                                            </p>
+                                            <p class="text-muted small mb-0">
+                                                <i class="fas fa-users"></i> <?php echo $dataset['response_count']; ?> responses
+                                                <span class="badge bg-success ms-2">₦<?php echo number_format($dataset['results_sale_price'] ?? 0); ?></span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endwhile; ?>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="<?php echo SITE_URL; ?>databank.php" class="btn btn-outline-success btn-sm">
+                                Browse Databank <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    <?php else: ?>
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-database fa-3x mb-3"></i>
+                            <p>No datasets available yet.</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>

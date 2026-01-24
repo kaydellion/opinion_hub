@@ -22,12 +22,23 @@ $stats = [
 ];
 
 // Get revenue statistics (amounts in transactions table are in kobo, convert to naira)
-$revenue_stats = $conn->query("SELECT 
+$transaction_revenue = $conn->query("SELECT
     SUM(CASE WHEN type = 'subscription' THEN amount / 100 ELSE 0 END) as subscription_revenue,
     SUM(CASE WHEN type IN ('sms_credits', 'email_credits', 'whatsapp_credits') THEN amount / 100 ELSE 0 END) as credits_revenue,
     SUM(amount / 100) as total_revenue
-    FROM transactions 
+    FROM transactions
     WHERE status = 'completed'")->fetch_assoc();
+
+// Get advertisement revenue from advertisements table
+$ad_revenue = $conn->query("SELECT COALESCE(SUM(amount_paid), 0) as ad_revenue FROM advertisements WHERE status IN ('active', 'approved')")->fetch_assoc()['ad_revenue'];
+
+// Combine revenues
+$revenue_stats = [
+    'subscription_revenue' => $transaction_revenue['subscription_revenue'] ?? 0,
+    'credits_revenue' => $transaction_revenue['credits_revenue'] ?? 0,
+    'ad_revenue' => $ad_revenue,
+    'total_revenue' => ($transaction_revenue['total_revenue'] ?? 0) + $ad_revenue
+];
 
 // Get recent activities
 $recent_polls = $conn->query("SELECT p.*, CONCAT(u.first_name, ' ', u.last_name) as creator_name 
@@ -130,7 +141,8 @@ include_once '../header.php';
                         </div>
                     </div>
                     <small class="text-muted">
-                        <i class="fas fa-credit-card"></i> Subscriptions: ₦<?= number_format($revenue_stats['subscription_revenue'] ?? 0, 0) ?>
+                        <i class="fas fa-credit-card"></i> Subscriptions: ₦<?= number_format($revenue_stats['subscription_revenue'] ?? 0, 0) ?><br>
+                        <i class="fas fa-ad"></i> Ads: ₦<?= number_format($revenue_stats['ad_revenue'] ?? 0, 0) ?>
                     </small>
                 </div>
             </div>
@@ -210,6 +222,12 @@ include_once '../header.php';
                             <a href="settings.php" class="btn btn-outline-warning w-100">
                                 <i class="fas fa-cog fa-2x d-block mb-2"></i>
                                 Platform Settings
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="polls.php" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-poll fa-2x d-block mb-2"></i>
+                                Manage Polls
                             </a>
                         </div>
                         <div class="col-md-3">

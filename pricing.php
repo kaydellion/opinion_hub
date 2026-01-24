@@ -1,6 +1,7 @@
 <?php
 $page_title = "Pricing & Plans";
 include_once 'header.php';
+
 ?>
 
 <div class="container my-5">
@@ -34,16 +35,16 @@ include_once 'header.php';
                         <tr>
                             <td><strong>Annual Price</strong></td>
                             <td class="text-center"><h5 class="text-success mb-0">Free</h5></td>
-                            <td class="text-center"><h5 class="mb-0">₦650,000</h5></td>
-                            <td class="text-center"><h5 class="mb-0">₦950,000</h5></td>
-                            <td class="text-center"><h5 class="mb-0">₦1,150,000</h5></td>
+                            <td class="text-center"><h5 class="mb-0">₦<?php echo number_format(getSetting('subscription_price_basic_annual', '392000')); ?></h5></td>
+                            <td class="text-center"><h5 class="mb-0">₦<?php echo number_format(getSetting('subscription_price_classic_annual', '735000')); ?></h5></td>
+                            <td class="text-center"><h5 class="mb-0">₦<?php echo number_format(getSetting('subscription_price_enterprise_annual', '1050000')); ?></h5></td>
                         </tr>
                         <tr>
                             <td><strong>Monthly</strong></td>
                             <td class="text-center"><h6 class="text-success mb-0">Free</h6></td>
-                            <td class="text-center"><h6 class="mb-0">₦65,000</h6></td>
-                            <td class="text-center"><h6 class="mb-0">₦85,000</h6></td>
-                            <td class="text-center"><h6 class="mb-0">₦120,000</h6></td>
+                            <td class="text-center"><h6 class="mb-0">₦<?php echo number_format(getSetting('subscription_price_basic_monthly', '35000')); ?></h6></td>
+                            <td class="text-center"><h6 class="mb-0">₦<?php echo number_format(getSetting('subscription_price_classic_monthly', '65000')); ?></h6></td>
+                            <td class="text-center"><h6 class="mb-0">₦<?php echo number_format(getSetting('subscription_price_enterprise_monthly', '100000')); ?></h6></td>
                         </tr>
 
                         <!-- Target Audience -->
@@ -51,20 +52,11 @@ include_once 'header.php';
                             <td colspan="5"><strong>Target Audience</strong></td>
                         </tr>
                         <tr>
-                            <td></td>
-                            <td class="text-center">For those looking to get started with Poll Nigeria</td>
-                            <td class="text-center">Small businesses, NGOs, and individual researchers</td>
-                            <td class="text-center">Medium-sized businesses, political campaign teams, and educational institutions</td>
-                            <td class="text-center">Large enterprises, political parties, and market research firms</td>
-                        </tr>
-
-                        <!-- Priority Listing -->
-                        <tr>
-                            <td><strong>Priority Listing</strong></td>
-                            <td class="text-center">Normal</td>
-                            <td class="text-center">3x more clients than basic plan</td>
-                            <td class="text-center">5x more clients than basic plan</td>
-                            <td class="text-center">7x more clients than basic plan</td>
+                            <td><em>For those looking to get started with Poll Nigeria</em></td>
+                            <td class="text-center"><em>Small businesses, NGOs, and individual researchers</em></td>
+                            <td class="text-center"><em>Medium-sized businesses, political campaign teams, and educational institutions</em></td>
+                            <td class="text-center"><em>Large enterprises, political parties, and market research firms</em></td>
+                            <td class="text-center"></td>
                         </tr>
 
                         <!-- Core Features -->
@@ -73,82 +65,28 @@ include_once 'header.php';
                         </tr>
                         <tr>
                             <td><strong>Number of Monthly Polls</strong></td>
-                            <td class="text-center">5</td>
+                            <td class="text-center">1</td>
                             <td class="text-center">50</td>
                             <td class="text-center">200</td>
                             <td class="text-center"><span class="badge bg-success">Unlimited</span></td>
                         </tr>
                         <tr>
-                            <td><strong>Response per Poll</strong></td>
-                            <td class="text-center">500</td>
+                            <td><strong>Responses per Poll</strong></td>
+                            <td class="text-center">50</td>
                             <td class="text-center">5,000</td>
                             <td class="text-center">20,000</td>
                             <td class="text-center"><span class="badge bg-success">Unlimited</span></td>
                         </tr>
                         <tr>
-                            <td><strong>Export data and screenshots</strong></td>
-                            <td class="text-center"><i class="fas fa-times text-danger"></i> No</td>
+                            <td><strong>Export Data & Screenshots</strong></td>
                             <td class="text-center"><i class="fas fa-check text-success"></i> Yes</td>
                             <td class="text-center"><i class="fas fa-check text-success"></i> Yes</td>
                             <td class="text-center"><i class="fas fa-check text-success"></i> Yes</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Set Number of Responders</strong></td>
-                            <td class="text-center"><i class="fas fa-times text-danger"></i> No</td>
-                            <td class="text-center"><i class="fas fa-times text-danger"></i> No</td>
                             <td class="text-center"><i class="fas fa-check text-success"></i> Yes</td>
-                            <td class="text-center"><i class="fas fa-check text-success"></i> Yes</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Question Type</strong></td>
-                            <td class="text-center">Only Multiple Choice</td>
-                            <td class="text-center">All Question Types</td>
-                            <td class="text-center">All Question Types</td>
-                            <td class="text-center">All Question Types</td>
                         </tr>
                         <tr>
                             <td><strong>Social Media Share</strong></td>
                             <td class="text-center"><i class="fas fa-check text-success"></i> Yes</td>
-                            <td class="text-center"><i class="fas fa-check text-success"></i> Yes</td>
-                            <td class="text-center"><i class="fas fa-check text-success"></i> Yes</td>
-                            <td class="text-center"><i class="fas fa-check text-success"></i> Yes</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Adverts Placements</strong></td>
-                            <td class="text-center"><i class="fas fa-check text-warning"></i> Yes</td>
-                            <td class="text-center"><i class="fas fa-times text-success"></i> No</td>
-                            <td class="text-center"><i class="fas fa-times text-success"></i> No</td>
-                            <td class="text-center"><i class="fas fa-times text-success"></i> No</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Access to Paid Polls</strong></td>
-                            <td class="text-center">N/A</td>
-                            <td class="text-center">50</td>
-                            <td class="text-center">200</td>
-                            <td class="text-center"><span class="badge bg-success">Unlimited</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Incidence Tracking</strong></td>
-                            <td class="text-center"><i class="fas fa-times text-danger"></i> No</td>
-                            <td class="text-center"><i class="fas fa-times text-danger"></i> No</td>
-                            <td class="text-center"><i class="fas fa-check text-success"></i> Yes</td>
-                            <td class="text-center"><i class="fas fa-check text-success"></i> Yes</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Change Url</strong></td>
-                            <td class="text-center"><i class="fas fa-times text-danger"></i> No</td>
-                            <td class="text-center"><i class="fas fa-check text-success"></i> Yes</td>
-                            <td class="text-center"><i class="fas fa-check text-success"></i> Yes</td>
-                            <td class="text-center"><i class="fas fa-check text-success"></i> Yes</td>
-                        </tr>
-
-                        <!-- Branding -->
-                        <tr class="table-light">
-                            <td colspan="5"><strong>Branding</strong></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Custom Branding on Polls</strong></td>
-                            <td class="text-center"><i class="fas fa-times text-danger"></i> No</td>
                             <td class="text-center"><i class="fas fa-check text-success"></i> Yes</td>
                             <td class="text-center"><i class="fas fa-check text-success"></i> Yes</td>
                             <td class="text-center"><i class="fas fa-check text-success"></i> Yes</td>
@@ -159,46 +97,67 @@ include_once 'header.php';
                             <td colspan="5"><strong>Messaging Cost</strong></td>
                         </tr>
                         <tr>
-                            <td><strong>SMS Invite Units</strong></td>
+                            <td><strong>SMS Invite Credits | Annual Plan</strong></td>
                             <td class="text-center">N/A</td>
+                            <td class="text-center">5,000 units</td>
                             <td class="text-center">10,000 units</td>
-                            <td class="text-center">20,000 units</td>
-                            <td class="text-center">30,000 units</td>
+                            <td class="text-center">15,000 units</td>
                         </tr>
                         <tr>
-                            <td><strong>SMS Cost per unit</strong></td>
-                            <td class="text-center">₦12</td>
-                            <td class="text-center">₦10</td>
-                            <td class="text-center">₦9</td>
-                            <td class="text-center">₦8</td>
-                        </tr>
-                        <tr>
-                            <td><strong>E-Mail Invites Units</strong></td>
-                            <td class="text-center">N/A</td>
+                            <td><strong>SMS Invite Credits | Monthly Plan</strong></td>
+                            <td class="text-center">-</td>
                             <td class="text-center">500</td>
-                            <td class="text-center">5,000</td>
-                            <td class="text-center">10,000</td>
+                            <td class="text-center">1,000</td>
+                            <td class="text-center">1,500</td>
                         </tr>
                         <tr>
-                            <td><strong>E-Mail Cost per Unit</strong></td>
-                            <td class="text-center">₦8</td>
-                            <td class="text-center">₦6</td>
-                            <td class="text-center">₦5</td>
-                            <td class="text-center">₦4</td>
+                            <td><strong>SMS Cost per unit per Plan</strong></td>
+                            <td class="text-center">₦<?php echo number_format(getSetting('sms_price_free', '20'), 0); ?></td>
+                            <td class="text-center">₦<?php echo number_format(getSetting('sms_price_basic', '18'), 0); ?></td>
+                            <td class="text-center">₦<?php echo number_format(getSetting('sms_price_classic', '17'), 0); ?></td>
+                            <td class="text-center">₦<?php echo number_format(getSetting('sms_price_enterprise', '16'), 0); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>WhatsApp Invite</strong></td>
+                            <td><strong>E-Mail Invites Credits | Annual Plan</strong></td>
                             <td class="text-center">N/A</td>
-                            <td class="text-center">500 units</td>
-                            <td class="text-center">10,000 units</td>
-                            <td class="text-center">20,000 units</td>
+                            <td class="text-center">5,000 Units</td>
+                            <td class="text-center">10,000</td>
+                            <td class="text-center">15,000</td>
+                        </tr>
+                        <tr>
+                            <td><strong>E-Mail Invites Credits | Monthly Plan</strong></td>
+                            <td class="text-center">-</td>
+                            <td class="text-center">500</td>
+                            <td class="text-center">1,000</td>
+                            <td class="text-center">1,500</td>
+                        </tr>
+                        <tr>
+                            <td><strong>E-Mail Cost per unit per plan</strong></td>
+                            <td class="text-center">₦<?php echo number_format(getSetting('email_price_free', '10'), 0); ?></td>
+                            <td class="text-center">₦<?php echo number_format(getSetting('email_price_basic', '8'), 0); ?></td>
+                            <td class="text-center">₦<?php echo number_format(getSetting('email_price_classic', '9'), 0); ?></td>
+                            <td class="text-center">₦<?php echo number_format(getSetting('email_price_enterprise', '8'), 0); ?></td>
+                        </tr>
+                        <tr>
+                            <td><strong>WhatsApp Invite Credits | Annual Plan</strong></td>
+                            <td class="text-center">N/A</td>
+                            <td class="text-center">1,000 Units</td>
+                            <td class="text-center">5,000 Units</td>
+                            <td class="text-center">10,000 Units</td>
+                        </tr>
+                        <tr>
+                            <td><strong>WhatsApp Invite Credits | Monthly Plan</strong></td>
+                            <td class="text-center">N/A</td>
+                            <td class="text-center">100 Units</td>
+                            <td class="text-center">500 Units</td>
+                            <td class="text-center">1,000 Units</td>
                         </tr>
                         <tr>
                             <td><strong>WhatsApp per Unit</strong></td>
-                            <td class="text-center">₦8</td>
-                            <td class="text-center">₦6</td>
-                            <td class="text-center">₦5</td>
-                            <td class="text-center">₦4</td>
+                            <td class="text-center">₦<?php echo number_format(getSetting('whatsapp_price_free', '24'), 0); ?></td>
+                            <td class="text-center">₦<?php echo number_format(getSetting('whatsapp_price_basic', '22'), 0); ?></td>
+                            <td class="text-center">₦<?php echo number_format(getSetting('whatsapp_price_classic', '21'), 0); ?></td>
+                            <td class="text-center">₦<?php echo number_format(getSetting('whatsapp_price_enterprise', '20'), 0); ?></td>
                         </tr>
 
                         <!-- Action Buttons -->

@@ -115,6 +115,7 @@ if ($poll['category_id']) {
                            LEFT JOIN categories c ON p.category_id = c.id
                            JOIN users u ON p.created_by = u.id
                            WHERE p.status = 'active' AND p.id != $poll_id AND p.category_id = {$poll['category_id']}
+                           AND (p.end_date IS NULL OR DATE(p.end_date) >= CURDATE())
                            ORDER BY p.total_responses DESC, p.created_at DESC
                            LIMIT 5";
 
@@ -136,6 +137,7 @@ if ($poll['category_id']) {
                                LEFT JOIN categories c ON p.category_id = c.id
                                JOIN users u ON p.created_by = u.id
                                WHERE " . implode(' AND ', array_unique($where_conditions)) . "
+                               AND (p.end_date IS NULL OR DATE(p.end_date) >= CURDATE())
                                ORDER BY " . implode(', ', $order_parts) . "
                                LIMIT 5";
 
@@ -151,6 +153,7 @@ if ($poll['category_id']) {
                            LEFT JOIN categories c ON p.category_id = c.id
                            JOIN users u ON p.created_by = u.id
                            WHERE " . implode(' AND ', array_unique($where_conditions)) . "
+                           AND (p.end_date IS NULL OR DATE(p.end_date) >= CURDATE())
                            ORDER BY " . implode(', ', $order_parts) . "
                            LIMIT 5";
 
@@ -240,6 +243,29 @@ unset($_SESSION['errors']);
                     <h2 class="mb-2"><?php echo htmlspecialchars($poll['title']); ?></h2>
                     <p class="mb-3"><?php echo nl2br(htmlspecialchars($poll['description'])); ?></p>
 
+                    <!-- Poll Type Indicator -->
+                    <div class="mb-3">
+                        <?php if (($poll['price_per_response'] ?? 0) > 0): ?>
+                            <span class="badge bg-success fs-6 px-3 py-2">
+                                <i class="fas fa-money-bill-wave me-1"></i> Paid Poll
+                            </span>
+                            <small class="text-muted ms-2">Participants earn ₦<?php echo number_format($poll['price_per_response'], 0); ?> per response</small>
+                        <?php else: ?>
+                            <span class="badge bg-secondary fs-6 px-3 py-2">
+                                <i class="fas fa-gift me-1"></i> Free Poll
+                            </span>
+                            <small class="text-muted ms-2">No payment for participants</small>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Disclaimer -->
+                    <?php if (!empty($poll['disclaimer'])): ?>
+                        <div class="alert alert-warning mb-3">
+                            <h6><i class="fas fa-exclamation-triangle"></i> Important Notice</h6>
+                            <p class="mb-0"><?php echo nl2br(htmlspecialchars($poll['disclaimer'])); ?></p>
+                        </div>
+                    <?php endif; ?>
+
                     <!-- Poll Image -->
                     <?php if (!empty($poll['image']) && file_exists('uploads/polls/' . $poll['image'])): ?>
                         <div class="mb-3">
@@ -280,6 +306,21 @@ unset($_SESSION['errors']);
                                             <span class="text-danger">*</span>
                                         <?php endif; ?>
                                     </h5>
+
+                                    <?php if (!empty($question['question_description'])): ?>
+                                        <div class="mb-3">
+                                            <p class="text-muted small"><?php echo nl2br(htmlspecialchars($question['question_description'])); ?></p>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($question['question_image'])): ?>
+                                        <div class="mb-3">
+                                            <img src="<?php echo htmlspecialchars($question['question_image']); ?>"
+                                                 alt="Question illustration"
+                                                 class="img-fluid rounded shadow-sm"
+                                                 style="max-height: 300px; display: block; margin: 0 auto;">
+                                        </div>
+                                    <?php endif; ?>
 
                                     <?php if ($question['question_type'] === 'multiple_choice'): ?>
                                         <?php 
@@ -683,6 +724,242 @@ unset($_SESSION['errors']);
                 </div>
             </div>
 
+            <!-- Audience Targeting -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-users"></i> Audience Targeting</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <small class="text-muted">Age</small>
+                                <div>
+                                    <?php
+                                    $age_criteria = json_decode($poll['agent_age_criteria'] ?? '["all"]', true);
+                                    if (in_array('all', $age_criteria)) {
+                                        echo '<span class="badge bg-info">All Ages</span>';
+                                    } else {
+                                        $age_labels = [
+                                            '18-25' => '18-25',
+                                            '25-40' => '25-40',
+                                            '40-65' => '40-65',
+                                            '65+' => '65+'
+                                        ];
+                                        $display_ages = [];
+                                        foreach ($age_criteria as $age) {
+                                            if (isset($age_labels[$age])) {
+                                                $display_ages[] = $age_labels[$age];
+                                            }
+                                        }
+                                        echo '<span class="badge bg-info">' . implode(', ', $display_ages) . '</span>';
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">Gender</small>
+                                <div>
+                                    <?php
+                                    $gender_criteria = json_decode($poll['agent_gender_criteria'] ?? '["both"]', true);
+                                    if (in_array('both', $gender_criteria)) {
+                                        echo '<span class="badge bg-success">All Genders</span>';
+                                    } else {
+                                        $gender_labels = [
+                                            'male' => 'Male',
+                                            'female' => 'Female'
+                                        ];
+                                        $display_genders = [];
+                                        foreach ($gender_criteria as $gender) {
+                                            if (isset($gender_labels[$gender])) {
+                                                $display_genders[] = $gender_labels[$gender];
+                                            }
+                                        }
+                                        echo '<span class="badge bg-success">' . implode(', ', $display_genders) . '</span>';
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">Location</small>
+                                <div>
+                                    <?php
+                                    $location_all = $poll['agent_location_all'] ?? 1;
+                                    if ($location_all) {
+                                        echo '<span class="badge bg-primary">All Nigeria</span>';
+                                    } else {
+                                        $location_parts = [];
+                                        if (!empty($poll['agent_state_criteria'])) {
+                                            $location_parts[] = $poll['agent_state_criteria'];
+                                        }
+                                        if (!empty($poll['agent_lga_criteria'])) {
+                                            $location_parts[] = $poll['agent_lga_criteria'] . ' LGA';
+                                        }
+                                        echo '<span class="badge bg-primary">' . implode(', ', $location_parts) . '</span>';
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <small class="text-muted">Occupation</small>
+                                <div>
+                                    <?php
+                                    $occupation_criteria = json_decode($poll['agent_occupation_criteria'] ?? '["all"]', true);
+                                    if (in_array('all', $occupation_criteria)) {
+                                        echo '<span class="badge bg-warning">All Occupations</span>';
+                                    } else {
+                                        echo '<span class="badge bg-warning">' . count($occupation_criteria) . ' Selected</span>';
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">Educational Qualification</small>
+                                <div>
+                                    <?php
+                                    $education_criteria = json_decode($poll['agent_education_criteria'] ?? '["all"]', true);
+                                    if (in_array('all', $education_criteria)) {
+                                        echo '<span class="badge bg-secondary">All Levels</span>';
+                                    } else {
+                                        echo '<span class="badge bg-secondary">' . count($education_criteria) . ' Selected</span>';
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">Employment Status</small>
+                                <div>
+                                    <?php
+                                    $employment_criteria = json_decode($poll['agent_employment_criteria'] ?? '["both"]', true);
+                                    if (in_array('both', $employment_criteria)) {
+                                        echo '<span class="badge bg-dark">All Status</span>';
+                                    } else {
+                                        $employment_labels = [
+                                            'employed' => 'Employed',
+                                            'unemployed' => 'Unemployed'
+                                        ];
+                                        $display_employment = [];
+                                        foreach ($employment_criteria as $employment) {
+                                            if (isset($employment_labels[$employment])) {
+                                                $display_employment[] = $employment_labels[$employment];
+                                            }
+                                        }
+                                        echo '<span class="badge bg-dark">' . implode(', ', $display_employment) . '</span>';
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                            <div class="mb-0">
+                                <small class="text-muted">Income</small>
+                                <div>
+                                    <?php
+                                    $income_criteria = json_decode($poll['agent_income_criteria'] ?? '["all"]', true);
+                                    if (in_array('all', $income_criteria)) {
+                                        echo '<span class="badge bg-info">All Ranges</span>';
+                                    } else {
+                                        echo '<span class="badge bg-info">' . count($income_criteria) . ' Selected</span>';
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Polling Settings -->
+            <div class="card border-0 shadow-sm mb-4 polling-settings-card">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-cog settings-icon"></i> Polling Settings</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <!-- Regulations -->
+                        <div class="col-lg-4 col-md-6">
+                            <div class="settings-section rounded p-3 h-100">
+                                <h6 class="text-primary mb-3 d-flex align-items-center">
+                                    <i class="fas fa-gavel me-2 settings-icon"></i> Regulations
+                                </h6>
+                                <div class="d-flex flex-column gap-3">
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge settings-badge <?php echo $poll['allow_comments'] ? 'bg-success' : 'bg-secondary'; ?> me-2">
+                                            <i class="fas fa-<?php echo $poll['allow_comments'] ? 'check' : 'times'; ?>"></i>
+                                        </span>
+                                        <span class="small">Allow comments</span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge settings-badge <?php echo !$poll['results_private'] ? 'bg-success' : 'bg-secondary'; ?> me-2">
+                                            <i class="fas fa-<?php echo !$poll['results_private'] ? 'check' : 'times'; ?>"></i>
+                                        </span>
+                                        <span class="small">Public Databank Listing</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Voting Security -->
+                        <div class="col-lg-4 col-md-6">
+                            <div class="settings-section rounded p-3 h-100">
+                                <h6 class="text-primary mb-3 d-flex align-items-center">
+                                    <i class="fas fa-shield-alt me-2 settings-icon"></i> Voting Security
+                                </h6>
+                                <div class="d-flex flex-column gap-3">
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge settings-badge <?php echo $poll['allow_multiple_votes'] ? 'bg-warning' : 'bg-secondary'; ?> me-2">
+                                            <i class="fas fa-<?php echo $poll['allow_multiple_votes'] ? 'check' : 'times'; ?>"></i>
+                                        </span>
+                                        <span class="small">Multiple votes per person</span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge settings-badge <?php echo $poll['one_vote_per_ip'] ? 'bg-info' : 'bg-secondary'; ?> me-2">
+                                            <i class="fas fa-<?php echo $poll['one_vote_per_ip'] ? 'check' : 'times'; ?>"></i>
+                                        </span>
+                                        <span class="small">One vote per IP</span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge settings-badge <?php echo $poll['one_vote_per_account'] ? 'bg-primary' : 'bg-secondary'; ?> me-2">
+                                            <i class="fas fa-<?php echo $poll['one_vote_per_account'] ? 'check' : 'times'; ?>"></i>
+                                        </span>
+                                        <span class="small">One vote per account</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Results Visibility -->
+                        <div class="col-lg-4 col-md-12">
+                            <div class="settings-section rounded p-3 h-100">
+                                <h6 class="text-primary mb-3 d-flex align-items-center">
+                                    <i class="fas fa-eye me-2 settings-icon"></i> Results Visibility
+                                </h6>
+                                <div class="d-flex flex-column gap-3">
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge settings-badge <?php echo $poll['results_public_after_vote'] ? 'bg-success' : 'bg-secondary'; ?> me-2">
+                                            <i class="fas fa-<?php echo $poll['results_public_after_vote'] ? 'check' : 'times'; ?>"></i>
+                                        </span>
+                                        <span class="small">Public after vote</span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge settings-badge <?php echo $poll['results_public_after_end'] ? 'bg-success' : 'bg-secondary'; ?> me-2">
+                                            <i class="fas fa-<?php echo $poll['results_public_after_end'] ? 'check' : 'times'; ?>"></i>
+                                        </span>
+                                        <span class="small">Public after voting ends</span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge settings-badge <?php echo $poll['results_private'] ? 'bg-danger' : 'bg-secondary'; ?> me-2">
+                                            <i class="fas fa-<?php echo $poll['results_private'] ? 'lock' : 'unlock'; ?>"></i>
+                                        </span>
+                                        <span class="small">Private results</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Second Advertisement -->
             <div class="mb-4">
                 <small class="text-muted d-block mb-2">Advertisement</small>
@@ -1024,6 +1301,48 @@ unset($_SESSION['errors']);
 
 .follow-btn:hover {
     transform: translateY(-1px);
+}
+
+/* Polling Settings Styling */
+.polling-settings-card {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.polling-settings-card:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.settings-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.settings-section:hover {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    transform: translateY(-1px);
+}
+
+.settings-badge {
+    min-width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+}
+
+.settings-icon {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.settings-section:hover .settings-icon {
+    opacity: 1;
 }
 </style>
 

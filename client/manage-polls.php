@@ -2,9 +2,15 @@
 require_once '../connect.php';
 require_once '../functions.php';
 
-requireRole(['client', 'admin']);
-
 $user = getCurrentUser();
+
+requireRole(['client']);
+
+// If admin is trying to access this page, redirect to admin polls page
+if ($user['role'] === 'admin') {
+    header("Location: ../admin/polls.php");
+    exit;
+}
 
 $success = $_SESSION['success'] ?? '';
 $error = $_SESSION['error'] ?? '';
@@ -171,7 +177,14 @@ include '../header.php';
                                     ?>
                                         <tr>
                                             <td>
-                                                <strong><?= htmlspecialchars($poll['title']) ?></strong>
+                                                <?php if (in_array($poll['status'], ['active', 'paused'])): ?>
+                                                    <a href="../view-poll/<?= $poll['slug'] ?>" target="_blank" class="text-decoration-none">
+                                                        <strong class="text-primary"><?= htmlspecialchars($poll['title']) ?></strong>
+                                                        <i class="fas fa-external-link-alt text-muted ms-1 small"></i>
+                                                    </a>
+                                                <?php else: ?>
+                                                    <strong class="text-muted"><?= htmlspecialchars($poll['title']) ?></strong>
+                                                <?php endif; ?>
                                                 <?php if ($poll['image']): ?>
                                                     <i class="fas fa-image text-muted ms-1"></i>
                                                 <?php endif; ?>
@@ -202,8 +215,13 @@ include '../header.php';
                                                         <a href="view-poll-results.php?id=<?= $poll['id'] ?>" class="btn btn-outline-info" title="View Results">
                                                             <i class="fas fa-chart-bar"></i>
                                                         </a>
+                                                        <?php if (in_array($poll['status'], ['active', 'paused'])): ?>
+                                                            <a href="../view-poll/<?= $poll['slug'] ?>" class="btn btn-outline-success" title="View Live Poll" target="_blank">
+                                                                <i class="fas fa-external-link-alt"></i>
+                                                            </a>
+                                                        <?php endif; ?>
                                                     <?php endif; ?>
-                                                    
+
                                                     <?php if ($poll['status'] === 'active'): ?>
                                                         <a href="../actions.php?action=pause_poll&id=<?= $poll['id'] ?>" class="btn btn-outline-warning" title="Pause">
                                                             <i class="fas fa-pause"></i>
@@ -213,9 +231,9 @@ include '../header.php';
                                                             <i class="fas fa-play"></i>
                                                         </a>
                                                     <?php endif; ?>
-                                                    
-                                                    <a href="../actions.php?action=delete_poll&id=<?= $poll['id'] ?>" 
-                                                       class="btn btn-outline-danger" 
+
+                                                    <a href="../actions.php?action=delete_poll&id=<?= $poll['id'] ?>"
+                                                       class="btn btn-outline-danger"
                                                        title="Delete"
                                                        onclick="return confirm('Are you sure you want to delete this poll? This cannot be undone.')">
                                                         <i class="fas fa-trash"></i>
@@ -255,14 +273,26 @@ include '../header.php';
                                 <div class="col-md-6 mb-3">
                                     <div class="card h-100">
                                         <div class="card-body">
-                                            <h5 class="card-title"><?= htmlspecialchars($poll['title']) ?></h5>
+                                            <h5 class="card-title">
+                                                <a href="../view-poll/<?= $poll['slug'] ?>" target="_blank" class="text-decoration-none">
+                                                    <?= htmlspecialchars($poll['title']) ?>
+                                                    <i class="fas fa-external-link-alt text-muted ms-1 small"></i>
+                                                </a>
+                                            </h5>
                                             <p class="card-text text-muted small"><?= substr($poll['description'], 0, 100) ?>...</p>
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <div>
                                                     <span class="badge bg-info"><?= $poll['question_count'] ?> Questions</span>
                                                     <span class="badge bg-success"><?= $poll['response_count'] ?> Responses</span>
                                                 </div>
-                                                <a href="view-poll-results.php?id=<?= $poll['id'] ?>" class="btn btn-sm btn-primary">View Results</a>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="view-poll-results.php?id=<?= $poll['id'] ?>" class="btn btn-primary" title="View Results">
+                                                        <i class="fas fa-chart-bar"></i> Results
+                                                    </a>
+                                                    <a href="../view-poll/<?= $poll['slug'] ?>" class="btn btn-success" title="View Live Poll" target="_blank">
+                                                        <i class="fas fa-external-link-alt"></i> Live
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -331,15 +361,23 @@ include '../header.php';
                                 <div class="list-group-item">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h6 class="mb-1"><?= htmlspecialchars($poll['title']) ?></h6>
+                                            <h6 class="mb-1">
+                                                <a href="../view-poll/<?= $poll['slug'] ?>" target="_blank" class="text-decoration-none">
+                                                    <?= htmlspecialchars($poll['title']) ?>
+                                                    <i class="fas fa-external-link-alt text-muted ms-1 small"></i>
+                                                </a>
+                                            </h6>
                                             <small class="text-muted">
                                                 <?= $poll['response_count'] ?> responses • 
                                                 Ended <?= date('M d, Y', strtotime($poll['end_date'])) ?>
                                             </small>
                                         </div>
-                                        <div>
-                                            <a href="view-poll-results.php?id=<?= $poll['id'] ?>" class="btn btn-sm btn-info">
-                                                <i class="fas fa-chart-bar"></i> View Results
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="view-poll-results.php?id=<?= $poll['id'] ?>" class="btn btn-info" title="View Results">
+                                                <i class="fas fa-chart-bar"></i> Results
+                                            </a>
+                                            <a href="../view-poll/<?= $poll['slug'] ?>" class="btn btn-success" title="View Live Poll" target="_blank">
+                                                <i class="fas fa-external-link-alt"></i> Live
                                             </a>
                                         </div>
                                     </div>

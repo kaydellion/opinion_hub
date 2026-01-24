@@ -12,13 +12,13 @@ if (empty($slug)) {
 }
 
 // Get post with author details
-$stmt = $conn->prepare("SELECT bp.*, CONCAT(u.first_name, ' ', u.last_name) as author_name, u.email as author_email,
-                        (SELECT COUNT(*) FROM blog_likes WHERE post_id = bp.id) as like_count,
-                        (SELECT COUNT(*) FROM blog_comments WHERE post_id = bp.id) as comment_count,
-                        (SELECT COUNT(*) FROM blog_shares WHERE post_id = bp.id) as share_count
-                        FROM blog_posts bp
-                        JOIN users u ON bp.user_id = u.id
-                        WHERE bp.slug = ? AND bp.status = 'approved'");
+$stmt = $conn->prepare("SELECT ba.*, CONCAT(u.first_name, ' ', u.last_name) as author_name, u.email as author_email,
+                        (SELECT COUNT(*) FROM blog_likes WHERE post_id = ba.id) as like_count,
+                        (SELECT COUNT(*) FROM blog_comments WHERE post_id = ba.id) as comment_count,
+                        (SELECT COUNT(*) FROM blog_shares WHERE post_id = ba.id) as share_count
+                        FROM blog_articles ba
+                        JOIN users u ON ba.author_id = u.id
+                        WHERE ba.slug = ? AND ba.status = 'published'");
 if (!$stmt) {
     die("Prepare failed: " . $conn->error);
 }
@@ -42,6 +42,24 @@ if (isLoggedIn()) {
     $like_stmt->execute();
     $user_has_liked = $like_stmt->get_result()->num_rows > 0;
 }
+
+// Get latest 3 polls
+$latest_polls = $conn->query("SELECT p.*, c.name as category_name,
+                              (SELECT COUNT(*) FROM poll_responses WHERE poll_id = p.id) as total_responses
+                              FROM polls p
+                              LEFT JOIN categories c ON p.category_id = c.id
+                              WHERE p.status = 'active'
+                              ORDER BY p.created_at DESC
+                              LIMIT 3");
+
+// Get latest 3 datasets from databank
+$latest_datasets = $conn->query("SELECT p.*, c.name as category_name,
+                                 (SELECT COUNT(*) FROM poll_responses WHERE poll_id = p.id) as response_count
+                                 FROM polls p
+                                 LEFT JOIN categories c ON p.category_id = c.id
+                                 WHERE p.results_for_sale = 1 AND p.status = 'active'
+                                 ORDER BY p.created_at DESC
+                                 LIMIT 3");
 
 // Get comments (only top-level, replies will be fetched via nested query)
 $comments_stmt = $conn->prepare("SELECT bc.*, CONCAT(u.first_name, ' ', u.last_name) as commenter_name
@@ -156,6 +174,120 @@ include_once '../header.php';
                         <button onclick="sharePost('email')" class="btn btn-sm btn-outline-secondary" title="Share via Email">
                             <i class="fas fa-envelope"></i>
                         </button>
+                    </div>
+                </div>
+
+                <!-- Latest Polls and Datasets Section -->
+                <div class="row mt-5">
+                    <!-- Latest Polls -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-poll me-2"></i>Latest Polls</h5>
+                            </div>
+                            <div class="card-body">
+                                <?php if ($latest_polls && $latest_polls->num_rows > 0): ?>
+                                    <div class="row">
+                                        <?php while ($poll = $latest_polls->fetch_assoc()): ?>
+                                            <div class="col-md-12 mb-3">
+                                                <div class="d-flex align-items-start">
+                                                    <?php if (!empty($poll['image'])): ?>
+                                                        <img src="<?php echo SITE_URL; ?>uploads/polls/<?php echo $poll['image']; ?>"
+                                                             class="rounded me-3" alt="Poll" style="width: 60px; height: 60px; object-fit: cover;">
+                                                    <?php else: ?>
+                                                        <div class="bg-primary text-white rounded d-flex align-items-center justify-content-center me-3"
+                                                             style="width: 60px; height: 60px;">
+                                                            <i class="fas fa-poll fa-lg"></i>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="mb-1">
+                                                            <a href="<?php echo SITE_URL; ?>view-poll/<?php echo $poll['slug']; ?>"
+                                                               class="text-decoration-none text-dark">
+                                                                <?php echo htmlspecialchars(substr($poll['title'], 0, 50)); ?>
+                                                                <?php if (strlen($poll['title']) > 50) echo '...'; ?>
+                                                            </a>
+                                                        </h6>
+                                                        <p class="text-muted small mb-1">
+                                                            <i class="fas fa-folder"></i> <?php echo htmlspecialchars($poll['category_name'] ?? 'General'); ?>
+                                                        </p>
+                                                        <p class="text-muted small mb-0">
+                                                            <i class="fas fa-users"></i> <?php echo $poll['total_responses']; ?> responses
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php endwhile; ?>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <a href="<?php echo SITE_URL; ?>polls.php" class="btn btn-outline-primary btn-sm">
+                                            View All Polls <i class="fas fa-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="text-center text-muted py-4">
+                                        <i class="fas fa-poll fa-3x mb-3"></i>
+                                        <p>No polls available yet.</p>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Latest Datasets from Databank -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fas fa-database me-2"></i>Latest Datasets</h5>
+                            </div>
+                            <div class="card-body">
+                                <?php if ($latest_datasets && $latest_datasets->num_rows > 0): ?>
+                                    <div class="row">
+                                        <?php while ($dataset = $latest_datasets->fetch_assoc()): ?>
+                                            <div class="col-md-12 mb-3">
+                                                <div class="d-flex align-items-start">
+                                                    <?php if (!empty($dataset['image'])): ?>
+                                                        <img src="<?php echo SITE_URL; ?>uploads/polls/<?php echo $dataset['image']; ?>"
+                                                             class="rounded me-3" alt="Dataset" style="width: 60px; height: 60px; object-fit: cover;">
+                                                    <?php else: ?>
+                                                        <div class="bg-success text-white rounded d-flex align-items-center justify-content-center me-3"
+                                                             style="width: 60px; height: 60px;">
+                                                            <i class="fas fa-database fa-lg"></i>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="mb-1">
+                                                            <a href="<?php echo SITE_URL; ?>databank.php"
+                                                               class="text-decoration-none text-dark">
+                                                                <?php echo htmlspecialchars(substr($dataset['title'], 0, 50)); ?>
+                                                                <?php if (strlen($dataset['title']) > 50) echo '...'; ?>
+                                                            </a>
+                                                        </h6>
+                                                        <p class="text-muted small mb-1">
+                                                            <i class="fas fa-folder"></i> <?php echo htmlspecialchars($dataset['category_name'] ?? 'General'); ?>
+                                                        </p>
+                                                        <p class="text-muted small mb-0">
+                                                            <i class="fas fa-users"></i> <?php echo $dataset['response_count']; ?> responses
+                                                            <span class="badge bg-success ms-2">₦<?php echo number_format($dataset['results_sale_price'] ?? 0); ?></span>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php endwhile; ?>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <a href="<?php echo SITE_URL; ?>databank.php" class="btn btn-outline-success btn-sm">
+                                            Browse Databank <i class="fas fa-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="text-center text-muted py-4">
+                                        <i class="fas fa-database fa-3x mb-3"></i>
+                                        <p>No datasets available yet.</p>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -277,8 +409,8 @@ include_once '../header.php';
             <?php
             // Get related posts from same author
             $related_stmt = $conn->prepare("SELECT id, title, slug, featured_image, created_at
-                                           FROM blog_posts
-                                           WHERE user_id = ? AND id != ? AND status = 'approved'
+                                           FROM blog_articles
+                                           WHERE author_id = ? AND id != ? AND status = 'published'
                                            ORDER BY created_at DESC
                                            LIMIT 5");
             $related_stmt->bind_param("ii", $post['user_id'], $post['id']);

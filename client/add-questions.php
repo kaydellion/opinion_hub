@@ -76,6 +76,26 @@ include '../header.php';
                             <label class="form-label">Question Text *</label>
                             <textarea name="question_text" class="form-control" rows="3" required placeholder="Enter your question..."></textarea>
                         </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description (Optional)</label>
+                            <textarea name="question_description" class="form-control" rows="2" placeholder="Provide additional context or instructions for this question..."></textarea>
+                            <small class="text-muted">This description will be shown below the question text to provide additional context.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Question Image (Optional)</label>
+                            <div class="input-group">
+                                <input type="url" name="question_image" class="form-control" placeholder="https://example.com/image.jpg" id="imageUrlInput">
+                                <button type="button" class="btn btn-outline-secondary" onclick="toggleImageInput()">
+                                    <i class="fas fa-upload"></i> Upload
+                                </button>
+                            </div>
+                            <small class="text-muted">Add an image URL or click Upload to select a file from your device.</small>
+                            <div id="imagePreview" class="mt-2" style="display: none;">
+                                <img id="previewImg" src="" alt="Preview" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+                            </div>
+                        </div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -143,6 +163,14 @@ include '../header.php';
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div class="flex-grow-1">
                                             <h6 class="mb-1">Q<?= $q_num++ ?>. <?= htmlspecialchars($q['question_text']) ?></h6>
+                                            <?php if (!empty($q['question_description'])): ?>
+                                                <p class="mb-2 small text-muted"><?= htmlspecialchars($q['question_description']) ?></p>
+                                            <?php endif; ?>
+                                            <?php if (!empty($q['question_image'])): ?>
+                                                <div class="mb-2">
+                                                    <img src="<?= htmlspecialchars($q['question_image']) ?>" alt="Question image" class="img-thumbnail" style="max-width: 100px; max-height: 75px;">
+                                                </div>
+                                            <?php endif; ?>
                                             <small class="text-muted">
                                                 Type: <span class="badge bg-secondary"><?= ucwords(str_replace('_', ' ', $q['question_type'])) ?></span>
                                                 <?= $q['is_required'] ? '<span class="badge bg-warning">Required</span>' : '' ?>
@@ -364,7 +392,7 @@ questionType.addEventListener('change', function() {
     const typesNeedingOptions = ['multiple_choice', 'multiple_answer', 'dichotomous', 'quiz', 'matrix'];
     if (typesNeedingOptions.includes(this.value)) {
         optionsContainer.style.display = 'block';
-        
+
         // For dichotomous, limit to 2 options
         if (this.value === 'dichotomous') {
             const optionsList = document.getElementById('optionsList');
@@ -390,6 +418,59 @@ function addOption() {
     `;
     optionsList.appendChild(div);
 }
+
+function toggleImageInput() {
+    const urlInput = document.getElementById('imageUrlInput');
+    const currentValue = urlInput.value;
+
+    if (urlInput.type === 'url') {
+        // Switch to file upload
+        urlInput.type = 'file';
+        urlInput.name = 'question_image_file';
+        urlInput.accept = 'image/*';
+        urlInput.placeholder = 'Choose image file...';
+        urlInput.value = '';
+        updateImagePreview('');
+    } else {
+        // Switch back to URL input
+        urlInput.type = 'url';
+        urlInput.name = 'question_image';
+        urlInput.placeholder = 'https://example.com/image.jpg';
+        urlInput.value = currentValue;
+    }
+}
+
+function updateImagePreview(src) {
+    const preview = document.getElementById('imagePreview');
+    const img = document.getElementById('previewImg');
+
+    if (src) {
+        img.src = src;
+        preview.style.display = 'block';
+    } else {
+        preview.style.display = 'none';
+        img.src = '';
+    }
+}
+
+// Handle URL input changes
+document.getElementById('imageUrlInput').addEventListener('input', function() {
+    updateImagePreview(this.value);
+});
+
+// Handle file input changes for preview
+document.addEventListener('change', function(e) {
+    if (e.target.id === 'imageUrlInput' && e.target.type === 'file') {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                updateImagePreview(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+});
 </script>
 
 <?php include '../footer.php'; ?>

@@ -32,11 +32,11 @@ if (isset($user['agent_status']) && $user['agent_status'] !== 'approved') {
 $poll_id = isset($_GET['poll_id']) ? intval($_GET['poll_id']) : 0;
 
 // Fetch poll details
-$poll_sql = "SELECT p.*, c.name as category_name, 
-             CONCAT(u.first_name, ' ', u.last_name) as creator_name 
-             FROM polls p 
-             LEFT JOIN categories c ON p.category_id = c.id 
-             LEFT JOIN users u ON p.created_by = u.id 
+$poll_sql = "SELECT p.*, c.name as category_name,
+             CONCAT(u.first_name, ' ', u.last_name) as creator_name
+             FROM polls p
+             LEFT JOIN categories c ON p.category_id = c.id
+             LEFT JOIN users u ON p.created_by = u.id
              WHERE p.id = ? AND p.status = 'active'";
 $stmt = $conn->prepare($poll_sql);
 
@@ -54,6 +54,9 @@ if (!$poll) {
     header("Location: " . SITE_URL . "dashboard.php");
     exit;
 }
+
+// Check if this poll uses agents for data collection
+$uses_agents = intval($poll['price_per_response'] ?? 0) > 0; // If price_per_response > 0, agents are used
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -176,11 +179,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Success messages
         if ($success_count > 0) {
             if ($share_method === 'email') {
-                $_SESSION['success'] = "✅ Poll shared via email with $success_count recipient(s)! Emails have been sent. You'll earn ₦1,000 for each response received.";
+                $_SESSION['success'] = "✅ Poll shared via email with $success_count recipient(s)! Emails have been sent. You'll earn ₦100 for each response received.";
             } elseif ($share_method === 'sms') {
-                $_SESSION['success'] = "✅ Poll shared via SMS with $success_count recipient(s)! SMS messages have been sent. You'll earn ₦1,000 for each response received.";
+                $_SESSION['success'] = "✅ Poll shared via SMS with $success_count recipient(s)! SMS messages have been sent. You'll earn ₦100 for each response received.";
             } elseif ($share_method === 'whatsapp') {
-                $_SESSION['success'] = "✅ WhatsApp links generated for $success_count recipient(s)! Click the links below to send via WhatsApp. You'll earn ₦1,000 for each response received.";
+                $_SESSION['success'] = "✅ WhatsApp links generated for $success_count recipient(s)! Click the links below to send via WhatsApp. You'll earn ₦100 for each response received.";
                 // Don't redirect immediately for WhatsApp
                 header("Location: " . SITE_URL . "agent/share-poll.php?poll_id=" . $poll_id . "&show_whatsapp=1");
                 exit;
@@ -281,21 +284,22 @@ include_once '../header.php';
                 </div>
             </div>
             
+            <?php if ($uses_agents): ?>
             <!-- Quick Referral Link -->
             <div class="card mb-4 border-success">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0"><i class="fas fa-link me-2"></i>Your Referral Link</h5>
                 </div>
                 <div class="card-body">
-                    <?php 
+                    <?php
                     // Generate agent's tracking code
                     $agent_tracking_code = "POLL{$poll_id}-USR{$user['id']}-" . time();
                     $referral_link = SITE_URL . "view-poll/" . $poll['slug'] . "?ref=" . $agent_tracking_code;
                     ?>
                     <div class="alert alert-success mb-3">
                         <i class="fas fa-money-bill-wave me-2"></i>
-                        <strong>Earn ₦<?= number_format(floatval($poll['price_per_response'] ?? 0), 2) ?> per completed response!</strong>
-                        <p class="mb-0 mt-2 small">Share your referral link below and earn for every person who completes the poll.</p>
+                        <strong>Earn ₦100 per completed response!</strong>
+                        <p class="mb-0 mt-2 small">Share your referral link below and earn for every person who completes the poll through your link.</p>
                     </div>
                     
                     <label class="form-label fw-bold">Copy & Share This Link:</label>
@@ -322,7 +326,8 @@ include_once '../header.php';
                     </div>
                 </div>
             </div>
-            
+            <?php endif; ?>
+
             <!-- Share Form -->
             <div class="card">
                 <div class="card-header bg-primary text-white">
@@ -330,10 +335,17 @@ include_once '../header.php';
                 </div>
                 <div class="card-body">
                     
+                    <?php if ($uses_agents): ?>
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>Earn ₦1,000 per response!</strong> Share this poll and earn for every completed response from your referrals.
+                        <strong>Earn ₦100 per response!</strong> Share this poll and earn for every completed response from your referrals.
                     </div>
+                    <?php else: ?>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Referral earnings not available for this poll.</strong> This poll doesn't use agent collection, so referral earnings are not enabled.
+                    </div>
+                    <?php endif; ?>
                     
                     <!-- SMS Credits Balance -->
                     <div class="alert <?= $sms_credits > 10 ? 'alert-success' : ($sms_credits > 0 ? 'alert-warning' : 'alert-danger') ?> d-flex justify-content-between align-items-center">
@@ -483,7 +495,7 @@ include_once '../header.php';
                                             <td><?= htmlspecialchars($share['recipient']) ?></td>
                                             <td><?= $share['clicks'] ?></td>
                                             <td><?= $share['responses'] ?></td>
-                                            <td>₦<?= number_format($share['responses'] * 1000) ?></td>
+                                            <td>₦<?= number_format($share['responses'] * 100) ?></td>
                                             <td><?= date('M d, Y', strtotime($share['shared_at'])) ?></td>
                                         </tr>
                                     <?php endwhile; ?>

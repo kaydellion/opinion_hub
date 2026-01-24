@@ -87,7 +87,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             continue; // Skip if no valid contact info
                         }
                         
-                        if ($result && ((isset($result['success']) && $result['success']) || isset($result['messageId']) || isset($result['message_id']))) {
+                        // Check for successful send - more robust checking
+                        $is_success = false;
+                        if ($result) {
+                            // Check various success indicators
+                            if (isset($result['success']) && $result['success']) {
+                                $is_success = true;
+                            } elseif (isset($result['messageId']) && !empty($result['messageId'])) {
+                                $is_success = true;
+                            } elseif (isset($result['message_id']) && !empty($result['message_id'])) {
+                                $is_success = true;
+                            } elseif (isset($result['code']) && $result['code'] === 'ok') {
+                                $is_success = true;
+                            } elseif ($method === 'email' && !isset($result['error']) && !isset($result['code'])) {
+                                // Brevo might return just messageId on success
+                                $is_success = true;
+                            }
+                        }
+
+                        if ($is_success) {
                             $sent++;
                             deductCredits($user['id'], $method, 1);
                             logMessage($user['id'], $method, $recipient, $message, 'sent');

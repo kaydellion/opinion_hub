@@ -200,7 +200,7 @@ $nigerian_banks = [
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <label class="form-label">State <span class="text-danger">*</span></label>
-                                <select class="form-select" name="state" required>
+                                <select class="form-select" name="state" id="state" required>
                                     <option value="">Select State</option>
                                     <?php foreach ($nigerian_states as $state): ?>
                                         <option value="<?php echo $state; ?>"><?php echo $state; ?></option>
@@ -209,7 +209,9 @@ $nigerian_banks = [
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">LGA <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="lga" placeholder="Local Government Area" required>
+                                <select class="form-select" name="lga" id="lga" required disabled>
+                                    <option value="">Select State First</option>
+                                </select>
                             </div>
                         </div>
 
@@ -276,5 +278,57 @@ $nigerian_banks = [
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const stateSelect = document.getElementById('state');
+    const lgaSelect = document.getElementById('lga');
+    let lgasData = {};
+
+    // Load LGA data from JSON file
+    fetch('<?php echo SITE_URL; ?>assets/data/nigeria-states-lgas.json')
+        .then(response => response.json())
+        .then(data => {
+            lgasData = data;
+            
+            // Enable state change handler
+            stateSelect.addEventListener('change', function() {
+                const selectedState = this.value;
+                
+                // Clear previous LGA options
+                lgaSelect.innerHTML = '<option value="">Select LGA</option>';
+                
+                if (selectedState && lgasData[selectedState]) {
+                    // Enable LGA select
+                    lgaSelect.disabled = false;
+                    lgaSelect.required = true;
+                    
+                    // Populate LGA options
+                    lgasData[selectedState].forEach(function(lga) {
+                        const option = document.createElement('option');
+                        option.value = lga;
+                        option.textContent = lga;
+                        lgaSelect.appendChild(option);
+                    });
+                } else {
+                    // Disable LGA select if no state selected
+                    lgaSelect.disabled = true;
+                    lgaSelect.required = false;
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error loading LGA data:', error);
+            // Fallback: enable manual input if JSON fails to load
+            const fallbackLga = document.createElement('input');
+            fallbackLga.type = 'text';
+            fallbackLga.className = 'form-control';
+            fallbackLga.name = 'lga';
+            fallbackLga.placeholder = 'Local Government Area';
+            fallbackLga.required = true;
+            lgaSelect.parentNode.replaceChild(fallbackLga, lgaSelect);
+        });
+});
+</script>
 
 <?php include_once '../footer.php'; ?>

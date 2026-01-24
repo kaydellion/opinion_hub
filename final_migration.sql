@@ -17,3 +17,9 @@ UPDATE polls SET results_sale_price = 5000 WHERE results_sale_price IS NULL AND 
 -- Verify the migration
 SELECT 'Migration completed successfully!' as status;
 
+
+
+
+
+
+

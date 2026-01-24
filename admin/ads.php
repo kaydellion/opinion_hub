@@ -650,9 +650,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         endDate.addEventListener('change', function() {
-            if (this.value && startDate.value && this.value < startDate.value) {
-                alert('End date must be after start date');
-                this.value = '';
+            if (this.value && startDate.value) {
+                const start = new Date(startDate.value);
+                const end = new Date(this.value);
+                if (end <= start) {
+                    alert('End date must be after start date');
+                    this.value = '';
+                }
             }
         });
     }

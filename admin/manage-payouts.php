@@ -29,11 +29,11 @@ $total_count = $count_result->fetch_assoc()['total'];
 $total_pages = ceil($total_count / $limit);
 
 // Get payout requests
-$query = "SELECT ae.*, u.first_name, u.last_name, u.email, u.phone 
+$query = "SELECT ae.*, u.first_name, u.last_name, u.email, u.phone
           FROM agent_earnings ae
-          INNER JOIN users u ON ae.agent_id = u.user_id
-          WHERE $where_sql 
-          ORDER BY ae.created_at DESC 
+          INNER JOIN users u ON ae.agent_id = u.id
+          WHERE $where_sql
+          ORDER BY ae.created_at DESC
           LIMIT $limit OFFSET $offset";
 $payouts = $conn->query($query);
 

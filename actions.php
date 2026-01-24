@@ -64,6 +64,12 @@ switch ($action) {
     case 'track_ad_click':
         handleTrackAdClick();
         break;
+    case 'update_profile':
+        handleUpdateProfile();
+        break;
+    case 'change_password':
+        handleChangePassword();
+        break;
     case 'requestPayout':
         handleRequestPayout();
         break;
@@ -154,15 +160,41 @@ function handleRegister() {
     $confirm_password = $_POST['confirm_password'] ?? '';
     $role = $_POST['role'] ?? 'user';
     $phone = sanitize($_POST['phone'] ?? '');
-    
+
+    // Agent-specific fields
+    $agent_fields = [];
+    if ($role === 'agent') {
+        $agent_fields = [
+            'date_of_birth' => $_POST['date_of_birth'] ?? '',
+            'gender' => $_POST['gender'] ?? '',
+            'state' => sanitize($_POST['state'] ?? ''),
+            'lga' => sanitize($_POST['lga'] ?? ''),
+            'occupation' => sanitize($_POST['occupation'] ?? ''),
+            'education' => sanitize($_POST['education'] ?? ''),
+            'employment_status' => sanitize($_POST['employment_status'] ?? ''),
+            'income_range' => sanitize($_POST['income_range'] ?? '')
+        ];
+    }
+
     // Validation
     $errors = [];
-    
+
     if (empty($first_name)) $errors[] = "First name is required";
     if (empty($last_name)) $errors[] = "Last name is required";
     if (empty($email) || !validateEmail($email)) $errors[] = "Valid email is required";
     if (empty($password) || strlen($password) < 6) $errors[] = "Password must be at least 6 characters";
     if ($password !== $confirm_password) $errors[] = "Passwords do not match";
+
+    // Agent field validation
+    if ($role === 'agent') {
+        if (empty($agent_fields['date_of_birth'])) $errors[] = "Date of birth is required for agents";
+        if (empty($agent_fields['gender'])) $errors[] = "Gender is required for agents";
+        if (empty($agent_fields['state'])) $errors[] = "State of residence is required for agents";
+        if (empty($agent_fields['occupation'])) $errors[] = "Occupation is required for agents";
+        if (empty($agent_fields['education'])) $errors[] = "Education qualification is required for agents";
+        if (empty($agent_fields['employment_status'])) $errors[] = "Employment status is required for agents";
+        if (empty($agent_fields['income_range'])) $errors[] = "Income range is required for agents";
+    }
     
     // Check if email exists
     $result = $conn->query("SELECT id FROM users WHERE email = '$email'");
@@ -180,22 +212,19 @@ function handleRegister() {
     $password_hash = hashPassword($password);
     $username = strtolower($first_name . $last_name . rand(100, 999));
     
-    // Generate unique referral code
-    $referral_code = strtoupper(bin2hex(random_bytes(6)));
-    
-    // Get referrer if ref code provided
-    $referred_by = null;
-    if (isset($_GET['ref']) || isset($_POST['ref'])) {
-        $ref_code = sanitize($_GET['ref'] ?? $_POST['ref'] ?? '');
-        $referrer = $conn->query("SELECT id FROM users WHERE referral_code = '$ref_code'")->fetch_assoc();
-        if ($referrer) {
-            $referred_by = $referrer['id'];
-        }
+    // Build query based on role
+    if ($role === 'agent') {
+        $query = "INSERT INTO users
+                  (username, email, password_hash, first_name, last_name, phone, role,
+                   date_of_birth, gender, state, lga, occupation, education_qualification, employment_status, income_range)
+                  VALUES ('$username', '$email', '$password_hash', '$first_name', '$last_name', '$phone', '$role',
+                   '{$agent_fields['date_of_birth']}', '{$agent_fields['gender']}', '{$agent_fields['state']}', '{$agent_fields['lga']}',
+                   '{$agent_fields['occupation']}', '{$agent_fields['education']}', '{$agent_fields['employment_status']}', '{$agent_fields['income_range']}')";
+    } else {
+        $query = "INSERT INTO users
+                  (username, email, password_hash, first_name, last_name, phone, role)
+                  VALUES ('$username', '$email', '$password_hash', '$first_name', '$last_name', '$phone', '$role')";
     }
-    
-    $query = "INSERT INTO users 
-              (username, email, password_hash, first_name, last_name, phone, role, referral_code, referred_by) 
-              VALUES ('$username', '$email', '$password_hash', '$first_name', '$last_name', '$phone', '$role', '$referral_code', " . ($referred_by ? $referred_by : "NULL") . ")";
     
     if ($conn->query($query)) {
         $user_id = $conn->insert_id;
@@ -216,6 +245,38 @@ function handleRegister() {
             "Thank you for joining Opinion Hub NG, $first_name! Explore our platform and start creating polls or sharing your opinions.",
             'dashboards/' . $role . '-dashboard.php'
         );
+
+        // Send registration confirmation email
+        $welcome_subject = "Welcome to Opinion Hub NG - Account Created Successfully!";
+        $welcome_message = "Dear $first_name $last_name,
+
+Welcome to Opinion Hub NG! Your account has been successfully created.
+
+Account Details:
+- Email: $email
+- Account Type: " . ucfirst($role) . "
+
+You can now:
+" . ($role === 'client' ? '- Create and manage polls
+- Send invitations via SMS/Email/WhatsApp
+- View detailed poll analytics
+- Purchase messaging credits' : ($role === 'agent' ? '- Browse and accept poll tasks
+- Earn commissions for completed responses
+- Track your earnings and request payouts
+- Share polls to earn more' : '- Participate in polls and surveys
+- View poll results
+- Become an agent to earn money')) . "
+
+Get started: " . SITE_URL . "dashboard.php
+
+If you have any questions, feel free to contact our support team.
+
+Best regards,
+Opinion Hub NG Team
+hello@opinionhub.ng
++234 (0) 803 3782 777";
+
+        sendTemplatedEmail($email, "$first_name $last_name", $welcome_subject, nl2br($welcome_message), "Go to Dashboard", SITE_URL . "dashboard.php");
         
         // Send welcome email
         sendTemplatedEmail(
@@ -301,6 +362,7 @@ function handleCreatePoll() {
     $user = getCurrentUser();
     $title = sanitize($_POST['title'] ?? '');
     $description = sanitize($_POST['description'] ?? '');
+    $disclaimer = sanitize($_POST['disclaimer'] ?? '');
     $category_id = (int)($_POST['category_id'] ?? 0);
     $poll_type = sanitize($_POST['poll_type'] ?? '');
     $start_date = sanitize($_POST['start_date'] ?? '');
@@ -320,6 +382,25 @@ function handleCreatePoll() {
 
     // Agent payment settings
     $pay_agents = intval($_POST['pay_agents'] ?? 0);
+
+    // Agent filtering criteria - only if paying agents
+    $agent_age = $pay_agents ? ($_POST['agent_age'] ?? []) : [];
+    $agent_gender = $pay_agents ? ($_POST['agent_gender'] ?? []) : [];
+    $agent_state = $pay_agents ? sanitize($_POST['agent_state'] ?? '') : '';
+    $agent_lga = $pay_agents ? sanitize($_POST['agent_lga'] ?? '') : '';
+    $agent_location_all = $pay_agents ? intval($_POST['agent_location_all'] ?? 1) : 1;
+    $agent_occupation = $pay_agents ? ($_POST['agent_occupation'] ?? []) : [];
+    $agent_education = $pay_agents ? ($_POST['agent_education'] ?? []) : [];
+    $agent_employment = $pay_agents ? ($_POST['agent_employment'] ?? []) : [];
+    $agent_income = $pay_agents ? ($_POST['agent_income'] ?? []) : [];
+
+    // Convert arrays to JSON for storage
+    $agent_age_json = json_encode($agent_age);
+    $agent_gender_json = json_encode($agent_gender);
+    $agent_occupation_json = json_encode($agent_occupation);
+    $agent_education_json = json_encode($agent_education);
+    $agent_employment_json = json_encode($agent_employment);
+    $agent_income_json = json_encode($agent_income);
 
     // Databank display settings - only if paying agents
     $display_in_databank = $pay_agents ? intval($_POST['display_in_databank'] ?? 0) : 0;
@@ -357,16 +438,22 @@ function handleCreatePoll() {
     $slug = generateUniquePollSlug($title);
     
     $query = "INSERT INTO polls
-              (created_by, title, slug, description, category_id, poll_type, image,
+              (created_by, title, slug, description, disclaimer, category_id, poll_type, image,
                start_date, end_date, allow_comments, allow_multiple_votes, one_vote_per_ip,
                one_vote_per_account, results_public_after_vote, results_public_after_end,
-               results_private, status, price_per_response, target_responders)
-              VALUES ({$user['id']}, '$title', '$slug', '$description', $category_id,
+               results_private, status, price_per_response, target_responders,
+               agent_age_criteria, agent_gender_criteria, agent_state_criteria, agent_lga_criteria,
+               agent_location_all, agent_occupation_criteria, agent_education_criteria,
+               agent_employment_criteria, agent_income_criteria)
+              VALUES ({$user['id']}, '$title', '$slug', '$description', '$disclaimer', $category_id,
               '$poll_type', '$image', '$start_date', '$end_date',
               $allow_comments, $allow_multiple_votes, $one_vote_ip, $one_vote_account,
               $results_public_after_vote, $results_public_after_end, $results_private, 'draft',
-              $price_per_response, $target_responders)";
-    
+              $price_per_response, $target_responders,
+              '$agent_age_json', '$agent_gender_json', '$agent_state', '$agent_lga',
+              $agent_location_all, '$agent_occupation_json', '$agent_education_json',
+              '$agent_employment_json', '$agent_income_json')";
+
     if ($conn->query($query)) {
         $poll_id = $conn->insert_id;
         
@@ -395,27 +482,28 @@ function handleCreatePoll() {
 function handleUpdatePoll() {
     global $conn;
     requireRole(['client', 'admin']);
-    
+
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         die("Invalid request");
     }
-    
+
     $user = getCurrentUser();
     $poll_id = (int)($_POST['poll_id'] ?? 0);
-    
+
     // Verify ownership
     $existing = $conn->query("SELECT id FROM polls WHERE id = $poll_id AND created_by = {$user['id']}")->fetch_assoc();
     if (!$existing) {
         die('Poll not found or access denied');
     }
-    
+
     $title = sanitize($_POST['title'] ?? '');
     $description = sanitize($_POST['description'] ?? '');
+    $disclaimer = sanitize($_POST['disclaimer'] ?? '');
     $category_id = (int)($_POST['category_id'] ?? 0);
     $poll_type = sanitize($_POST['poll_type'] ?? '');
     $start_date = sanitize($_POST['start_date'] ?? '');
     $end_date = sanitize($_POST['end_date'] ?? '');
-    
+
     // Poll Settings - Radio buttons (values are 0 or 1 as strings)
     $allow_comments = intval($_POST['allow_comments'] ?? 0);
     $allow_multiple_votes = intval($_POST['allow_multiple_votes'] ?? 0);
@@ -431,9 +519,37 @@ function handleUpdatePoll() {
     // Agent payment settings
     $pay_agents = intval($_POST['pay_agents'] ?? 0);
 
+    // Agent filtering criteria - only if paying agents
+    $agent_age = $pay_agents ? ($_POST['agent_age'] ?? []) : [];
+    $agent_gender = $pay_agents ? ($_POST['agent_gender'] ?? []) : [];
+    $agent_state = $pay_agents ? sanitize($_POST['agent_state'] ?? '') : '';
+    $agent_lga = $pay_agents ? sanitize($_POST['agent_lga'] ?? '') : '';
+    $agent_location_all = $pay_agents ? intval($_POST['agent_location_all'] ?? 1) : 1;
+    $agent_occupation = $pay_agents ? ($_POST['agent_occupation'] ?? []) : [];
+    $agent_education = $pay_agents ? ($_POST['agent_education'] ?? []) : [];
+    $agent_employment = $pay_agents ? ($_POST['agent_employment'] ?? []) : [];
+    $agent_income = $pay_agents ? ($_POST['agent_income'] ?? []) : [];
+
+    // Convert arrays to JSON for storage
+    $agent_age_json = json_encode($agent_age);
+    $agent_gender_json = json_encode($agent_gender);
+    $agent_occupation_json = json_encode($agent_occupation);
+    $agent_education_json = json_encode($agent_education);
+    $agent_employment_json = json_encode($agent_employment);
+    $agent_income_json = json_encode($agent_income);
+
     // Databank display settings - only if paying agents
     $display_in_databank = $pay_agents ? intval($_POST['display_in_databank'] ?? 0) : 0;
     $results_sale_price = $pay_agents ? floatval($_POST['results_sale_price'] ?? 5000) : 0;
+
+    // Validate databank requirement: minimum 500 responses
+    if ($display_in_databank) {
+        $current_responses = $conn->query("SELECT COUNT(*) as count FROM poll_responses WHERE poll_id = $poll_id")->fetch_assoc()['count'];
+        if ($current_responses < 500) {
+            $errors[] = "Polls must have at least 500 responses to be available in the databank. Current responses: $current_responses";
+            $display_in_databank = 0; // Reset to prevent saving
+        }
+    }
 
     // Pricing fields - only set if paying agents
     $price_per_response = $pay_agents ? 500 : 0; // Platform fee only if paying agents
@@ -463,6 +579,7 @@ function handleUpdatePoll() {
     $query = "UPDATE polls SET
               title = '$title',
               description = '$description',
+              disclaimer = '$disclaimer',
               category_id = $category_id,
               poll_type = '$poll_type',
               start_date = '$start_date',
@@ -474,8 +591,19 @@ function handleUpdatePoll() {
               results_public_after_vote = $results_public_after_vote,
               results_public_after_end = $results_public_after_end,
               results_private = $results_private,
+              results_for_sale = $display_in_databank,
+              results_sale_price = $results_sale_price,
               price_per_response = $price_per_response,
-              target_responders = $target_responders
+              target_responders = $target_responders,
+              agent_age_criteria = '$agent_age_json',
+              agent_gender_criteria = '$agent_gender_json',
+              agent_state_criteria = '$agent_state',
+              agent_lga_criteria = '$agent_lga',
+              agent_location_all = $agent_location_all,
+              agent_occupation_criteria = '$agent_occupation_json',
+              agent_education_criteria = '$agent_education_json',
+              agent_employment_criteria = '$agent_employment_json',
+              agent_income_criteria = '$agent_income_json'
               $image_update
               WHERE id = $poll_id";
     
@@ -503,8 +631,45 @@ function handleAddQuestion() {
     $user = getCurrentUser();
     $poll_id = (int)($_POST['poll_id'] ?? 0);
     $question_text = sanitize($_POST['question_text'] ?? '');
+    $question_description = sanitize($_POST['question_description'] ?? '');
+    $question_image = sanitize($_POST['question_image'] ?? '');
     $question_type = sanitize($_POST['question_type'] ?? '');
     $is_required = (int)($_POST['is_required'] ?? 1);
+
+    // Handle image upload if file was provided
+    if (isset($_FILES['question_image_file']) && $_FILES['question_image_file']['error'] === UPLOAD_ERR_OK) {
+        $upload_dir = '../uploads/questions/';
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+
+        $file_extension = strtolower(pathinfo($_FILES['question_image_file']['name'], PATHINFO_EXTENSION));
+        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+        if (in_array($file_extension, $allowed_extensions)) {
+            $file_size = $_FILES['question_image_file']['size'];
+            if ($file_size <= MAX_FILE_SIZE) {
+                $new_filename = 'question_' . time() . '_' . rand(1000, 9999) . '.' . $file_extension;
+                $upload_path = $upload_dir . $new_filename;
+
+                if (move_uploaded_file($_FILES['question_image_file']['tmp_name'], $upload_path)) {
+                    $question_image = SITE_URL . 'uploads/questions/' . $new_filename;
+                } else {
+                    $_SESSION['error'] = "Failed to upload image file";
+                    header("Location: " . SITE_URL . "client/add-questions.php?id=$poll_id");
+                    exit;
+                }
+            } else {
+                $_SESSION['error'] = "Image file too large. Maximum size is " . (MAX_FILE_SIZE / 1024 / 1024) . "MB";
+                header("Location: " . SITE_URL . "client/add-questions.php?id=$poll_id");
+                exit;
+            }
+        } else {
+            $_SESSION['error'] = "Invalid image file type. Allowed types: JPG, PNG, GIF, WebP";
+            header("Location: " . SITE_URL . "client/add-questions.php?id=$poll_id");
+            exit;
+        }
+    }
     
     // Verify ownership
     $poll = $conn->query("SELECT id FROM polls WHERE id = $poll_id AND created_by = {$user['id']}")->fetch_assoc();
@@ -522,8 +687,8 @@ function handleAddQuestion() {
     $order_result = $conn->query("SELECT MAX(question_order) as max_order FROM poll_questions WHERE poll_id = $poll_id");
     $next_order = ($order_result->fetch_assoc()['max_order'] ?? 0) + 1;
     
-    $query = "INSERT INTO poll_questions (poll_id, question_text, question_type, is_required, question_order) 
-              VALUES ($poll_id, '$question_text', '$question_type', $is_required, $next_order)";
+    $query = "INSERT INTO poll_questions (poll_id, question_text, question_description, question_image, question_type, is_required, question_order)
+              VALUES ($poll_id, '$question_text', '$question_description', '$question_image', '$question_type', $is_required, $next_order)";
     
     if ($conn->query($query)) {
         $question_id = $conn->insert_id;
@@ -1123,7 +1288,7 @@ function handleUpdatePayoutStatus() {
     // Update user earnings based on status change
     if ($old_status === 'pending' && $new_status === 'cancelled') {
         // Remove from pending earnings
-        $conn->query("UPDATE users SET pending_earnings = pending_earnings - $amount WHERE user_id = $agent_id");
+        $conn->query("UPDATE users SET pending_earnings = pending_earnings - $amount WHERE id = $agent_id");
     } elseif ($old_status === 'pending' && $new_status === 'paid') {
         // Process VTPass transaction if applicable
         $payout_details = json_decode($payout['metadata'], true);
@@ -1135,10 +1300,10 @@ function handleUpdatePayoutStatus() {
         }
         
         // Move from pending to paid
-        $conn->query("UPDATE users 
+        $conn->query("UPDATE users
                      SET pending_earnings = pending_earnings - $amount,
-                         paid_earnings = paid_earnings + $amount 
-                     WHERE user_id = $agent_id");
+                         paid_earnings = paid_earnings + $amount
+                     WHERE id = $agent_id");
                      
         // Log VTPass transaction if applicable
         if (isset($vtpass_result['request_id'])) {
@@ -2184,3 +2349,178 @@ function handleDeleteComment() {
 }
 
 
+/**
+ * Handle Profile Update
+ */
+function handleUpdateProfile() {
+    global $conn;
+
+    if (!isLoggedIn()) {
+        $_SESSION['error'] = "Please login to update your profile";
+        header("Location: " . SITE_URL . "login.php");
+        exit;
+    }
+
+    $user = getCurrentUser();
+    $user_id = $user['id'];
+
+    // Get form data
+    $first_name = sanitize($_POST['first_name'] ?? '');
+    $last_name = sanitize($_POST['last_name'] ?? '');
+    $phone = sanitize($_POST['phone'] ?? '');
+    $date_of_birth = sanitize($_POST['date_of_birth'] ?? '');
+    $gender = sanitize($_POST['gender'] ?? '');
+    $address = sanitize($_POST['address'] ?? '');
+    $state = sanitize($_POST['state'] ?? '');
+    $lga = sanitize($_POST['lga'] ?? '');
+
+    // Agent-specific fields (only save if user is agent)
+    $occupation = '';
+    $education_qualification = '';
+    $employment_status = '';
+    $income_range = '';
+
+    if ($user['role'] === 'agent') {
+        $occupation = sanitize($_POST['occupation'] ?? '');
+        $education_qualification = sanitize($_POST['education_qualification'] ?? '');
+        $employment_status = sanitize($_POST['employment_status'] ?? '');
+        $income_range = sanitize($_POST['income_range'] ?? '');
+    }
+
+    // Validation
+    $errors = [];
+    if (empty($first_name)) $errors[] = "First name is required";
+    if (empty($last_name)) $errors[] = "Last name is required";
+
+    // Agent-specific validation
+    if ($user['role'] === 'agent') {
+        if (empty($date_of_birth)) $errors[] = "Date of birth is required";
+        if (empty($gender)) $errors[] = "Gender is required";
+        if (empty($state)) $errors[] = "State is required";
+        if (empty($occupation)) $errors[] = "Occupation is required";
+        if (empty($education_qualification)) $errors[] = "Education qualification is required";
+        if (empty($employment_status)) $errors[] = "Employment status is required";
+        if (empty($income_range)) $errors[] = "Income range is required";
+    }
+
+    if (!empty($errors)) {
+        $_SESSION['error'] = implode("<br>", $errors);
+        header("Location: " . SITE_URL . "profile.php");
+        exit;
+    }
+
+    // Handle profile image upload
+    $profile_image_update = "";
+    if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
+        $upload_dir = UPLOAD_DIR . 'profiles/';
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+
+        $file_extension = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
+        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+        if (in_array($file_extension, $allowed_extensions)) {
+            $file_size = $_FILES['profile_image']['size'];
+            if ($file_size <= MAX_FILE_SIZE) {
+                $new_filename = 'profile_' . $user_id . '_' . time() . '.' . $file_extension;
+                $upload_path = $upload_dir . $new_filename;
+
+                if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $upload_path)) {
+                    $profile_image_update = ", profile_image = '$new_filename'";
+                } else {
+                    $_SESSION['error'] = "Failed to upload profile image";
+                    header("Location: " . SITE_URL . "profile.php");
+                    exit;
+                }
+            } else {
+                $_SESSION['error'] = "Profile image too large. Maximum size is " . (MAX_FILE_SIZE / 1024 / 1024) . "MB";
+                header("Location: " . SITE_URL . "profile.php");
+                exit;
+            }
+        } else {
+            $_SESSION['error'] = "Invalid profile image file type. Allowed types: JPG, PNG, GIF, WebP";
+            header("Location: " . SITE_URL . "profile.php");
+            exit;
+        }
+    }
+
+    // Update user profile
+    $query = "UPDATE users SET
+              first_name = '$first_name',
+              last_name = '$last_name',
+              phone = '$phone',
+              date_of_birth = " . ($date_of_birth ? "'$date_of_birth'" : "NULL") . ",
+              gender = " . ($gender ? "'$gender'" : "NULL") . ",
+              address = '$address',
+              state = " . ($state ? "'$state'" : "NULL") . ",
+              lga = " . ($lga ? "'$lga'" : "NULL") . ",
+              occupation = " . ($occupation ? "'$occupation'" : "NULL") . ",
+              education_qualification = " . ($education_qualification ? "'$education_qualification'" : "NULL") . ",
+              employment_status = " . ($employment_status ? "'$employment_status'" : "NULL") . ",
+              income_range = " . ($income_range ? "'$income_range'" : "NULL") . "
+              $profile_image_update
+              WHERE id = $user_id";
+
+    if ($conn->query($query)) {
+        $_SESSION['success'] = "Profile updated successfully!";
+    } else {
+        $_SESSION['error'] = "Failed to update profile: " . $conn->error;
+    }
+
+    header("Location: " . SITE_URL . "profile.php");
+    exit;
+}
+
+/**
+ * Handle Change Password
+ */
+function handleChangePassword() {
+    global $conn;
+
+    if (!isLoggedIn()) {
+        $_SESSION['error'] = "Please login to change your password";
+        header("Location: " . SITE_URL . "login.php");
+        exit;
+    }
+
+    $user = getCurrentUser();
+    $user_id = $user['id'];
+
+    $current_password = $_POST['current_password'] ?? '';
+    $new_password = $_POST['new_password'] ?? '';
+    $confirm_password = $_POST['confirm_password'] ?? '';
+
+    // Validation
+    $errors = [];
+    if (empty($current_password)) $errors[] = "Current password is required";
+    if (empty($new_password)) $errors[] = "New password is required";
+    if (strlen($new_password) < 6) $errors[] = "New password must be at least 6 characters";
+    if ($new_password !== $confirm_password) $errors[] = "New passwords do not match";
+
+    // Verify current password
+    if (!password_verify($current_password, $user['password'])) {
+        $errors[] = "Current password is incorrect";
+    }
+
+    if (!empty($errors)) {
+        $_SESSION['error'] = implode("<br>", $errors);
+        header("Location: " . SITE_URL . "profile.php");
+        exit;
+    }
+
+    // Hash new password
+    $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+
+    // Update password
+    $query = "UPDATE users SET password = '$hashed_password' WHERE id = $user_id";
+
+    if ($conn->query($query)) {
+        $_SESSION['success'] = "Password changed successfully!";
+    } else {
+        $_SESSION['error'] = "Failed to change password";
+    }
+
+    header("Location: " . SITE_URL . "profile.php");
+    exit;
+}

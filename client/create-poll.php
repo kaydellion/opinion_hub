@@ -85,6 +85,12 @@ unset($_SESSION['errors']);
                                 <textarea class="form-control" id="description" name="description" rows="4" required><?= htmlspecialchars($poll['description'] ?? '') ?></textarea>
                             </div>
 
+                            <div class="mb-3">
+                                <label for="disclaimer" class="form-label">Disclaimer (Optional)</label>
+                                <textarea class="form-control" id="disclaimer" name="disclaimer" rows="3" placeholder="Add any important disclaimers, terms, or conditions for participants..."><?= htmlspecialchars($poll['disclaimer'] ?? '') ?></textarea>
+                                <small class="text-muted">This will be displayed to participants before they start the poll</small>
+                            </div>
+
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="category_id" class="form-label">Category *</label>
@@ -339,6 +345,7 @@ unset($_SESSION['errors']);
                                                        <?= ($poll && ($poll['results_for_sale'] ?? 0)) ? 'checked' : '' ?>>
                                                 <label class="form-check-label" for="databank_yes">
                                                     <strong>YES</strong> - Display in databank
+                                                    <br><small class="text-muted">Requires minimum 500 responses</small>
                                                 </label>
                                             </div>
                                         </div>
@@ -445,6 +452,446 @@ unset($_SESSION['errors']);
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Agent Filtering Criteria -->
+                            <div id="agent_filtering_section" class="mt-4">
+                                <h6 class="mb-3"><i class="fas fa-filter text-primary"></i> Agent Filtering Criteria</h6>
+                                <p class="text-muted small mb-3">Select the criteria for agents who can work on this poll. Only agents matching these criteria will be able to apply.</p>
+
+                                <div class="row">
+                                    <!-- Age Groups -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Age Groups</label>
+                                        <div class="border rounded p-3">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_age[]" value="18-25" id="age_18_25">
+                                                <label class="form-check-label" for="age_18_25">Young adults (18-25 years old)</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_age[]" value="25-40" id="age_25_40">
+                                                <label class="form-check-label" for="age_25_40">Adults (25-40 years old)</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_age[]" value="40-65" id="age_40_65">
+                                                <label class="form-check-label" for="age_40_65">Middle-aged adults (40-65 years old)</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_age[]" value="65+" id="age_65_plus">
+                                                <label class="form-check-label" for="age_65_plus">Senior citizens (65+ years old)</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_age[]" value="all" id="age_all" checked>
+                                                <label class="form-check-label fw-bold" for="age_all">SELECT ALL (ALL AGES)</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Gender -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Gender</label>
+                                        <div class="border rounded p-3">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_gender[]" value="female" id="gender_female">
+                                                <label class="form-check-label" for="gender_female">Female</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_gender[]" value="male" id="gender_male">
+                                                <label class="form-check-label" for="gender_male">Male</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_gender[]" value="both" id="gender_both" checked>
+                                                <label class="form-check-label fw-bold" for="gender_both">SELECT BOTH</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <!-- Location -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Location</label>
+                                        <div class="border rounded p-3">
+                                            <div class="mb-3">
+                                                <label class="form-label small">State</label>
+                                                <select class="form-select" name="agent_state" id="agent_state">
+                                                    <option value="">Select State</option>
+                                                    <option value="Abia">Abia</option>
+                                                    <option value="Adamawa">Adamawa</option>
+                                                    <option value="Akwa Ibom">Akwa Ibom</option>
+                                                    <option value="Anambra">Anambra</option>
+                                                    <option value="Bauchi">Bauchi</option>
+                                                    <option value="Bayelsa">Bayelsa</option>
+                                                    <option value="Benue">Benue</option>
+                                                    <option value="Borno">Borno</option>
+                                                    <option value="Cross River">Cross River</option>
+                                                    <option value="Delta">Delta</option>
+                                                    <option value="Ebonyi">Ebonyi</option>
+                                                    <option value="Edo">Edo</option>
+                                                    <option value="Ekiti">Ekiti</option>
+                                                    <option value="Enugu">Enugu</option>
+                                                    <option value="FCT">FCT</option>
+                                                    <option value="Gombe">Gombe</option>
+                                                    <option value="Imo">Imo</option>
+                                                    <option value="Jigawa">Jigawa</option>
+                                                    <option value="Kaduna">Kaduna</option>
+                                                    <option value="Kano">Kano</option>
+                                                    <option value="Katsina">Katsina</option>
+                                                    <option value="Kebbi">Kebbi</option>
+                                                    <option value="Kogi">Kogi</option>
+                                                    <option value="Kwara">Kwara</option>
+                                                    <option value="Lagos">Lagos</option>
+                                                    <option value="Nasarawa">Nasarawa</option>
+                                                    <option value="Niger">Niger</option>
+                                                    <option value="Ogun">Ogun</option>
+                                                    <option value="Ondo">Ondo</option>
+                                                    <option value="Osun">Osun</option>
+                                                    <option value="Oyo">Oyo</option>
+                                                    <option value="Plateau">Plateau</option>
+                                                    <option value="Rivers">Rivers</option>
+                                                    <option value="Sokoto">Sokoto</option>
+                                                    <option value="Taraba">Taraba</option>
+                                                    <option value="Yobe">Yobe</option>
+                                                    <option value="Zamfara">Zamfara</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label small">LGA (Optional)</label>
+                                                <select class="form-select" name="agent_lga" id="agent_lga" disabled>
+                                                    <option value="">Select State First</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="agent_location_all" value="1" id="location_all" checked>
+                                                <label class="form-check-label fw-bold" for="location_all">SELECT ALL (NIGERIA)</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Employment Status -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Employment Status</label>
+                                        <div class="border rounded p-3">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_employment[]" value="employed" id="employment_employed">
+                                                <label class="form-check-label" for="employment_employed">Employed</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_employment[]" value="unemployed" id="employment_unemployed">
+                                                <label class="form-check-label" for="employment_unemployed">Unemployed</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_employment[]" value="both" id="employment_both" checked>
+                                                <label class="form-check-label fw-bold" for="employment_both">SELECT BOTH</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <!-- Occupation -->
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label fw-bold">Occupation</label>
+                                        <div class="border rounded p-3">
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <h6 class="text-primary mb-2">Healthcare and Medicine</h6>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="doctor" id="occ_doctor">
+                                                        <label class="form-check-label small" for="occ_doctor">Doctor</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="nurse" id="occ_nurse">
+                                                        <label class="form-check-label small" for="occ_nurse">Nurse</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="pharmacist" id="occ_pharmacist">
+                                                        <label class="form-check-label small" for="occ_pharmacist">Pharmacist</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="surgeon" id="occ_surgeon">
+                                                        <label class="form-check-label small" for="occ_surgeon">Surgeon</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="dentist" id="occ_dentist">
+                                                        <label class="form-check-label small" for="occ_dentist">Dentist</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="medical_lab_tech" id="occ_medical_lab_tech">
+                                                        <label class="form-check-label small" for="occ_medical_lab_tech">Medical Laboratory Technician</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="physical_therapist" id="occ_physical_therapist">
+                                                        <label class="form-check-label small" for="occ_physical_therapist">Physical Therapist</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="radiologist" id="occ_radiologist">
+                                                        <label class="form-check-label small" for="occ_radiologist">Radiologist</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="optometrist" id="occ_optometrist">
+                                                        <label class="form-check-label small" for="occ_optometrist">Optometrist</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="psychiatrist" id="occ_psychiatrist">
+                                                        <label class="form-check-label small" for="occ_psychiatrist">Psychiatrist</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <h6 class="text-primary mb-2">Education and Academia</h6>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="teacher" id="occ_teacher">
+                                                        <label class="form-check-label small" for="occ_teacher">Teacher</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="professor" id="occ_professor">
+                                                        <label class="form-check-label small" for="occ_professor">Professor</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="librarian" id="occ_librarian">
+                                                        <label class="form-check-label small" for="occ_librarian">Librarian</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="school_principal" id="occ_school_principal">
+                                                        <label class="form-check-label small" for="occ_school_principal">School Principal</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="academic_advisor" id="occ_academic_advisor">
+                                                        <label class="form-check-label small" for="occ_academic_advisor">Academic Advisor</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="curriculum_developer" id="occ_curriculum_developer">
+                                                        <label class="form-check-label small" for="occ_curriculum_developer">Curriculum Developer</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="research_scientist" id="occ_research_scientist">
+                                                        <label class="form-check-label small" for="occ_research_scientist">Research Scientist</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="special_education_teacher" id="occ_special_education_teacher">
+                                                        <label class="form-check-label small" for="occ_special_education_teacher">Special Education Teacher</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="educational_consultant" id="occ_educational_consultant">
+                                                        <label class="form-check-label small" for="occ_educational_consultant">Educational Consultant</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="school_counselor" id="occ_school_counselor">
+                                                        <label class="form-check-label small" for="occ_school_counselor">School Counselor</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <h6 class="text-primary mb-2">Engineering and Technology</h6>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="software_engineer" id="occ_software_engineer">
+                                                        <label class="form-check-label small" for="occ_software_engineer">Software Engineer</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="civil_engineer" id="occ_civil_engineer">
+                                                        <label class="form-check-label small" for="occ_civil_engineer">Civil Engineer</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="mechanical_engineer" id="occ_mechanical_engineer">
+                                                        <label class="form-check-label small" for="occ_mechanical_engineer">Mechanical Engineer</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="electrical_engineer" id="occ_electrical_engineer">
+                                                        <label class="form-check-label small" for="occ_electrical_engineer">Electrical Engineer</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="computer_programmer" id="occ_computer_programmer">
+                                                        <label class="form-check-label small" for="occ_computer_programmer">Computer Programmer</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="network_administrator" id="occ_network_administrator">
+                                                        <label class="form-check-label small" for="occ_network_administrator">Network Administrator</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="data_scientist" id="occ_data_scientist">
+                                                        <label class="form-check-label small" for="occ_data_scientist">Data Scientist</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="it_support_specialist" id="occ_it_support_specialist">
+                                                        <label class="form-check-label small" for="occ_it_support_specialist">IT Support Specialist</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="cybersecurity_analyst" id="occ_cybersecurity_analyst">
+                                                        <label class="form-check-label small" for="occ_cybersecurity_analyst">Cybersecurity Analyst</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="aerospace_engineer" id="occ_aerospace_engineer">
+                                                        <label class="form-check-label small" for="occ_aerospace_engineer">Aerospace Engineer</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <h6 class="text-primary mb-2">Business and Finance</h6>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="accountant" id="occ_accountant">
+                                                        <label class="form-check-label small" for="occ_accountant">Accountant</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="financial_analyst" id="occ_financial_analyst">
+                                                        <label class="form-check-label small" for="occ_financial_analyst">Financial Analyst</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="marketing_manager" id="occ_marketing_manager">
+                                                        <label class="form-check-label small" for="occ_marketing_manager">Marketing Manager</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="hr_manager" id="occ_hr_manager">
+                                                        <label class="form-check-label small" for="occ_hr_manager">Human Resources Manager</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="business_consultant" id="occ_business_consultant">
+                                                        <label class="form-check-label small" for="occ_business_consultant">Business Consultant</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="sales_representative" id="occ_sales_representative">
+                                                        <label class="form-check-label small" for="occ_sales_representative">Sales Representative</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="investment_banker" id="occ_investment_banker">
+                                                        <label class="form-check-label small" for="occ_investment_banker">Investment Banker</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="real_estate_agent" id="occ_real_estate_agent">
+                                                        <label class="form-check-label small" for="occ_real_estate_agent">Real Estate Agent</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="project_manager" id="occ_project_manager">
+                                                        <label class="form-check-label small" for="occ_project_manager">Project Manager</label>
+                                                    </div>
+                                                    <div class="form-check mb-1">
+                                                        <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="insurance_broker" id="occ_insurance_broker">
+                                                        <label class="form-check-label small" for="occ_insurance_broker">Insurance Broker</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <div class="form-check">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="all" id="occupation_all" checked>
+                                                <label class="form-check-label fw-bold" for="occupation_all">SELECT ALL</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <!-- Education Qualification -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Highest Educational Qualification</label>
+                                        <div class="border rounded p-3">
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_education[]" value="ssc" id="edu_ssc">
+                                                <label class="form-check-label small" for="edu_ssc">Senior School Certificate</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_education[]" value="nd" id="edu_nd">
+                                                <label class="form-check-label small" for="edu_nd">National Diploma</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_education[]" value="hnd" id="edu_hnd">
+                                                <label class="form-check-label small" for="edu_hnd">Higher National Diploma</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_education[]" value="bachelors" id="edu_bachelors">
+                                                <label class="form-check-label small" for="edu_bachelors">Bachelor's Degree (Honours)</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_education[]" value="nce" id="edu_nce">
+                                                <label class="form-check-label small" for="edu_nce">Nigeria Certificate in Education</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_education[]" value="bed" id="edu_bed">
+                                                <label class="form-check-label small" for="edu_bed">Bachelor of Education</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_education[]" value="llb" id="edu_llb">
+                                                <label class="form-check-label small" for="edu_llb">Bachelor of Law(s) (LLB)</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_education[]" value="mbbs" id="edu_mbbs">
+                                                <label class="form-check-label small" for="edu_mbbs">Bachelor of Medicine and Bachelor of Surgery (MBBS)</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_education[]" value="bds" id="edu_bds">
+                                                <label class="form-check-label small" for="edu_bds">Bachelor of Dental Surgery (BDS)</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_education[]" value="dvm" id="edu_dvm">
+                                                <label class="form-check-label small" for="edu_dvm">Doctor of Veterinary Medicine (DVM)</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_education[]" value="pgd" id="edu_pgd">
+                                                <label class="form-check-label small" for="edu_pgd">Postgraduate Diploma</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_education[]" value="masters" id="edu_masters">
+                                                <label class="form-check-label small" for="edu_masters">Master's Degree</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_education[]" value="mphil" id="edu_mphil">
+                                                <label class="form-check-label small" for="edu_mphil">Master of Philosophy</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_education[]" value="phd" id="edu_phd">
+                                                <label class="form-check-label small" for="edu_phd">Doctor of Philosophy</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_education[]" value="others" id="edu_others">
+                                                <label class="form-check-label small" for="edu_others">Others</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_education[]" value="all" id="education_all" checked>
+                                                <label class="form-check-label fw-bold" for="education_all">SELECT ALL</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Monthly Income Range -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Monthly Income Range</label>
+                                        <div class="border rounded p-3">
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_income[]" value="1-30000" id="income_1_30000">
+                                                <label class="form-check-label small" for="income_1_30000">₦ 1 - ₦ 30,000</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_income[]" value="30000-80000" id="income_30000_80000">
+                                                <label class="form-check-label small" for="income_30000_80000">₦ 30,000 - ₦ 80,000</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_income[]" value="80000-150000" id="income_80000_150000">
+                                                <label class="form-check-label small" for="income_80000_150000">₦ 80,000 - ₦ 150,000</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_income[]" value="150000-250000" id="income_150000_250000">
+                                                <label class="form-check-label small" for="income_150000_250000">₦ 150,000 - ₦ 250,000</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_income[]" value="250000-500000" id="income_250000_500000">
+                                                <label class="form-check-label small" for="income_250000_500000">₦ 250,000 - ₦ 500,000</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_income[]" value="500000-1500000" id="income_500000_1500000">
+                                                <label class="form-check-label small" for="income_500000_1500000">₦ 500,000 - ₦ 1,500,000</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_income[]" value="1500000-5000000" id="income_1500000_5000000">
+                                                <label class="form-check-label small" for="income_1500000_5000000">₦ 1,500,000 - ₦ 5,000,000</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_income[]" value="5000000+" id="income_5000000_plus">
+                                                <label class="form-check-label small" for="income_5000000_plus">₦ 5,000,000 – upwards</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input agent-filter" type="checkbox" name="agent_income[]" value="all" id="income_all" checked>
+                                                <label class="form-check-label fw-bold" for="income_all">SELECT ALL</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             </div> <!-- End pricing section -->
 
                             <div class="mt-4">
@@ -467,10 +914,136 @@ unset($_SESSION['errors']);
 
 <script>
 
+// Agent filtering functionality
+function initializeAgentFilters() {
+    // Handle "SELECT ALL" checkboxes
+    document.querySelectorAll('.agent-filter').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const groupName = this.name;
+            const isSelectAll = this.value === 'all' || this.id.includes('_all');
+
+            if (isSelectAll) {
+                // If "SELECT ALL" is checked/unchecked, update all in the group
+                const groupCheckboxes = document.querySelectorAll(`input[name="${groupName}"]`);
+                groupCheckboxes.forEach(cb => {
+                    if (cb !== this) {
+                        cb.checked = this.checked;
+                    }
+                });
+            } else {
+                // If individual checkbox is unchecked, uncheck "SELECT ALL"
+                const selectAllCheckbox = document.querySelector(`input[name="${groupName}"][value="all"]`) ||
+                                         document.querySelector(`input[name="${groupName}"][id*="_all"]`);
+                if (selectAllCheckbox && !this.checked) {
+                    selectAllCheckbox.checked = false;
+                }
+
+                // If all individual checkboxes are checked, check "SELECT ALL"
+                const groupCheckboxes = document.querySelectorAll(`input[name="${groupName}"]:not([value="all"]):not([id*="_all"])`);
+                const allChecked = Array.from(groupCheckboxes).every(cb => cb.checked);
+                if (selectAllCheckbox && allChecked && groupCheckboxes.length > 0) {
+                    selectAllCheckbox.checked = true;
+                }
+            }
+        });
+    });
+
+    // Show/hide agent filtering section based on agent selection
+    const payAgentsRadios = document.querySelectorAll('input[name="pay_agents"]');
+    payAgentsRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            const agentFilteringSection = document.getElementById('agent_filtering_section');
+            if (this.value === '1') {
+                agentFilteringSection.style.display = 'block';
+            } else {
+                agentFilteringSection.style.display = 'none';
+            }
+        });
+    });
+}
+
+// Initialize agent filters when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeAgentFilters();
+    
+    // Load and populate LGAs for agent state selection
+    const agentStateSelect = document.getElementById('agent_state');
+    const agentLgaSelect = document.getElementById('agent_lga');
+    const locationAllCheckbox = document.getElementById('location_all');
+    let lgasData = {};
+    
+    // Load LGA data from JSON file
+    fetch('<?php echo SITE_URL; ?>assets/data/nigeria-states-lgas.json')
+        .then(response => response.json())
+        .then(data => {
+            lgasData = data;
+            
+            // Handle state selection change
+            if (agentStateSelect && agentLgaSelect) {
+                agentStateSelect.addEventListener('change', function() {
+                    const selectedState = this.value;
+                    agentLgaSelect.innerHTML = '<option value="">Select LGA</option>';
+                    
+                    if (selectedState && lgasData[selectedState]) {
+                        // Enable LGA select
+                        agentLgaSelect.disabled = false;
+                        
+                        // Populate LGA options
+                        lgasData[selectedState].forEach(function(lga) {
+                            const option = document.createElement('option');
+                            option.value = lga;
+                            option.textContent = lga;
+                            agentLgaSelect.appendChild(option);
+                        });
+                    } else {
+                        // Disable LGA select if no state selected
+                        agentLgaSelect.disabled = true;
+                    }
+                });
+            }
+            
+            // Handle "SELECT ALL (NIGERIA)" checkbox
+            if (locationAllCheckbox) {
+                locationAllCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        // Disable state and LGA fields when "SELECT ALL" is checked
+                        if (agentStateSelect) {
+                            agentStateSelect.disabled = true;
+                            agentStateSelect.value = '';
+                        }
+                        if (agentLgaSelect) {
+                            agentLgaSelect.disabled = true;
+                            agentLgaSelect.innerHTML = '<option value="">Select LGA</option>';
+                        }
+                    } else {
+                        // Enable state field when "SELECT ALL" is unchecked
+                        if (agentStateSelect) {
+                            agentStateSelect.disabled = false;
+                        }
+                        // LGA will be enabled when a state is selected
+                    }
+                });
+                
+                // Initial state: if checkbox is checked, disable fields
+                if (locationAllCheckbox.checked) {
+                    if (agentStateSelect) {
+                        agentStateSelect.disabled = true;
+                    }
+                    if (agentLgaSelect) {
+                        agentLgaSelect.disabled = true;
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error loading LGA data:', error);
+        });
+});
+
 // Calculate estimated cost (Platform Fee + Agent Commission per response)
 function updateEstimatedCost() {
     const platformFee = 500; // Fixed platform fee
-    const agentCommission = 1000; // Fixed agent commission
+    const agentCommission = 100; // Fixed agent commission (changed from 1000)
     const totalPerResponse = platformFee + agentCommission; // Total cost per response
     const targetResponders = parseFloat(document.getElementById('target_responders').value) || 0;
     const total = totalPerResponse * targetResponders;

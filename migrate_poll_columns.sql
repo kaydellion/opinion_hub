@@ -11,3 +11,9 @@ UPDATE polls SET agent_commission = 1000 WHERE agent_commission IS NULL;
 UPDATE polls SET results_for_sale = FALSE WHERE results_for_sale IS NULL;
 UPDATE polls SET results_sale_price = 5000 WHERE results_sale_price IS NULL AND results_for_sale = TRUE;
 
+
+
+
+
+
+

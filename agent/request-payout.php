@@ -7,19 +7,40 @@ requireRole('agent');
 $user = getCurrentUser();
 $page_title = "Request Payout";
 
-// Get user earnings
-$user_stats = $conn->query("SELECT total_earnings, pending_earnings, paid_earnings 
+// Get user earnings stats
+$user_stats = $conn->query("SELECT total_earnings, pending_earnings, paid_earnings
                             FROM users WHERE id = {$user['id']}")->fetch_assoc();
 
-$available_balance = ($user_stats['total_earnings'] ?? 0) - ($user_stats['paid_earnings'] ?? 0) - ($user_stats['pending_earnings'] ?? 0);
+// Get approved earnings from agent_earnings table
+$approved_earnings_result = $conn->query("SELECT SUM(amount) as approved_total FROM agent_earnings
+                                         WHERE agent_id = {$user['id']}
+                                         AND earning_type != 'payout_request'
+                                         AND status = 'approved'");
+$approved_earnings = 0;
+if ($approved_earnings_result && $approved_earnings_row = $approved_earnings_result->fetch_assoc()) {
+    $approved_earnings = $approved_earnings_row['approved_total'] ?? 0;
+}
+
+// Calculate available balance (approved earnings - paid earnings - pending payout requests)
+$pending_payout_total = 0;
+$pending_payouts_query = $conn->query("SELECT SUM(amount) as total FROM agent_earnings
+                                       WHERE agent_id = {$user['id']}
+                                       AND earning_type = 'payout_request'
+                                       AND status = 'pending'");
+if ($pending_payouts_query && $pending_payouts_result = $pending_payouts_query->fetch_assoc()) {
+    $pending_payout_total = $pending_payouts_result['total'] ?? 0;
+}
+
+$available_balance = $approved_earnings - ($user_stats['paid_earnings'] ?? 0) - $pending_payout_total;
 
 // Minimum payout amount
 define('MIN_PAYOUT', 5000);
 
 // Get pending payout requests
-$pending_payouts = $conn->query("SELECT * FROM agent_earnings 
-                                WHERE agent_id = {$user['id']} 
-                                AND status = 'approved'
+$pending_payouts = $conn->query("SELECT * FROM agent_earnings
+                                WHERE agent_id = {$user['id']}
+                                AND earning_type = 'payout_request'
+                                AND status IN ('pending', 'approved')
                                 ORDER BY created_at DESC");
 
 include_once '../header.php';
@@ -188,7 +209,7 @@ include_once '../header.php';
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle"></i>
                             <small>
-                                <strong>Note:</strong> Payout requests are typically processed within 24-48 hours. 
+                                <strong>Note:</strong> Only <strong>approved earnings</strong> can be withdrawn. Payout requests are typically processed within 24-48 hours.
                                 You will receive a notification once your payout is processed.
                             </small>
                         </div>

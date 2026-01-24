@@ -1160,6 +1160,8 @@ function submitPollResponse($poll_id, $respondent_id, $responses) {
     if ($tracking_code && preg_match('/USR(\d+)/', $tracking_code, $matches)) {
         $agent_id_to_credit = (int)$matches[1];
         $description = "Referral commission for poll response (Tracking: $tracking_code)";
+        // Override commission to ₦100 for referrals (from admin's share)
+        $commission = 100;
     }
     // If no tracking code but respondent is an agent, credit them directly
     elseif ($respondent_id) {
