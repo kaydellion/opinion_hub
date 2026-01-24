@@ -589,7 +589,7 @@ include '../header.php';
                                 $matrix_counts = [];
                                 if ($matrix_responses) {
                                     while ($mr = $matrix_responses->fetch_assoc()) {
-                                        $response_data = json_decode($mr['text_response'], true);
+                                        $response_data = !empty($mr['text_response']) ? json_decode($mr['text_response'], true) : null;
                                         if (is_array($response_data)) {
                                             foreach ($response_data as $row_id => $col_idx) {
                                                 if (!isset($matrix_counts[$row_id])) {
