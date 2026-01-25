@@ -47,6 +47,22 @@
                     <i class="fas fa-phone"></i> +234 (0) 803 3782 777<br>
                     <i class="fas fa-envelope"></i> <a href="mailto:hello@opinionhub.ng">hello@opinionhub.ng</a>
                 </p>
+                
+                <!-- Social Media Links -->
+                <div class="social-links mt-3">
+                    <h6>Follow Us</h6>
+                    <div class="d-flex gap-2">
+                        <a href="https://web.facebook.com/OpinionHubNG/" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary btn-sm" title="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://x.com/opinionhubng" target="_blank" rel="noopener noreferrer" class="btn btn-outline-info btn-sm" title="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="https://www.instagram.com/opinionhubng/" target="_blank" rel="noopener noreferrer" class="btn btn-outline-danger btn-sm" title="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
         

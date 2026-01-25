@@ -137,6 +137,7 @@ unset($_SESSION['errors']);
                                 <select class="form-select" id="lga" name="lga" disabled>
                                     <option value="">Select State First</option>
                                 </select>
+                                <small class="text-muted">Select a state to see available LGAs</small>
                             </div>
 
                             <!-- Occupation -->
@@ -460,6 +461,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const stateSelect = document.getElementById('state');
     const lgaSelect = document.getElementById('lga');
 
+    // Initialize LGA field state
+    if (lgaSelect) {
+        lgaSelect.disabled = true;
+        lgaSelect.removeAttribute('required');
+    }
+
     // Toggle agent fields based on role selection
     if (roleSelect && agentFields) {
         roleSelect.addEventListener('change', function() {
@@ -469,7 +476,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('date_of_birth').required = true;
                 document.getElementById('gender').required = true;
                 document.getElementById('state').required = true;
-                // LGA will be enabled when state is selected
+                // Initialize LGA field properly - disabled until state is selected
+                const lgaField = document.getElementById('lga');
+                if (lgaField) {
+                    lgaField.disabled = true;
+                    lgaField.removeAttribute('required');
+                    lgaField.innerHTML = '<option value="">Select LGA</option>';
+                }
                 document.getElementById('occupation').required = true;
                 document.getElementById('education').required = true;
                 document.getElementById('employment_status').required = true;
@@ -481,8 +494,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('gender').required = false;
                 document.getElementById('state').required = false;
                 if (document.getElementById('lga')) {
-                    document.getElementById('lga').required = false;
+                    document.getElementById('lga').removeAttribute('required');
                     document.getElementById('lga').disabled = true;
+                    document.getElementById('lga').innerHTML = '<option value="">Select LGA</option>';
                 }
                 document.getElementById('occupation').required = false;
                 document.getElementById('education').required = false;
@@ -509,7 +523,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (selectedState && lgasData[selectedState]) {
                         // Enable LGA select
                         lgaSelect.disabled = false;
-                        lgaSelect.required = true;
                         
                         // Populate LGA options
                         lgasData[selectedState].forEach(function(lga) {
@@ -521,7 +534,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         // Disable LGA select if no state selected
                         lgaSelect.disabled = true;
-                        lgaSelect.required = false;
                     }
                 });
             }
