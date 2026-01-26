@@ -10,6 +10,166 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+/**
+ * Ensure required tables exist for registration process
+ */
+function ensureRegistrationTables() {
+    global $conn;
+    
+    // Create notifications table if it doesn't exist
+    $conn->query("CREATE TABLE IF NOT EXISTS notifications (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        type ENUM('info', 'success', 'warning', 'error') DEFAULT 'info',
+        is_read BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+        INDEX(user_id),
+        INDEX(is_read),
+        INDEX(created_at)
+    )");
+    
+    // Create messaging_credits table if it doesn't exist
+    $conn->query("CREATE TABLE IF NOT EXISTS messaging_credits (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL UNIQUE,
+        sms_credits INT DEFAULT 0,
+        email_credits INT DEFAULT 0,
+        whatsapp_credits INT DEFAULT 0,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+        INDEX(user_id)
+    )");
+}
+
+/**
+ * Ensure users table has all required columns
+ * This function dynamically adds missing columns when called
+ */
+function ensureUsersTableColumns() {
+    global $conn;
+    
+    // Define required columns with their definitions
+    $required_columns = [
+        'date_of_birth' => 'DATE DEFAULT NULL COMMENT \'Agent date of birth for age calculation\'',
+        'gender' => 'ENUM(\'male\', \'female\') DEFAULT NULL COMMENT \'Agent gender\'',
+        'state' => 'VARCHAR(50) DEFAULT NULL COMMENT \'Agent state of residence\'',
+        'lga' => 'VARCHAR(100) DEFAULT NULL COMMENT \'Agent local government area\'',
+        'occupation' => 'VARCHAR(100) DEFAULT NULL COMMENT \'Agent occupation/profession\'',
+        'education_qualification' => 'VARCHAR(100) DEFAULT NULL COMMENT \'Agent highest education qualification\'',
+        'employment_status' => 'ENUM(\'employed\', \'unemployed\') DEFAULT NULL COMMENT \'Agent employment status\'',
+        'income_range' => 'VARCHAR(50) DEFAULT NULL COMMENT \'Agent monthly income range\'',
+        'payment_preference' => 'ENUM(\'cash\', \'airtime\', \'data\') DEFAULT \'cash\' AFTER account_number',
+        'total_earnings' => 'DECIMAL(10, 2) DEFAULT 0.00 AFTER payment_preference',
+        'pending_earnings' => 'DECIMAL(10, 2) DEFAULT 0.00 AFTER total_earnings',
+        'paid_earnings' => 'DECIMAL(10, 2) DEFAULT 0.00 AFTER pending_earnings',
+        'referral_code' => 'VARCHAR(20) UNIQUE',
+        'referred_by' => 'INT',
+        'agent_approval_status' => 'ENUM(\'pending\', \'approved\', \'rejected\') DEFAULT NULL',
+        'agent_approved_at' => 'TIMESTAMP NULL',
+        'agent_approved_by' => 'INT',
+        'sms_credits' => 'INT DEFAULT 0'
+    ];
+    
+    // Get existing columns
+    $existing_columns = [];
+    $result = $conn->query("SHOW COLUMNS FROM users");
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $existing_columns[] = $row['Field'];
+        }
+    }
+    
+    // Add missing columns
+    foreach ($required_columns as $column => $definition) {
+        if (!in_array($column, $existing_columns)) {
+            $add_sql = "ALTER TABLE users ADD COLUMN $column $definition";
+            if (!$conn->query($add_sql)) {
+                error_log("Failed to add column $column to users table: " . $conn->error);
+            }
+        }
+    }
+}
+
+/**
+ * Ensure poll_questions table has all required columns
+ * This function dynamically adds missing columns when called
+ */
+function ensurePollQuestionsTableColumns() {
+    global $conn;
+    
+    // Define required columns with their definitions
+    $required_columns = [
+        'question_description' => 'TEXT NULL AFTER question_text',
+        'question_image' => 'VARCHAR(255) NULL AFTER question_description'
+    ];
+    
+    // Get existing columns
+    $existing_columns = [];
+    $result = $conn->query("SHOW COLUMNS FROM poll_questions");
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $existing_columns[] = $row['Field'];
+        }
+    }
+    
+    // Add missing columns
+    foreach ($required_columns as $column => $definition) {
+        if (!in_array($column, $existing_columns)) {
+            $add_sql = "ALTER TABLE poll_questions ADD COLUMN $column $definition";
+            if (!$conn->query($add_sql)) {
+                error_log("Failed to add column $column to poll_questions table: " . $conn->error);
+            }
+        }
+    }
+}
+
+/**
+ * Ensure polls table has all required columns
+ * This function dynamically adds missing columns when called
+ */
+function ensurePollsTableColumns() {
+    global $conn;
+    
+    // Define required columns with their definitions
+    $required_columns = [
+        'disclaimer' => 'TEXT NULL AFTER description',
+        'agent_age_criteria' => 'TEXT DEFAULT \'[\"all\"]\' COMMENT \'JSON array of selected age groups\'',
+        'agent_gender_criteria' => 'TEXT DEFAULT \'[\"both\"]\' COMMENT \'JSON array of selected genders\'',
+        'agent_state_criteria' => 'VARCHAR(100) DEFAULT \'\' COMMENT \'Selected state for location filtering\'',
+        'agent_lga_criteria' => 'VARCHAR(100) DEFAULT \'\' COMMENT \'Selected LGA for location filtering\'',
+        'agent_location_all' => 'TINYINT(1) DEFAULT 1 COMMENT \'Whether to include all Nigeria locations\'',
+        'agent_occupation_criteria' => 'TEXT DEFAULT \'[\"all\"]\' COMMENT \'JSON array of selected occupations\'',
+        'agent_education_criteria' => 'TEXT DEFAULT \'[\"all\"]\' COMMENT \'JSON array of selected education levels\'',
+        'agent_employment_criteria' => 'TEXT DEFAULT \'[\"both\"]\' COMMENT \'JSON array of selected employment status\'',
+        'agent_income_criteria' => 'TEXT DEFAULT \'[\"all\"]\' COMMENT \'JSON array of selected income ranges\'',
+        'agent_commission' => 'DECIMAL(10, 2) DEFAULT 1000',
+        'results_for_sale' => 'BOOLEAN DEFAULT FALSE',
+        'results_sale_price' => 'DECIMAL(10, 2) DEFAULT 0'
+    ];
+    
+    // Get existing columns
+    $existing_columns = [];
+    $result = $conn->query("SHOW COLUMNS FROM polls");
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $existing_columns[] = $row['Field'];
+        }
+    }
+    
+    // Add missing columns
+    foreach ($required_columns as $column => $definition) {
+        if (!in_array($column, $existing_columns)) {
+            $add_sql = "ALTER TABLE polls ADD COLUMN $column $definition";
+            if (!$conn->query($add_sql)) {
+                error_log("Failed to add column $column to polls table: " . $conn->error);
+            }
+        }
+    }
+}
+
 $action = $_REQUEST['action'] ?? '';
 
 switch ($action) {
@@ -149,6 +309,10 @@ switch ($action) {
 function handleRegister() {
     global $conn;
     
+    // Ensure required columns and tables exist before proceeding
+    ensureUsersTableColumns();
+    ensureRegistrationTables();
+    
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         die("Invalid request");
     }
@@ -190,6 +354,7 @@ function handleRegister() {
         if (empty($agent_fields['date_of_birth'])) $errors[] = "Date of birth is required for agents";
         if (empty($agent_fields['gender'])) $errors[] = "Gender is required for agents";
         if (empty($agent_fields['state'])) $errors[] = "State of residence is required for agents";
+        if (empty($agent_fields['lga'])) $errors[] = "Local Government Area is required for agents";
         if (empty($agent_fields['occupation'])) $errors[] = "Occupation is required for agents";
         if (empty($agent_fields['education'])) $errors[] = "Education qualification is required for agents";
         if (empty($agent_fields['employment_status'])) $errors[] = "Employment status is required for agents";
@@ -231,20 +396,31 @@ function handleRegister() {
         
         // Add to agents table if agent role
         if ($role === 'agent') {
-            $conn->query("INSERT INTO agents (user_id, approval_status) VALUES ($user_id, 'pending')");
+            $agent_result = $conn->query("INSERT INTO agents (user_id, approval_status) VALUES ($user_id, 'pending')");
+            if (!$agent_result) {
+                error_log("Failed to add agent record: " . $conn->error);
+            }
         }
         
-        // Add messaging credits
-        addMessagingCredits($user_id, 0, 0, 0);
+        // Add messaging credits (with error handling)
+        try {
+            addMessagingCredits($user_id, 0, 0, 0);
+        } catch (Exception $e) {
+            error_log("Failed to add messaging credits: " . $e->getMessage());
+        }
         
-        // Send welcome notification
-        createNotification(
-            $user_id,
-            'welcome',
-            'Welcome to Opinion Hub NG!',
-            "Thank you for joining Opinion Hub NG, $first_name! Explore our platform and start creating polls or sharing your opinions.",
-            'dashboards/' . $role . '-dashboard.php'
-        );
+        // Send welcome notification (with error handling)
+        try {
+            createNotification(
+                $user_id,
+                'welcome',
+                'Welcome to Opinion Hub NG!',
+                "Thank you for joining Opinion Hub NG, $first_name! Explore our platform and start creating polls or sharing your opinions.",
+                'dashboards/' . $role . '-dashboard.php'
+            );
+        } catch (Exception $e) {
+            error_log("Failed to create notification: " . $e->getMessage());
+        }
 
         // Send registration confirmation email
         $welcome_subject = "Welcome to Opinion Hub NG - Account Created Successfully!";
@@ -276,17 +452,26 @@ Opinion Hub NG Team
 hello@opinionhub.ng
 +234 (0) 803 3782 777";
 
-        sendTemplatedEmail($email, "$first_name $last_name", $welcome_subject, nl2br($welcome_message), "Go to Dashboard", SITE_URL . "dashboard.php");
+        // Send registration confirmation email (with error handling)
+        try {
+            sendTemplatedEmail($email, "$first_name $last_name", $welcome_subject, nl2br($welcome_message), "Go to Dashboard", SITE_URL . "dashboard.php");
+        } catch (Exception $e) {
+            error_log("Failed to send welcome email: " . $e->getMessage());
+        }
         
-        // Send welcome email
-        sendTemplatedEmail(
-            $email,
-            $first_name . ' ' . $last_name,
-            'Welcome to Opinion Hub NG!',
-            "Welcome aboard, $first_name! We're excited to have you join our community. Start exploring and make your voice heard!",
-            'Get Started',
-            SITE_URL . 'signin.php'
-        );
+        // Send welcome email (with error handling)
+        try {
+            sendTemplatedEmail(
+                $email,
+                $first_name . ' ' . $last_name,
+                'Welcome to Opinion Hub NG!',
+                "Welcome aboard, $first_name! We're excited to have you join our community. Start exploring and make your voice heard!",
+                'Get Started',
+                SITE_URL . 'signin.php'
+            );
+        } catch (Exception $e) {
+            error_log("Failed to send second welcome email: " . $e->getMessage());
+        }
         
         $_SESSION['success'] = "Registration successful! Please login.";
         header("Location: " . SITE_URL . "login.php");
@@ -354,6 +539,9 @@ function handleLogin() {
 function handleCreatePoll() {
     global $conn;
     requireRole(['client', 'admin']);
+
+    // Ensure required columns exist before proceeding
+    ensurePollsTableColumns();
 
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         die("Invalid request");
@@ -482,6 +670,9 @@ function handleCreatePoll() {
 function handleUpdatePoll() {
     global $conn;
     requireRole(['client', 'admin']);
+    
+    // Ensure required columns exist before proceeding
+    ensurePollsTableColumns();
 
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         die("Invalid request");
@@ -623,6 +814,9 @@ function handleUpdatePoll() {
 function handleAddQuestion() {
     global $conn;
     requireRole(['client', 'admin']);
+    
+    // Ensure required columns exist before proceeding
+    ensurePollQuestionsTableColumns();
     
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         die("Invalid request");
