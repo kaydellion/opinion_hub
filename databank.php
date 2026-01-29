@@ -205,7 +205,7 @@ $latest_articles = $conn->query("SELECT bp.*, CONCAT(u.first_name, ' ', u.last_n
                                     </a>
                                 </div>
                             <?php elseif ($current_user): ?>
-                                <button onclick="showFormatSelection(<?php echo $poll['id']; ?>, <?php echo $poll['results_sale_price'] ?? 0; ?>, '<?php echo htmlspecialchars(addslashes($poll['title'])); ?>')"
+                                <button onclick="purchaseDataset(<?php echo $poll['id']; ?>, <?php echo $poll['results_sale_price'] ?? 0; ?>, '<?php echo htmlspecialchars(addslashes($poll['title'])); ?>')"
                                         class="btn btn-primary">
                                     <i class="fas fa-shopping-cart"></i> Purchase Dataset
                                 </button>
@@ -350,53 +350,29 @@ $latest_articles = $conn->query("SELECT bp.*, CONCAT(u.first_name, ' ', u.last_n
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="formatSelectionModalLabel">Choose Dataset Format</h5>
+                <h5 class="modal-title" id="purchaseModalLabel">Purchase Dataset Access</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-4">
-                    <h6>Select the dataset format you want to purchase:</h6>
+                    <h6>Confirm Your Purchase</h6>
                 </div>
 
-                <div class="row g-3">
-                    <div class="col-12">
-                        <div class="card border-primary">
-                            <div class="card-body text-center">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="dataset_format" id="format_combined" value="combined" checked>
-                                    <label class="form-check-label" for="format_combined">
-                                        <h5 class="text-primary mb-2"><i class="fas fa-chart-line me-2"></i>COMBINED Format</h5>
-                                        <p class="text-muted mb-2">Aggregated responses with trend analysis and patterns</p>
-                                        <small class="text-success">
-                                            <i class="fas fa-check-circle me-1"></i>Includes: Pie charts, bar charts, line graphs, trend analysis (Daily/Weekly/Monthly/Annually)
-                                        </small>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <div class="card border-info">
-                            <div class="card-body text-center">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="dataset_format" id="format_single" value="single">
-                                    <label class="form-check-label" for="format_single">
-                                        <h5 class="text-info mb-2"><i class="fas fa-users me-2"></i>SINGLE Format</h5>
-                                        <p class="text-muted mb-2">Individual responses from each participant</p>
-                                        <small class="text-success">
-                                            <i class="fas fa-check-circle me-1"></i>Includes: All individual responses with pagination, detailed view of each participant's answers
-                                        </small>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="alert alert-success">
+                    <h6 class="alert-heading"><i class="fas fa-check-circle me-2"></i>What You Get:</h6>
+                    <ul class="mb-0">
+                        <li><strong>COMBINED Format:</strong> Aggregated responses with trend analysis and patterns</li>
+                        <li><strong>SINGLE Format:</strong> Individual responses from each participant</li>
+                        <li><strong>Charts & Analytics:</strong> Pie charts, bar charts, trend analysis (Daily/Weekly/Monthly/Annually)</li>
+                        <li><strong>Export Options:</strong> PDF, CSV, Excel formats</li>
+                        <li><strong>Lifetime Access:</strong> Access to both formats forever</li>
+                    </ul>
                 </div>
 
-                <div class="alert alert-info mt-3">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Note:</strong> Both formats provide lifetime access to the poll results. You can download/export the data in multiple formats (PDF, CSV, etc.).
+                <div class="text-center">
+                    <h5>Poll: <span id="confirmTitle"></span></h5>
+                    <h4 class="text-primary">Price: ₦<span id="confirmAmount"></span></h4>
+                </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -412,33 +388,26 @@ $latest_articles = $conn->query("SELECT bp.*, CONCAT(u.first_name, ' ', u.last_n
 <?php if ($current_user): ?>
 <script>
 // Global variables for format selection
-let selectedPollId = null;
-let selectedAmount = null;
-let selectedTitle = null;
+let selectedPollId = 0;
+let selectedAmount = 0;
+let selectedTitle = '';
 
-function showFormatSelection(pollId, amount, title) {
+function purchaseDataset(pollId, amount, title) {
     selectedPollId = pollId;
     selectedAmount = amount;
     selectedTitle = title;
-
-    // Reset radio buttons
-    document.getElementById('format_combined').checked = true;
-    document.getElementById('format_single').checked = false;
-
+    
+    // Set modal content
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmAmount').textContent = amount.toLocaleString();
+    
     // Show modal
     const modal = new bootstrap.Modal(document.getElementById('formatSelectionModal'));
     modal.show();
 }
 
 function confirmPurchase() {
-    const selectedFormat = document.querySelector('input[name="dataset_format"]:checked').value;
-
-    if (!selectedFormat) {
-        alert('Please select a dataset format.');
-        return;
-    }
-
-    if (!confirm('Purchase "' + selectedTitle + '" (' + selectedFormat.toUpperCase() + ' format) for ₦' + selectedAmount.toLocaleString() + '?')) {
+    if (!confirm('Purchase "' + selectedTitle + '" for ₦' + selectedAmount.toLocaleString() + '?\n\nYou will get access to BOTH COMBINED and SINGLE formats with charts and analytics.')) {
         return;
     }
 
@@ -446,11 +415,11 @@ function confirmPurchase() {
     const modal = bootstrap.Modal.getInstance(document.getElementById('formatSelectionModal'));
     modal.hide();
 
-    // Proceed with payment
-    proceedToPayment(selectedPollId, selectedAmount, selectedTitle, selectedFormat);
+    // Proceed with payment (no format parameter - grants access to both)
+    proceedToPayment(selectedPollId, selectedAmount, selectedTitle);
 }
 
-function proceedToPayment(pollId, amount, title, format) {
+function proceedToPayment(pollId, amount, title) {
     const reference = 'DATABANK_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9).toUpperCase();
 
     // Check if VPayDropin is loaded
@@ -473,7 +442,8 @@ function proceedToPayment(pollId, amount, title, format) {
         txn_charge_type: 'flat',
         onSuccess: function(response) {
             console.log('Payment successful:', response);
-            window.location.href = '<?php echo SITE_URL; ?>vpay-callback.php?reference=' + reference + '&type=databank_access&poll_id=' + pollId + '&amount=' + amount + '&format=' + format;
+            // Remove format parameter - grants access to both formats
+            window.location.href = '<?php echo SITE_URL; ?>vpay-callback.php?reference=' + reference + '&type=databank_access&poll_id=' + pollId + '&amount=' + amount;
         },
         onExit: function(response) {
             console.log('Payment cancelled');
