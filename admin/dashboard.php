@@ -231,6 +231,18 @@ include_once '../header.php';
                             </a>
                         </div>
                         <div class="col-md-3">
+                            <a href="poll-types.php" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-list fa-2x d-block mb-2"></i>
+                                Poll Types
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="categories.php" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-tags fa-2x d-block mb-2"></i>
+                                Categories
+                            </a>
+                        </div>
+                        <div class="col-md-3">
                             <a href="blog.php" class="btn btn-outline-info w-100">
                                 <i class="fas fa-blog fa-2x d-block mb-2"></i>
                                 Manage Blog
@@ -325,8 +337,12 @@ include_once '../header.php';
                             <button class="nav-link active" id="reported-tab" data-bs-toggle="tab" data-bs-target="#reported" type="button" role="tab">
                                 <i class="fas fa-flag"></i> Reported
                                 <?php
-                                $reported_count = $conn->query("SELECT COUNT(*) as count FROM poll_reports WHERE status = 'pending'")->fetch_assoc()['count'];
-                                if ($reported_count > 0) echo "<span class='badge bg-danger ms-1'>$reported_count</span>";
+                                // Check if poll_reports table exists first
+                                $table_check = $conn->query("SHOW TABLES LIKE 'poll_reports'");
+                                if ($table_check && $table_check->num_rows > 0) {
+                                    $reported_count = $conn->query("SELECT COUNT(*) as count FROM poll_reports WHERE status = 'pending'")->fetch_assoc()['count'];
+                                    if ($reported_count > 0) echo "<span class='badge bg-danger ms-1'>$reported_count</span>";
+                                }
                                 ?>
                             </button>
                         </li>
@@ -352,18 +368,25 @@ include_once '../header.php';
                         <!-- Reported Polls Tab -->
                         <div class="tab-pane fade show active" id="reported" role="tabpanel">
                     <?php
-                    // Get pending reports
-                    $reports_query = $conn->query("SELECT pr.*, p.title as poll_title, p.status as poll_status,
-                                                  CONCAT(u.first_name, ' ', u.last_name) as reporter_name,
-                                                  p.slug as poll_slug
-                                                  FROM poll_reports pr
-                                                  JOIN polls p ON pr.poll_id = p.id
-                                                  JOIN users u ON pr.reported_by = u.id
-                                                  WHERE pr.status = 'pending'
-                                                  ORDER BY pr.created_at DESC
-                                                  LIMIT 5");
+                    // Check if poll_reports table exists before querying
+                    $table_check = $conn->query("SHOW TABLES LIKE 'poll_reports'");
+                    if ($table_check && $table_check->num_rows > 0) {
+                        // Get pending reports
+                        $reports_query = $conn->query("SELECT pr.*, p.title as poll_title, p.status as poll_status,
+                                                      CONCAT(u.first_name, ' ', u.last_name) as reporter_name,
+                                                      p.slug as poll_slug
+                                                      FROM poll_reports pr
+                                                      JOIN polls p ON pr.poll_id = p.id
+                                                      JOIN users u ON pr.reported_by = u.id
+                                                      WHERE pr.status = 'pending'
+                                                      ORDER BY pr.created_at DESC
+                                                      LIMIT 5");
+                    } else {
+                        $reports_query = false;
+                    }
+                    ?>
 
-                    if ($reports_query && $reports_query->num_rows > 0):
+                    <?php if ($reports_query && $reports_query->num_rows > 0): ?>
                     ?>
                         <div class="table-responsive">
                             <table class="table table-hover">
@@ -442,10 +465,9 @@ include_once '../header.php';
                             $suspended_query = $conn->query("SELECT p.*,
                                                           CONCAT(u.first_name, ' ', u.last_name) as creator_name,
                                                           p.slug as poll_slug,
-                                                          COUNT(DISTINCT pr.id) as report_count
+                                                          0 as report_count
                                                           FROM polls p
                                                           LEFT JOIN users u ON p.created_by = u.id
-                                                          LEFT JOIN poll_reports pr ON p.id = pr.poll_id AND pr.status IN ('pending', 'reviewed')
                                                           WHERE p.status = 'paused'
                                                           GROUP BY p.id
                                                           ORDER BY p.updated_at DESC");

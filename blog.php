@@ -9,21 +9,21 @@ $per_page = 9;
 $offset = ($page - 1) * $per_page;
 
 // Get total count
-$count_query = "SELECT COUNT(*) as total FROM blog_articles WHERE status = 'published'";
+$count_query = "SELECT COUNT(*) as total FROM blog_posts WHERE status = 'approved'";
 $count_result = $conn->query($count_query);
 $total_posts = $count_result->fetch_assoc()['total'];
 $total_pages = ceil($total_posts / $per_page);
 
 // Get published blog articles with stats
-$articles_query = "SELECT ba.*,
+$articles_query = "SELECT bp.*,
                    CONCAT(u.first_name, ' ', u.last_name) as author_name,
-                   (SELECT COUNT(*) FROM blog_likes WHERE post_id = ba.id) as like_count,
-                   (SELECT COUNT(*) FROM blog_comments WHERE post_id = ba.id) as comment_count,
-                   (SELECT COUNT(*) FROM blog_shares WHERE post_id = ba.id) as share_count
-                   FROM blog_articles ba
-                   JOIN users u ON ba.author_id = u.id
-                   WHERE ba.status = 'published'
-                   ORDER BY ba.created_at DESC
+                   (SELECT COUNT(*) FROM blog_likes WHERE post_id = bp.id) as like_count,
+                   (SELECT COUNT(*) FROM blog_comments WHERE post_id = bp.id) as comment_count,
+                   (SELECT COUNT(*) FROM blog_shares WHERE post_id = bp.id) as share_count
+                   FROM blog_posts bp
+                   JOIN users u ON bp.user_id = u.id
+                   WHERE bp.status = 'approved'
+                   ORDER BY bp.created_at DESC
                    LIMIT ? OFFSET ?";
 
 $stmt = $conn->prepare($articles_query);
@@ -80,10 +80,11 @@ include 'header.php';
                     <div class="card h-100 shadow-sm hover-shadow transition">
                         <?php if ($article['featured_image']): ?>
                             <a href="blog/view.php?slug=<?= urlencode($article['slug']) ?>">
-                                <img src="<?= SITE_URL . $article['featured_image'] ?>" 
+                                <img src="<?= SITE_URL ?>uploads/blog/<?= htmlspecialchars($article['featured_image']) ?>" 
                                      class="card-img-top" 
                                      alt="<?= htmlspecialchars($article['title']) ?>" 
-                                     style="height: 220px; object-fit: cover;">
+                                     style="height: 220px; object-fit: cover;"
+                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIyMCIgdmlld0JveD0iMCAwIDQwMCAyMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjIwIiBmaWxsPSIjNjY3Ii8+CjxwYXRoIGQ9Ik0xNTAgNzBWMTUwSDI1MFY3MEgxNTBaIiBmaWxsPSIjOTk5Ii8+CjxwYXRoIGQ9Ik0xODAgMTAwSDIyMFYxMjBIMTgwVjEwMFoiIGZpbGw9IiNDQ0MiLz4+Cjwvc3ZnPg=='">
                             </a>
                         <?php else: ?>
                             <div class="card-img-top bg-gradient-primary d-flex align-items-center justify-content-center" 

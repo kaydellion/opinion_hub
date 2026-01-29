@@ -21,16 +21,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // Check if settings table exists, create if not
+    $table_check = $conn->query("SHOW TABLES LIKE 'settings'");
+    if (!$table_check || $table_check->num_rows === 0) {
+        // Create settings table
+        $create_sql = "CREATE TABLE settings (
+            setting_key VARCHAR(100) PRIMARY KEY,
+            setting_value TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
+        )";
+        $conn->query($create_sql);
+    }
+
     // Update settings in database
     foreach ($updates as $key => $value) {
         $stmt = $conn->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
-        $stmt->bind_param("sss", $key, $value, $value);
-        $stmt->execute();
+        if ($stmt) {
+            $stmt->bind_param("sss", $key, $value, $value);
+            $stmt->execute();
+        } else {
+            $error = "Failed to prepare statement for setting: $key";
+            break;
+        }
     }
 
-    $success = 'Settings updated successfully!';
+    if (empty($error)) {
+        $success = "Settings updated successfully!";
+    }
 }
-
 
 include_once '../header.php';
 ?>

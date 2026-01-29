@@ -17,13 +17,15 @@ if ($current_user['role'] !== 'agent') {
 $errors = [];
 $success = '';
 
-// Define packages
+// Define packages with dynamic pricing
+$sms_price_per_credit = getSetting('sms_price_basic', 18); // Use basic plan pricing for agents
+
 $packages = [
-    1 => ['credits' => 10, 'price' => 100],
-    2 => ['credits' => 50, 'price' => 450],
-    3 => ['credits' => 100, 'price' => 800],
-    4 => ['credits' => 200, 'price' => 1500],
-    5 => ['credits' => 500, 'price' => 3500],
+    1 => ['credits' => 10, 'price' => 10 * $sms_price_per_credit],
+    2 => ['credits' => 50, 'price' => 50 * $sms_price_per_credit],
+    3 => ['credits' => 100, 'price' => 100 * $sms_price_per_credit],
+    4 => ['credits' => 200, 'price' => 200 * $sms_price_per_credit],
+    5 => ['credits' => 500, 'price' => 500 * $sms_price_per_credit],
 ];
 
 // Handle success from payment callback
@@ -104,9 +106,9 @@ include '../header.php';
                     <h4 class="mb-3">Starter</h4>
                     <div class="display-4 text-primary mb-2">10</div>
                     <p class="text-muted mb-3">SMS Credits</p>
-                    <h3 class="mb-3">₦100</h3>
-                    <p class="text-muted small mb-3">₦10 per SMS</p>
-                    <button onclick="payWithPaystack(1, 10, 100)" class="btn btn-primary">
+                    <h3 class="mb-3">₦<?= number_format($packages[1]['price'], 0) ?></h3>
+                    <p class="text-muted small mb-3">₦<?= number_format($sms_price_per_credit, 0) ?> per SMS</p>
+                    <button onclick="payWithPaystack(1, 10, <?= $packages[1]['price'] ?>)" class="btn btn-primary">
                         <i class="fas fa-shopping-cart me-2"></i>Buy Now
                     </button>
                 </div>
@@ -122,9 +124,9 @@ include '../header.php';
                     <h4 class="mb-3">Basic</h4>
                     <div class="display-4 text-primary mb-2">50</div>
                     <p class="text-muted mb-3">SMS Credits</p>
-                    <h3 class="mb-3">₦450</h3>
-                    <p class="text-muted small mb-3">₦9 per SMS <span class="badge bg-success">Save 10%</span></p>
-                    <button onclick="payWithPaystack(2, 50, 450)" class="btn btn-primary">
+                    <h3 class="mb-3">₦<?= number_format($packages[2]['price'], 0) ?></h3>
+                    <p class="text-muted small mb-3">₦<?= number_format($packages[2]['price'] / 50, 1) ?> per SMS <span class="badge bg-success">Save 10%</span></p>
+                    <button onclick="payWithPaystack(2, 50, <?= $packages[2]['price'] ?>)" class="btn btn-primary">
                         <i class="fas fa-shopping-cart me-2"></i>Buy Now
                     </button>
                 </div>
@@ -137,9 +139,9 @@ include '../header.php';
                     <h4 class="mb-3">Standard</h4>
                     <div class="display-4 text-primary mb-2">100</div>
                     <p class="text-muted mb-3">SMS Credits</p>
-                    <h3 class="mb-3">₦800</h3>
-                    <p class="text-muted small mb-3">₦8 per SMS <span class="badge bg-success">Save 20%</span></p>
-                    <button onclick="payWithPaystack(3, 100, 800)" class="btn btn-primary">
+                    <h3 class="mb-3">₦<?= number_format($packages[3]['price'], 0) ?></h3>
+                    <p class="text-muted small mb-3">₦<?= number_format($packages[3]['price'] / 100, 1) ?> per SMS <span class="badge bg-success">Save 20%</span></p>
+                    <button onclick="payWithPaystack(3, 100, <?= $packages[3]['price'] ?>)" class="btn btn-primary">
                         <i class="fas fa-shopping-cart me-2"></i>Buy Now
                     </button>
                 </div>
@@ -155,9 +157,9 @@ include '../header.php';
                     <h4 class="mb-3">Professional</h4>
                     <div class="display-4 text-success mb-2">200</div>
                     <p class="text-muted mb-3">SMS Credits</p>
-                    <h3 class="mb-3">₦1,500</h3>
-                    <p class="text-muted small mb-3">₦7.50 per SMS <span class="badge bg-success">Save 25%</span></p>
-                    <button onclick="payWithPaystack(4, 200, 1500)" class="btn btn-success">
+                    <h3 class="mb-3">₦<?= number_format($packages[4]['price'], 0) ?></h3>
+                    <p class="text-muted small mb-3">₦<?= number_format($packages[4]['price'] / 200, 2) ?> per SMS <span class="badge bg-success">Save 25%</span></p>
+                    <button onclick="payWithPaystack(4, 200, <?= $packages[4]['price'] ?>)" class="btn btn-success">
                         <i class="fas fa-shopping-cart me-2"></i>Buy Now
                     </button>
                 </div>
@@ -173,9 +175,9 @@ include '../header.php';
                     <h4 class="mb-3">Enterprise</h4>
                     <div class="display-4 text-warning mb-2">500</div>
                     <p class="text-muted mb-3">SMS Credits</p>
-                    <h3 class="mb-3">₦3,500</h3>
-                    <p class="text-muted small mb-3">₦7 per SMS <span class="badge bg-success">Save 30%</span></p>
-                    <button onclick="payWithPaystack(5, 500, 3500)" class="btn btn-warning">
+                    <h3 class="mb-3">₦<?= number_format($packages[5]['price'], 0) ?></h3>
+                    <p class="text-muted small mb-3">₦<?= number_format($packages[5]['price'] / 500, 2) ?> per SMS <span class="badge bg-success">Save 30%</span></p>
+                    <button onclick="payWithPaystack(5, 500, <?= $packages[5]['price'] ?>)" class="btn btn-warning">
                         <i class="fas fa-shopping-cart me-2"></i>Buy Now
                     </button>
                 </div>

@@ -299,6 +299,27 @@ CREATE TABLE IF NOT EXISTS notifications (
     INDEX(created_at)
 );
 
+-- Poll Reports Table
+CREATE TABLE IF NOT EXISTS poll_reports (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    poll_id INT NOT NULL,
+    reporter_id INT NOT NULL,
+    reason ENUM('inappropriate_content', 'spam', 'misleading', 'duplicate', 'other') NOT NULL,
+    description TEXT,
+    status ENUM('pending', 'reviewed', 'resolved', 'dismissed') DEFAULT 'pending',
+    reviewed_by INT NULL,
+    reviewed_at TIMESTAMP NULL,
+    review_notes TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(poll_id) REFERENCES polls(id) ON DELETE CASCADE,
+    FOREIGN KEY(reporter_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(reviewed_by) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX(poll_id),
+    INDEX(reporter_id),
+    INDEX(status),
+    INDEX(created_at)
+);
+
 -- Message Logs Table
 CREATE TABLE IF NOT EXISTS message_logs (
     id INT PRIMARY KEY AUTO_INCREMENT,

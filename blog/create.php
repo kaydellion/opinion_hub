@@ -8,9 +8,6 @@ if (!isLoggedIn()) {
 
 $page_title = "Create Blog Post";
 include_once '../header.php';
-
-// Get TinyMCE API key from settings
-$tinymce_key = getSetting('tinymce_api_key', 'no-api-key');
 ?>
 
 <div class="container py-5">
@@ -71,38 +68,5 @@ $tinymce_key = getSetting('tinymce_api_key', 'no-api-key');
         </div>
     </div>
 </div>
-
-<!-- TinyMCE Script -->
-<script src="https://cdn.tiny.cloud/1/<?php echo htmlspecialchars($tinymce_key); ?>/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-<script>
-    tinymce.init({
-        selector: '#content',
-        height: 500,
-        menubar: false,
-        plugins: [
-            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-            'insertdatetime', 'media', 'table', 'help', 'wordcount'
-        ],
-        toolbar: 'undo redo | blocks | ' +
-            'bold italic forecolor | alignleft aligncenter ' +
-            'alignright alignjustify | bullist numlist outdent indent | ' +
-            'removeformat | link image | code | help',
-        content_style: 'body { font-family: Poppins, sans-serif; font-size: 14px }',
-        image_advtab: true,
-        image_title: true,
-        automatic_uploads: true,
-        file_picker_types: 'image',
-        images_upload_handler: function (blobInfo, success, failure) {
-            // You can implement image upload here later
-            // For now, convert to base64
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                success(e.target.result);
-            };
-            reader.readAsDataURL(blobInfo.blob());
-        }
-    });
-</script>
 
 <?php include_once '../footer.php'; ?>

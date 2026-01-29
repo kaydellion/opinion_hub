@@ -1,4 +1,8 @@
 <?php
+// Include required files first
+include_once 'connect.php';
+include_once 'functions.php';
+
 // Get filters first
 $category = isset($_GET['category']) ? (int)$_GET['category'] : 0;
 $search = isset($_GET['search']) ? sanitize($_GET['search']) : '';
@@ -39,7 +43,7 @@ if ($category > 0) {
     $where[] = "category_id = $category";
 }
 if (!empty($search)) {
-    $where[] = "(title LIKE '%$search%' OR description LIKE '%$search%')";
+    $where[] = "(p.title LIKE '%$search%' OR p.description LIKE '%$search%')";
 }
 if (!empty($location)) {
     $where[] = "(agent_state_criteria = '$location' OR agent_location_all = 1)";
@@ -506,7 +510,7 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY name");
     <div class="row mt-5">
         <div class="col-md-12">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-success text-white">
+                <div class="card-header bg-secondary text-white">
                     <h4 class="mb-0"><i class="fas fa-blog me-2"></i> Latest Blog Articles</h4>
                 </div>
                 <div class="card-body">
@@ -514,6 +518,28 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY name");
                         <?php while ($article = $latest_articles->fetch_assoc()): ?>
                             <div class="col-lg-4 col-md-6 mb-4">
                                 <div class="card h-100 border-0 shadow-sm hover-shadow">
+                                    <!-- Featured Image -->
+                                    <?php if (!empty($article['featured_image'])): ?>
+                                        <?php
+                                        // Try different possible paths for the image
+                                        $image_paths = [
+                                            SITE_URL . 'uploads/blog/' . $article['featured_image'],
+                                            SITE_URL . 'uploads/' . $article['featured_image'],
+                                            SITE_URL . $article['featured_image']
+                                        ];
+                                        $image_src = $image_paths[0]; // Default to first path
+                                        ?>
+                                        <img src="<?php echo $image_src; ?>" 
+                                             class="card-img-top" alt="<?php echo htmlspecialchars($article['title']); ?>" 
+                                             style="height: 200px; object-fit: cover;"
+                                             onerror="this.outerHTML='<div class=\\'card-img-top bg-secondary d-flex align-items-center justify-content-center\\' style=\\'height: 200px;\\'><i class=\\'fas fa-image text-white\\' style=\\'font-size: 3rem;\\'></i></div>'">
+                                    <?php else: ?>
+                                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" 
+                                             style="height: 200px;">
+                                            <i class="fas fa-image text-white" style="font-size: 3rem;"></i>
+                                        </div>
+                                    <?php endif; ?>
+                                    
                                     <div class="card-body">
                                         <h6 class="card-title">
                                             <a href="<?php echo SITE_URL; ?>blog/view.php?slug=<?php echo urlencode($article['slug']); ?>"
@@ -535,7 +561,7 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY name");
                                                 <i class="fas fa-comment text-primary ms-2 me-1"></i> <?php echo $article['comment_count']; ?>
                                             </div>
                                             <a href="<?php echo SITE_URL; ?>blog/view.php?slug=<?php echo urlencode($article['slug']); ?>"
-                                               class="btn btn-outline-success btn-sm">
+                                               class="btn btn-outline-secondary btn-sm">
                                                 Read More <i class="fas fa-arrow-right ms-1"></i>
                                             </a>
                                         </div>
@@ -545,7 +571,7 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY name");
                         <?php endwhile; ?>
                     </div>
                     <div class="text-center mt-3">
-                        <a href="<?php echo SITE_URL; ?>blog.php" class="btn btn-success">
+                        <a href="<?php echo SITE_URL; ?>blog.php" class="btn btn-secondary">
                             <i class="fas fa-blog me-2"></i> View All Articles
                         </a>
                     </div>
