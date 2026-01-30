@@ -181,11 +181,18 @@ if (isLoggedIn()) {
     $check = $conn->query("SELECT id FROM poll_responses WHERE poll_id = $poll_id AND respondent_ip = '$ip'");
     $already_voted = $check && $check->num_rows > 0;
 }
+
 // Non-logged-in users can participate freely unless poll has IP restriction
 
 $success = isset($_GET['success']) ? true : false;
 $errors = $_SESSION['errors'] ?? [];
 unset($_SESSION['errors']);
+
+// Check if user just voted and should see results
+$show_results_after_vote = false;
+if ($success && $poll['price_per_response'] == 0 && $poll['results_public_after_vote']) {
+    $show_results_after_vote = true;
+}
 ?>
 
 <div class="container my-5">
@@ -280,11 +287,107 @@ unset($_SESSION['errors']);
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle"></i> This poll is currently <?php echo $poll['status']; ?>.
                         </div>
-                    <?php elseif ($already_voted): ?>
-                        <div class="alert alert-info">
-                            <i class="fas fa-check-circle"></i> You have already participated in this poll.
-                            <a href="<?php echo SITE_URL; ?>databank.php?poll=<?php echo $poll_id; ?>">View Results</a>
+                    <?php elseif ($already_voted || $show_results_after_vote): ?>
+                        <?php if ($show_results_after_vote): ?>
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i> Thank you for voting! Here are the results:
+                            </div>
+                        <?php else: ?>
+                            <div class="alert alert-info">
+                                <i class="fas fa-check-circle"></i> You have already participated in this poll.
+                            </div>
+                        <?php endif; ?>
+                        
+                        <!-- Show Results -->
+                        <div class="poll-results">
+                            <?php
+                            $question_num = 1;
+                            // Reset the questions pointer
+                            $questions->data_seek(0);
+                            while ($question = $questions->fetch_assoc()):
+                                // Get options for this question
+                                $options = $conn->query("SELECT * FROM poll_question_options 
+                                                        WHERE question_id = " . $question['id'] . " 
+                                                        ORDER BY option_order");
+                            ?>
+                                <div class="mb-4 pb-4 border-bottom">
+                                    <h6 class="mb-3">
+                                        <span class="badge bg-secondary"><?php echo $question_num; ?></span>
+                                        <?php echo htmlspecialchars($question['question_text']); ?>
+                                    </h6>
+                                    
+                                    <?php
+                                    // Get response counts for each option using question_responses table
+                                    $response_counts = [];
+                                    $total_responses = 0;
+                                    
+                                    while ($option = $options->fetch_assoc()) {
+                                        // Count responses for this specific option
+                                        $count_query = "SELECT COUNT(*) as count 
+                                                       FROM question_responses qr
+                                                       JOIN poll_responses pr ON qr.response_id = pr.id
+                                                       WHERE pr.poll_id = $poll_id 
+                                                       AND qr.question_id = " . $question['id'] . "
+                                                       AND qr.option_id = " . $option['id'];
+                                        $count_result = $conn->query($count_query);
+                                        $count = $count_result ? $count_result->fetch_assoc()['count'] : 0;
+                                        
+                                        $response_counts[] = [
+                                            'option' => $option,
+                                            'count' => $count
+                                        ];
+                                        $total_responses += $count; // This now correctly accumulates
+                                    }
+                                    
+                                    // Alternative method: Get total responses directly for this question
+                                    $total_check_query = "SELECT COUNT(DISTINCT qr.response_id) as total 
+                                                         FROM question_responses qr
+                                                         JOIN poll_responses pr ON qr.response_id = pr.id
+                                                         WHERE pr.poll_id = $poll_id 
+                                                         AND qr.question_id = " . $question['id'];
+                                    $total_check_result = $conn->query($total_check_query);
+                                    $actual_total = $total_check_result ? $total_check_result->fetch_assoc()['total'] : 0;
+                                    
+                                    // Use the actual total if it's different from accumulated total
+                                    if ($actual_total > 0) {
+                                        $total_responses = $actual_total;
+                                    }
+                                    
+                                    // Display results as progress bars
+                                    foreach ($response_counts as $response):
+                                        $percentage = $total_responses > 0 ? round(($response['count'] / $total_responses) * 100, 1) : 0;
+                                    ?>
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span class="small"><?php echo htmlspecialchars($response['option']['option_text']); ?></span>
+                                                <span class="small fw-bold"><?php echo $response['count']; ?> votes (<?php echo $percentage; ?>%)</span>
+                                            </div>
+                                            <div class="progress" style="height: 25px;">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: <?php echo $percentage; ?>%"
+                                                     aria-valuenow="<?php echo $percentage; ?>" 
+                                                     aria-valuemin="0" aria-valuemax="100">
+                                                    <?php echo $percentage; ?>%
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                    
+                                    <div class="text-muted small">
+                                        Total responses: <?php echo $total_responses; ?>
+                                    </div>
+                                </div>
+                            <?php 
+                            $question_num++;
+                            endwhile; 
+                            ?>
                         </div>
+                        
+                        <?php if (!$show_results_after_vote): ?>
+                            <a href="<?php echo SITE_URL; ?>databank.php?poll=<?php echo $poll_id; ?>" class="btn btn-primary">
+                                <i class="fas fa-chart-bar"></i> View Detailed Results
+                            </a>
+                        <?php endif; ?>
                     <?php else: ?>
                         <!-- Poll Form -->
                         <form method="POST" action="<?php echo SITE_URL; ?>actions.php?action=submit_response" id="pollForm">
@@ -1045,7 +1148,7 @@ unset($_SESSION['errors']);
                 </div>
                 <div class="card-body p-0">
                     <?php while ($related_poll = $related_polls->fetch_assoc()): ?>
-                        <div class="border-bottom p-3">
+                        <div class="border-bottom p-3 related-poll-item">
                             <div class="d-flex align-items-start">
                                 <?php if (!empty($related_poll['image'])): ?>
                                     <img src="<?php echo SITE_URL . 'uploads/polls/' . $related_poll['image']; ?>"
@@ -1058,22 +1161,20 @@ unset($_SESSION['errors']);
                                 <?php endif; ?>
 
                                 <div class="flex-grow-1 min-w-0">
-                                    <h6 class="mb-1 text-truncate">
+                                    <h6 class="mb-1">
                                         <a href="<?php echo SITE_URL; ?>view-poll/<?php echo $related_poll['slug']; ?>"
-                                           class="text-decoration-none text-dark">
-                                            <?php echo htmlspecialchars(substr($related_poll['title'], 0, 50)); ?>
-                                            <?php if (strlen($related_poll['title']) > 50): ?>...<?php endif; ?>
+                                           class="text-decoration-none text-dark d-block">
+                                            <?php echo htmlspecialchars($related_poll['title']); ?>
                                         </a>
                                     </h6>
-                                    <div class="d-flex align-items-center mb-2">
+                                    <div class="d-flex align-items-center mb-2 flex-wrap">
                                         <span class="badge bg-primary badge-sm me-1"><?php echo htmlspecialchars($related_poll['category_name'] ?? 'General'); ?></span>
                                         <small class="text-muted">
                                             <i class="fas fa-users"></i> <?php echo $related_poll['total_responses']; ?>
                                         </small>
                                     </div>
-                                    <p class="mb-2 small text-muted">
-                                        <?php echo htmlspecialchars(substr($related_poll['description'], 0, 80)); ?>
-                                        <?php if (strlen($related_poll['description']) > 80): ?>...<?php endif; ?>
+                                    <p class="mb-2 small text-muted" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                        <?php echo htmlspecialchars($related_poll['description']); ?>
                                     </p>
                                     <a href="<?php echo SITE_URL; ?>view-poll/<?php echo $related_poll['slug']; ?>"
                                        class="btn btn-outline-primary btn-sm">
@@ -1272,6 +1373,29 @@ unset($_SESSION['errors']);
 .badge-sm {
     font-size: 0.75rem;
     padding: 0.25rem 0.5rem;
+}
+
+/* Fix related polls text overlap */
+.related-poll-item h6 {
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+}
+
+.related-poll-item h6 a {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+.related-poll-item p {
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.related-poll-item .d-flex {
+    gap: 0.5rem;
 }
 
 .hover-shadow:hover {

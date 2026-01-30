@@ -1,0 +1,3 @@
+This is a placeholder file for the default blog image.
+In a real implementation, this would be an actual JPG image file.
+For now, the onerror fallback will use a CSS background instead.

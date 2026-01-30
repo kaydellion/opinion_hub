@@ -254,9 +254,9 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
         // Databank access purchases
         if ($transaction_type === 'databank_access' || strpos($transaction_type, 'databank') !== false) {
             $poll_id = intval($_GET['poll_id'] ?? 0);
-            $dataset_format = sanitize($_GET['format'] ?? 'combined');
+            // Remove format parameter - grants access to both combined and single formats
 
-            error_log("vPay callback - Databank purchase: user_id=$user_id, poll_id=$poll_id, format=$dataset_format");
+            error_log("vPay callback - Databank purchase: user_id=$user_id, poll_id=$poll_id (access to both formats)");
             
             if ($poll_id) {
                 // Check if user already has access

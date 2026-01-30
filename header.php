@@ -260,6 +260,14 @@ if (!isset($_SESSION['ads_checked'])) {
             font-size: 14px;
         }
         
+        footer h5 {
+            color: white !important;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            font-size: 16px;
+        }
+        
         footer a {
             color: var(--primary);
         }
@@ -406,6 +414,7 @@ if (!isset($_SESSION['ads_checked'])) {
                             <ul class="dropdown-menu" aria-labelledby="clientPollsDropdown">
                                 <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>client/manage-polls.php"><i class="fas fa-list"></i> Manage Polls</a></li>
                                 <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>client/create-poll.php"><i class="fas fa-plus"></i> Create Poll</a></li>
+                                <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>bookmarks.php"><i class="fas fa-bookmark"></i> My Bookmarks</a></li>
                                 <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>client/send-invites.php"><i class="fas fa-envelope"></i> Send Invites</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>client/sms-delivery-status.php"><i class="fas fa-paper-plane"></i> SMS Delivery Status</a></li>
@@ -470,6 +479,7 @@ if (!isset($_SESSION['ads_checked'])) {
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="agentPollsDropdown">
                                     <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>polls.php"><i class="fas fa-list"></i> All Polls</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>bookmarks.php"><i class="fas fa-bookmark"></i> My Bookmarks</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><h6 class="dropdown-header"><i class="fas fa-share-alt me-2"></i>Share & Earn</h6></li>
                                     <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>agent/browse-polls.php"><i class="fas fa-th-large"></i> Browse Polls to Share</a></li>
@@ -484,6 +494,7 @@ if (!isset($_SESSION['ads_checked'])) {
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="userPollsDropdown">
                                     <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>polls.php"><i class="fas fa-list"></i> Browse Polls</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>bookmarks.php"><i class="fas fa-bookmark"></i> My Bookmarks</a></li>
                                 </ul>
                             </li>
                         <?php } ?>
@@ -562,6 +573,7 @@ if (!isset($_SESSION['ads_checked'])) {
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>profile.php"><i class="fas fa-user"></i> My Profile</a></li>
+                            <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>bookmarks.php"><i class="fas fa-bookmark"></i> My Bookmarks</a></li>
                             <?php if ($current_user['role'] === 'client') { ?>
                             <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>client/my-polls.php"><i class="fas fa-list"></i> My Polls</a></li>
                             <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>client/my-ads.php"><i class="fas fa-ad"></i> My Advertisements</a></li>

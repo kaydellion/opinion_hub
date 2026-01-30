@@ -1464,7 +1464,7 @@ function getSetting($key, $default = null) {
     global $conn;
     $key = sanitize($key);
     
-    $result = $conn->query("SELECT setting_value, setting_type FROM site_settings WHERE setting_key = '$key' LIMIT 1");
+    $result = $conn->query("SELECT setting_value FROM settings WHERE setting_key = '$key' LIMIT 1");
     
     if (!$result || $result->num_rows === 0) {
         return $default;
@@ -1472,19 +1472,13 @@ function getSetting($key, $default = null) {
     
     $setting = $result->fetch_assoc();
     $value = $setting['setting_value'];
-    $type = $setting['setting_type'];
     
-    // Cast to appropriate type
-    switch ($type) {
-        case 'number':
-            return is_numeric($value) ? (strpos($value, '.') !== false ? floatval($value) : intval($value)) : $default;
-        case 'boolean':
-            return filter_var($value, FILTER_VALIDATE_BOOLEAN);
-        case 'json':
-            return json_decode($value, true) ?? $default;
-        default:
-            return $value;
+    // Try to determine if it's numeric
+    if (is_numeric($value)) {
+        return strpos($value, '.') !== false ? floatval($value) : intval($value);
     }
+    
+    return $value;
 }
 
 /**
