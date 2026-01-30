@@ -59,7 +59,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'pdf') {
         
         if ($question['question_type'] == 'multiple_choice' || $question['question_type'] == 'single_choice') {
             $options = $conn->query("SELECT o.option_text, COUNT(a.id) as count 
-                                    FROM poll_options o 
+                                    FROM poll_question_options o 
                                     LEFT JOIN poll_answers a ON o.id = a.option_id 
                                     WHERE o.question_id = {$question['id']} 
                                     GROUP BY o.id ORDER BY count DESC");
@@ -174,7 +174,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'pdf') {
                 <?php
                 // Get options with response counts
                 $options = $conn->query("SELECT o.option_text, COUNT(a.id) as count 
-                                        FROM poll_options o 
+                                        FROM poll_question_options o 
                                         LEFT JOIN poll_answers a ON o.id = a.option_id 
                                         WHERE o.question_id = {$question['id']} 
                                         GROUP BY o.id 
