@@ -79,11 +79,18 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
         $units = intval($_GET['units'] ?? 0);
         $credit_type = str_replace('_credits', '', $transaction_type);
         
+        $log_file = __DIR__ . '/logs/credit_debug.log';
+        if (!is_dir(__DIR__ . '/logs')) {
+            mkdir(__DIR__ . '/logs', 0755, true);
+        }
+        
+        file_put_contents($log_file, date('Y-m-d H:i:s') . " - Processing $transaction_type. user_id=$user_id, units=$units, credit_type=$credit_type\n", FILE_APPEND);
         error_log("vPay callback - Crediting user: user_id=$user_id, type=$credit_type, units=$units");
         
         // Validate credit type to prevent SQL injection
         $valid_credit_types = ['sms', 'email', 'whatsapp', 'poll'];
         if (!in_array($credit_type, $valid_credit_types)) {
+            file_put_contents($log_file, date('Y-m-d H:i:s') . " - ERROR: Invalid credit type: $credit_type\n", FILE_APPEND);
             error_log("vPay callback - ERROR: Invalid credit type: $credit_type");
             $_SESSION['error_message'] = "Invalid credit type.";
             header('Location: dashboard.php');
@@ -105,25 +112,29 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
                 $update_query = "UPDATE messaging_credits SET $column_name = $column_name + ? WHERE user_id = ?";
                 $update_stmt = $conn->prepare($update_query);
                 if (!$update_stmt) {
+                    file_put_contents($log_file, date('Y-m-d H:i:s') . " - SQL Error on UPDATE: " . $conn->error . "\n", FILE_APPEND);
                     error_log("vPay callback - SQL Error: " . $conn->error);
                     $_SESSION['error_message'] = "Failed to update credits.";
                     header('Location: dashboard.php');
                     exit;
                 }
                 $update_stmt->bind_param("ii", $units, $user_id);
-                $update_stmt->execute();
+                $result = $update_stmt->execute();
+                file_put_contents($log_file, date('Y-m-d H:i:s') . " - UPDATE messaging_credits: " . ($result ? "SUCCESS" : "FAILED") . "\n", FILE_APPEND);
             } else {
                 // Create new record
                 $insert_query = "INSERT INTO messaging_credits (user_id, $column_name) VALUES (?, ?)";
                 $insert_stmt = $conn->prepare($insert_query);
                 if (!$insert_stmt) {
+                    file_put_contents($log_file, date('Y-m-d H:i:s') . " - SQL Error on INSERT: " . $conn->error . "\n", FILE_APPEND);
                     error_log("vPay callback - SQL Error: " . $conn->error);
                     $_SESSION['error_message'] = "Failed to create credits record.";
                     header('Location: dashboard.php');
                     exit;
                 }
                 $insert_stmt->bind_param("ii", $user_id, $units);
-                $insert_stmt->execute();
+                $result = $insert_stmt->execute();
+                file_put_contents($log_file, date('Y-m-d H:i:s') . " - INSERT messaging_credits: " . ($result ? "SUCCESS" : "FAILED") . "\n", FILE_APPEND);
             }
         }
         
@@ -202,7 +213,7 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
             $expiry_date = date('Y-m-d', strtotime("+$duration days"));
             
             // Update user subscription
-            $stmt = $conn->prepare("UPDATE users SET subscription_status = 'active', subscription_plan = ?, subscription_expiry = ? WHERE user_id = ?");
+            $stmt = $conn->prepare("UPDATE users SET subscription_status = 'active', subscription_plan = ?, subscription_expiry = ? WHERE id = ?");
             $stmt->bind_param("ssi", $plan, $expiry_date, $user_id);
             $stmt->execute();
             

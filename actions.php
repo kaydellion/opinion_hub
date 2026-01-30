@@ -367,22 +367,49 @@ function handleRegister() {
         exit;
     }
     
+    // Handle referral code from URL
+    $referred_by = null;
+    if (isset($_GET['ref']) || isset($_POST['ref'])) {
+        $referral_code = sanitize($_GET['ref'] ?? $_POST['ref'] ?? '');
+        
+        if (!empty($referral_code)) {
+            // Look up referrer by referral code
+            $referrer_result = $conn->query("SELECT id FROM users WHERE referral_code = '$referral_code' LIMIT 1");
+            if ($referrer_result && $referrer_result->num_rows > 0) {
+                $referrer = $referrer_result->fetch_assoc();
+                $referred_by = $referrer['id'];
+            }
+        }
+    }
+    
     // Create user
     $password_hash = hashPassword($password);
     $username = strtolower($first_name . $last_name . rand(100, 999));
+    
+    // Generate unique referral code for new user
+    $referral_code = strtoupper(substr($first_name, 0, 2) . substr($last_name, 0, 2) . rand(1000, 9999));
+    
+    // Ensure referral code is unique
+    $code_check = $conn->query("SELECT id FROM users WHERE referral_code = '$referral_code'");
+    while ($code_check && $code_check->num_rows > 0) {
+        $referral_code = strtoupper(substr($first_name, 0, 2) . substr($last_name, 0, 2) . rand(1000, 9999));
+        $code_check = $conn->query("SELECT id FROM users WHERE referral_code = '$referral_code'");
+    }
     
     // Build query based on role
     if ($role === 'agent') {
         $query = "INSERT INTO users
                   (username, email, password_hash, first_name, last_name, phone, role,
-                   date_of_birth, gender, state, lga, occupation, education_qualification, employment_status, income_range)
+                   date_of_birth, gender, state, lga, occupation, education_qualification, employment_status, income_range,
+                   referral_code, referred_by)
                   VALUES ('$username', '$email', '$password_hash', '$first_name', '$last_name', '$phone', '$role',
                    '{$agent_fields['date_of_birth']}', '{$agent_fields['gender']}', '{$agent_fields['state']}', '{$agent_fields['lga']}',
-                   '{$agent_fields['occupation']}', '{$agent_fields['education']}', '{$agent_fields['employment_status']}', '{$agent_fields['income_range']}')";
+                   '{$agent_fields['occupation']}', '{$agent_fields['education']}', '{$agent_fields['employment_status']}', '{$agent_fields['income_range']}',
+                   '$referral_code', " . ($referred_by ? $referred_by : 'NULL') . ")";
     } else {
         $query = "INSERT INTO users
-                  (username, email, password_hash, first_name, last_name, phone, role)
-                  VALUES ('$username', '$email', '$password_hash', '$first_name', '$last_name', '$phone', '$role')";
+                  (username, email, password_hash, first_name, last_name, phone, role, referral_code, referred_by)
+                  VALUES ('$username', '$email', '$password_hash', '$first_name', '$last_name', '$phone', '$role', '$referral_code', " . ($referred_by ? $referred_by : 'NULL') . ")";
     }
     
     if ($conn->query($query)) {
@@ -401,6 +428,17 @@ function handleRegister() {
             addMessagingCredits($user_id, 0, 0, 0);
         } catch (Exception $e) {
             error_log("Failed to add messaging credits: " . $e->getMessage());
+        }
+        
+        // Award referral bonus to referrer if applicable
+        if ($referred_by) {
+            try {
+                awardReferralBonus($referred_by, $user_id, 'referral_signup');
+                // Log the referral
+                error_log("Referral bonus awarded: Referrer ID=$referred_by, New User ID=$user_id, Code=$referral_code");
+            } catch (Exception $e) {
+                error_log("Failed to award referral bonus: " . $e->getMessage());
+            }
         }
         
         // Send welcome notification (with error handling)
@@ -983,7 +1021,7 @@ function handlePublishPoll() {
     $payment_check = $conn->query("SELECT id FROM transactions 
                                     WHERE user_id = {$user['id']} 
                                     AND poll_id = $poll_id 
-                                    AND transaction_type = 'poll_payment' 
+                                    AND type = 'poll_payment' 
                                     AND status = 'completed'")->fetch_assoc();
     
     if (!$payment_check) {

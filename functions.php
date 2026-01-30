@@ -370,14 +370,31 @@ function getEmailTemplate($title, $content, $button_text = '', $button_url = '',
  * Send Email via Brevo (with template support)
  */
 function sendEmail_Brevo($to_email, $subject, $htmlContent, $to_name = '', $use_template = true) {
+    global $conn;
+    
+    // Get Brevo settings from database
+    $brevo_api_key = getSetting('brevo_api_key', '');
+    $brevo_from_email = getSetting('brevo_from_email', 'noreply@opinionhub.ng');
+    $brevo_from_name = getSetting('brevo_from_name', 'Opinion Hub NG');
+    
+    $log_file = __DIR__ . '/logs/email_debug.log';
+    if (!is_dir(__DIR__ . '/logs')) {
+        mkdir(__DIR__ . '/logs', 0755, true);
+    }
+    
     // If use_template is true and htmlContent doesn't contain <!DOCTYPE, wrap it
     if ($use_template && !str_contains($htmlContent, '<!DOCTYPE')) {
         $htmlContent = getEmailTemplate($subject, $htmlContent);
     }
     
+    if (empty($brevo_api_key)) {
+        file_put_contents($log_file, date('Y-m-d H:i:s') . " ERROR: Brevo API key not configured. To: $to_email, Subject: $subject\n", FILE_APPEND);
+        return ['success' => false, 'error' => 'Brevo API key not configured'];
+    }
+    
     $url = 'https://api.brevo.com/v3/smtp/email';
     $payload = [
-        'sender' => ['name' => BREVO_FROM_NAME, 'email' => BREVO_FROM_EMAIL],
+        'sender' => ['name' => $brevo_from_name, 'email' => $brevo_from_email],
         'to' => [[ 'email' => $to_email, 'name' => $to_name ]],
         'subject' => $subject,
         'htmlContent' => $htmlContent
@@ -391,7 +408,7 @@ function sendEmail_Brevo($to_email, $subject, $htmlContent, $to_name = '', $use_
         CURLOPT_POSTFIELDS => json_encode($payload),
         CURLOPT_HTTPHEADER => [
             'Content-Type: application/json',
-            'api-key: ' . BREVO_API_KEY
+            'api-key: ' . $brevo_api_key
         ]
     ]);
 
@@ -400,10 +417,19 @@ function sendEmail_Brevo($to_email, $subject, $htmlContent, $to_name = '', $use_
     curl_close($curl);
 
     if ($err) {
+        file_put_contents($log_file, date('Y-m-d H:i:s') . " CURL ERROR: $err. To: $to_email, Subject: $subject\n", FILE_APPEND);
         return ['success' => false, 'error' => $err];
     }
 
     $data = json_decode($resp, true);
+    
+    // Log both success and failures
+    if (isset($data['messageId'])) {
+        file_put_contents($log_file, date('Y-m-d H:i:s') . " SUCCESS: Message ID {$data['messageId']}. To: $to_email, Subject: $subject\n", FILE_APPEND);
+    } else {
+        file_put_contents($log_file, date('Y-m-d H:i:s') . " FAILED: " . print_r($data, true) . " To: $to_email, Subject: $subject\n", FILE_APPEND);
+    }
+    
     return $data ?: ['success' => false, 'response' => $resp];
 }
 
@@ -1906,4 +1932,99 @@ function getPollProgressPercentage($poll) {
     if ($target <= 0) return 0;
 
     return min(100, round(($responses / $target) * 100, 1));
+}
+
+/**
+ * Award Referral Bonus to Referrer
+ * Called when a referred user completes certain actions (sign up, purchase, etc)
+ * 
+ * @param int $referrer_id The ID of the user who made the referral
+ * @param int $new_user_id The ID of the user who was referred
+ * @param string $bonus_type Type of bonus: 'referral_signup', 'referral_purchase', etc.
+ * @param float $amount Optional custom amount (defaults to system setting)
+ * @return bool Success status
+ */
+function awardReferralBonus($referrer_id, $new_user_id, $bonus_type = 'referral_signup', $amount = null) {
+    global $conn;
+    
+    // Determine bonus amount if not provided
+    if ($amount === null) {
+        $amount = getSetting('referral_bonus_amount', 500); // Default 500 naira
+    }
+    
+    // Get referrer and referred user info for logging
+    $referrer_result = $conn->query("SELECT id, first_name, email FROM users WHERE id = $referrer_id");
+    $referred_result = $conn->query("SELECT id, first_name, email FROM users WHERE id = $new_user_id");
+    
+    if (!$referrer_result || $referrer_result->num_rows === 0) {
+        error_log("[REFERRAL] Error: Referrer user not found (ID: $referrer_id)");
+        return false;
+    }
+    
+    if (!$referred_result || $referred_result->num_rows === 0) {
+        error_log("[REFERRAL] Error: Referred user not found (ID: $new_user_id)");
+        return false;
+    }
+    
+    $referrer = $referrer_result->fetch_assoc();
+    $referred = $referred_result->fetch_assoc();
+    
+    try {
+        // Record transaction
+        $description = ucfirst(str_replace('_', ' ', $bonus_type));
+        $stmt = $conn->prepare("
+            INSERT INTO transactions 
+            (user_id, type, amount, description, reference, status, created_at)
+            VALUES (?, ?, ?, ?, ?, 'completed', NOW())
+        ");
+        
+        if (!$stmt) {
+            error_log("[REFERRAL] Error preparing transaction: " . $conn->error);
+            return false;
+        }
+        
+        $reference = "REF_" . $new_user_id . "_" . date('YmdHis');
+        $stmt->bind_param("isds", $referrer_id, $bonus_type, $amount, $reference);
+        
+        if (!$stmt->execute()) {
+            error_log("[REFERRAL] Error inserting transaction: " . $stmt->error);
+            return false;
+        }
+        
+        // Update referrer's pending earnings
+        $update_stmt = $conn->prepare("
+            UPDATE users 
+            SET pending_earnings = COALESCE(pending_earnings, 0) + ?
+            WHERE id = ?
+        ");
+        
+        if (!$update_stmt) {
+            error_log("[REFERRAL] Error preparing update: " . $conn->error);
+            return false;
+        }
+        
+        $update_stmt->bind_param("di", $amount, $referrer_id);
+        
+        if (!$update_stmt->execute()) {
+            error_log("[REFERRAL] Error updating referrer earnings: " . $update_stmt->error);
+            return false;
+        }
+        
+        // Create notification for referrer
+        createNotification(
+            $referrer_id,
+            'success',
+            'Referral Bonus Earned',
+            "Congratulations! You earned ₦" . number_format($amount, 2) . " referral bonus from {$referred['first_name']}'s registration.",
+            'agent/my-earnings.php'
+        );
+        
+        error_log("[REFERRAL] Success: Awarded ₦$amount to referrer {$referrer['first_name']} ({$referrer['email']}) for referring {$referred['first_name']} ({$referred['email']}) - Type: $bonus_type");
+        
+        return true;
+        
+    } catch (Exception $e) {
+        error_log("[REFERRAL] Exception: " . $e->getMessage());
+        return false;
+    }
 }
