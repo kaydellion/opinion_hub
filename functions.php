@@ -1438,7 +1438,7 @@ function getSetting($key, $default = null) {
     global $conn;
     $key = sanitize($key);
     
-    $result = $conn->query("SELECT setting_value FROM settings WHERE setting_key = '$key' LIMIT 1");
+    $result = $conn->query("SELECT setting_value FROM site_settings WHERE setting_key = '$key' LIMIT 1");
     
     if (!$result || $result->num_rows === 0) {
         return $default;

@@ -21,28 +21,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Check if settings table exists, create if not
-    $table_check = $conn->query("SHOW TABLES LIKE 'settings'");
+    // Check if site_settings table exists, create if not
+    $table_check = $conn->query("SHOW TABLES LIKE 'site_settings'");
     if (!$table_check || $table_check->num_rows === 0) {
-        // Create settings table
-        $create_sql = "CREATE TABLE settings (
-            setting_key VARCHAR(100) PRIMARY KEY,
-            setting_value TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
-        )";
-        $conn->query($create_sql);
+        $create_sql = "CREATE TABLE IF NOT EXISTS `site_settings` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `setting_key` varchar(100) NOT NULL UNIQUE,
+            `setting_value` text,
+            `setting_type` enum('text','number','boolean','email','url','json') DEFAULT 'text',
+            `category` varchar(50) DEFAULT 'general',
+            `description` varchar(255) DEFAULT NULL,
+            `updated_by` int(11) DEFAULT NULL,
+            `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+            `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `category` (`category`),
+            KEY `updated_by` (`updated_by`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+        if (!$conn->query($create_sql)) {
+            $error = "Failed to create site_settings table: " . $conn->error;
+        }
     }
 
-    // Update settings in database
-    foreach ($updates as $key => $value) {
-        $stmt = $conn->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
-        if ($stmt) {
-            $stmt->bind_param("sss", $key, $value, $value);
-            $stmt->execute();
-        } else {
-            $error = "Failed to prepare statement for setting: $key";
-            break;
+    // Update settings in database (site_settings)
+    if (empty($error)) {
+        foreach ($updates as $key => $value) {
+            $stmt = $conn->prepare(
+                "INSERT INTO site_settings (setting_key, setting_value, updated_by)
+                 VALUES (?, ?, ?)
+                 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_by = VALUES(updated_by)"
+            );
+            if ($stmt) {
+                $user_id = $user['id'] ?? null;
+                $stmt->bind_param("ssi", $key, $value, $user_id);
+                if (!$stmt->execute()) {
+                    $error = "Failed to update setting: $key";
+                    break;
+                }
+            } else {
+                $error = "Failed to prepare statement for setting: $key";
+                break;
+            }
         }
     }
 
