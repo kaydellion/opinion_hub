@@ -131,7 +131,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'pdf') {
         echo "<p><em>Type: " . ucfirst(str_replace('_', ' ', $q_type)) . "</em></p>";
         
         if (in_array($q_type, ['multiple_choice', 'multiple_answer', 'quiz', 'assessment', 'dichotomous'])) {
-            $options = $conn->query("SELECT o.option_text, o.is_correct, COUNT(qr.id) as count 
+            $options = $conn->query("SELECT o.option_text, o.is_correct_answer, COUNT(qr.id) as count 
                                     FROM poll_question_options o 
                                     LEFT JOIN question_responses qr ON o.id = qr.option_id 
                                     WHERE o.question_id = {$question['id']} 
@@ -491,7 +491,7 @@ include_once 'header.php';
 
                 // Get response data
                 if (in_array($q_type, ['multiple_choice', 'multiple_answer', 'quiz', 'assessment', 'dichotomous'])) {
-                    $options = $conn->query("SELECT o.option_text, o.is_correct, COUNT(qr.id) as count
+                    $options = $conn->query("SELECT o.option_text, o.is_correct_answer, COUNT(qr.id) as count
                                             FROM poll_question_options o
                                             LEFT JOIN question_responses qr ON o.id = qr.option_id
                                             WHERE o.question_id = {$question['id']}
