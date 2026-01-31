@@ -1351,25 +1351,27 @@ function importContacts($list_id, $contacts_array) {
         $phone = isset($contact['phone']) ? sanitize($contact['phone']) : '';
         $email = isset($contact['email']) ? sanitize($contact['email']) : '';
         $whatsapp = isset($contact['whatsapp']) ? sanitize($contact['whatsapp']) : $phone;
-        
         if (empty($phone) && empty($email)) {
             $errors[] = "Skipped contact: must have phone or email";
             continue;
         }
-        
+        // Prevent duplicate contact (by phone or email) per list
+        $dup_check = $conn->prepare("SELECT id FROM contacts WHERE list_id = ? AND (phone = ? OR (email != '' AND email = ?)) LIMIT 1");
+        $dup_check->bind_param("iss", $list_id, $phone, $email);
+        $dup_check->execute();
+        $dup_check->store_result();
+        if ($dup_check->num_rows > 0) {
+            $errors[] = "Duplicate: $phone $email";
+            continue;
+        }
         $stmt = $conn->prepare("INSERT INTO contacts (list_id, name, phone, email, whatsapp) VALUES (?, ?, ?, ?, ?)");
         $stmt->bind_param("issss", $list_id, $name, $phone, $email, $whatsapp);
-        
         if ($stmt->execute()) {
             $imported++;
         } else {
             $errors[] = "Failed to import: " . ($name ?: $phone ?: $email);
         }
     }
-    
-    // Update contact count
-    $conn->query("UPDATE contact_lists SET total_contacts = (SELECT COUNT(*) FROM contacts WHERE list_id = $list_id) WHERE id = $list_id");
-    
     return ['imported' => $imported, 'errors' => $errors];
 }
 

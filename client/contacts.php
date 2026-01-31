@@ -79,14 +79,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_contact'])) {
     } elseif (empty($phone) && empty($email)) {
         $error = 'Phone or email is required';
     } else {
-        $stmt = $conn->prepare("INSERT INTO contacts (list_id, name, phone, email, whatsapp) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("issss", $list_id, $name, $phone, $email, $whatsapp);
-        
-        if ($stmt->execute()) {
-            $conn->query("UPDATE contact_lists SET total_contacts = total_contacts + 1 WHERE id = $list_id");
-            $success = 'Contact added successfully';
+        // Prevent duplicate contact (by phone or email) per list
+        $dup_check = $conn->prepare("SELECT id FROM contacts WHERE list_id = ? AND (phone = ? OR (email != '' AND email = ?)) LIMIT 1");
+        $dup_check->bind_param("iss", $list_id, $phone, $email);
+        $dup_check->execute();
+        $dup_check->store_result();
+        if ($dup_check->num_rows > 0) {
+            $error = 'This contact (phone or email) already exists in this list.';
         } else {
-            $error = 'Failed to add contact';
+            $stmt = $conn->prepare("INSERT INTO contacts (list_id, name, phone, email, whatsapp) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("issss", $list_id, $name, $phone, $email, $whatsapp);
+            if ($stmt->execute()) {
+                $success = 'Contact added successfully';
+            } else {
+                $error = 'Failed to add contact';
+            }
         }
     }
 }

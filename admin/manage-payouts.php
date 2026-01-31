@@ -18,7 +18,7 @@ $status_filter = isset($_GET['status']) ? sanitize($_GET['status']) : 'pending';
 $where_clauses = ["earning_type = 'payout_request'"];
 
 if ($status_filter !== 'all') {
-    $where_clauses[] = "status = '$status_filter'";
+    $where_clauses[] = "ae.status = '$status_filter'";
 }
 
 $where_sql = implode(' AND ', $where_clauses);

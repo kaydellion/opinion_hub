@@ -13,7 +13,6 @@ $offset = ($page - 1) * $limit;
 
 // Filters
 $plan_filter = isset($_GET['plan']) ? sanitize($_GET['plan']) : 'all';
-$billing_filter = isset($_GET['billing']) ? sanitize($_GET['billing']) : 'all';
 $status_filter = isset($_GET['status']) ? sanitize($_GET['status']) : 'active';
 
 // Build query
@@ -23,14 +22,10 @@ if ($plan_filter !== 'all') {
     $where_clauses[] = "sp.type = '$plan_filter'";
 }
 
-if ($billing_filter !== 'all') {
-    $where_clauses[] = "us.billing_cycle = '$billing_filter'";
-}
-
 if ($status_filter === 'active') {
-    $where_clauses[] = "us.status = 'active' AND (us.expires_at IS NULL OR us.expires_at > NOW())";
+    $where_clauses[] = "us.status = 'active' AND (us.end_date IS NULL OR us.end_date > NOW())";
 } elseif ($status_filter === 'expired') {
-    $where_clauses[] = "(us.status = 'expired' OR us.expires_at < NOW())";
+    $where_clauses[] = "(us.status = 'expired' OR us.end_date < NOW())";
 } elseif ($status_filter === 'cancelled') {
     $where_clauses[] = "us.status = 'cancelled'";
 }
@@ -49,7 +44,7 @@ $total_pages = ceil($total_count / $limit);
 // Get subscription clients
 $query = "SELECT u.id, u.first_name, u.last_name, u.email, u.phone, u.created_at,
                  sp.name as plan_name, sp.type as plan_type, sp.monthly_price, sp.annual_price,
-                 us.billing_cycle, us.subscribed_at, us.expires_at, us.status, us.auto_renew,
+                 us.start_date, us.end_date, us.status,
                  us.amount_paid,
                  (SELECT COUNT(*) FROM polls WHERE client_id = u.id) as total_polls,
                  (SELECT COUNT(*) FROM poll_responses pr 
@@ -66,16 +61,12 @@ $clients = $conn->query($query);
 // Get statistics
 $stats_result = $conn->query("SELECT 
                       COUNT(DISTINCT us.user_id) as total_subscribers,
-                      SUM(CASE WHEN us.billing_cycle = 'monthly' THEN 1 ELSE 0 END) as monthly_count,
-                      SUM(CASE WHEN us.billing_cycle = 'annual' THEN 1 ELSE 0 END) as annual_count,
                       SUM(us.amount_paid) as total_revenue,
-                      SUM(CASE WHEN us.status = 'active' AND (us.expires_at IS NULL OR us.expires_at > NOW()) THEN us.amount_paid ELSE 0 END) as active_revenue
+                      SUM(CASE WHEN us.status = 'active' AND (us.end_date IS NULL OR us.end_date > NOW()) THEN us.amount_paid ELSE 0 END) as active_revenue
                       FROM user_subscriptions us
                       WHERE us.plan_id IS NOT NULL");
 $stats = $stats_result && $stats_result->num_rows > 0 ? $stats_result->fetch_assoc() : [
     'total_subscribers' => 0,
-    'monthly_count' => 0,
-    'annual_count' => 0,
     'total_revenue' => 0,
     'active_revenue' => 0
 ];
@@ -87,7 +78,7 @@ $revenue_result = $conn->query("SELECT sp.name, sp.type,
                                  FROM user_subscriptions us
                                  INNER JOIN subscription_plans sp ON us.plan_id = sp.id
                                  WHERE us.status = 'active' 
-                                 AND (us.expires_at IS NULL OR us.expires_at > NOW())
+                                 AND (us.end_date IS NULL OR us.end_date > NOW())
                                  GROUP BY sp.id
                                  ORDER BY revenue DESC");
 $revenue_by_plan = $revenue_result && $revenue_result->num_rows > 0 ? $revenue_result->fetch_all(MYSQLI_ASSOC) : [];
@@ -114,25 +105,7 @@ include_once '../header.php';
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <h6 class="text-muted mb-1"><i class="fas fa-calendar text-info"></i> Monthly</h6>
-                    <h2 class="mb-0 text-info"><?php echo number_format($stats['monthly_count']); ?></h2>
-                    <small class="text-muted">Billing monthly</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <h6 class="text-muted mb-1"><i class="fas fa-calendar-alt text-success"></i> Annual</h6>
-                    <h2 class="mb-0 text-success"><?php echo number_format($stats['annual_count']); ?></h2>
-                    <small class="text-muted">Billing annually</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <h6 class="text-muted mb-1"><i class="fas fa-money-bill-wave text-warning"></i> Total Revenue</h6>
@@ -268,9 +241,9 @@ include_once '../header.php';
                                 <small class="text-muted"><?php echo date('h:i A', strtotime($client['subscribed_at'])); ?></small>
                             </td>
                             <td>
-                                <?php if ($client['expires_at']): ?>
+                                <?php if ($client['end_date']): ?>
                                     <?php 
-                                    $expires = strtotime($client['expires_at']);
+                                    $expires = strtotime($client['end_date']);
                                     $now = time();
                                     $is_expiring_soon = ($expires - $now) < (7 * 24 * 60 * 60); // 7 days
                                     ?>
@@ -292,7 +265,7 @@ include_once '../header.php';
                             </td>
                             <td>
                                 <?php
-                                if ($client['status'] === 'active' && (!$client['expires_at'] || strtotime($client['expires_at']) > time())) {
+                                if ($client['status'] === 'active' && (!$client['end_date'] || strtotime($client['end_date']) > time())) {
                                     echo '<span class="badge bg-success">Active</span>';
                                 } elseif ($client['status'] === 'cancelled') {
                                     echo '<span class="badge bg-danger">Cancelled</span>';
