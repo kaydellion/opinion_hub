@@ -15,16 +15,19 @@ $offset = ($page - 1) * $limit;
 $status_filter = isset($_GET['status']) ? sanitize($_GET['status']) : 'pending';
 
 // Build query
-$where_clauses = ["earning_type = 'payout_request'"];
+$where_clauses = [];
 
 if ($status_filter !== 'all') {
-    $where_clauses[] = "ae.status = '$status_filter'";
+    $where_clauses[] = "status = '$status_filter'";
 }
 
 $where_sql = implode(' AND ', $where_clauses);
+if (!empty($where_sql)) {
+    $where_sql = "WHERE " . $where_sql;
+}
 
 // Get total count
-$count_result = $conn->query("SELECT COUNT(*) as total FROM agent_earnings WHERE $where_sql");
+$count_result = $conn->query("SELECT COUNT(*) as total FROM agent_earnings $where_sql");
 $total_count = $count_result->fetch_assoc()['total'];
 $total_pages = ceil($total_count / $limit);
 
@@ -32,7 +35,7 @@ $total_pages = ceil($total_count / $limit);
 $query = "SELECT ae.*, u.first_name, u.last_name, u.email, u.phone
           FROM agent_earnings ae
           INNER JOIN users u ON ae.agent_id = u.id
-          WHERE $where_sql
+          $where_sql
           ORDER BY ae.created_at DESC
           LIMIT $limit OFFSET $offset";
 $payouts = $conn->query($query);
@@ -42,8 +45,7 @@ $stats = $conn->query("SELECT
                       status,
                       COUNT(*) as count,
                       SUM(amount) as total
-                      FROM agent_earnings 
-                      WHERE earning_type = 'payout_request'
+                      FROM agent_earnings
                       GROUP BY status")->fetch_all(MYSQLI_ASSOC);
 
 $stats_by_status = [];

@@ -89,6 +89,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Get categories
+$categories = $conn->query("SELECT * FROM categories ORDER BY name ASC");
+
 // Check if categories table exists, create if not
 $table_check = $conn->query("SHOW TABLES LIKE 'categories'");
 if (!$table_check || $table_check->num_rows === 0) {
@@ -130,9 +133,6 @@ if (!$table_check || $table_check->num_rows === 0) {
     // Update existing categories that don't have a status
     $conn->query("UPDATE categories SET status = 'active' WHERE status IS NULL OR status = ''");
 }
-
-// Get categories
-$categories = $conn->query("SELECT * FROM categories ORDER BY name ASC");
 
 $errors = $_SESSION['errors'] ?? [];
 $success = $_SESSION['success'] ?? '';

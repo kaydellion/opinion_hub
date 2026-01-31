@@ -115,15 +115,7 @@ if (!$table_check || $table_check->num_rows === 0) {
             $conn->query("INSERT INTO poll_types (name, description, status) 
                        VALUES ('{$type[0]}', '{$type[1]}', '{$type[2]}')");
         }
-        
-        $_SESSION['success'] = "Poll types table created with default types!";
-        header("Location: poll-types.php");
-        exit;
     }
-} else {
-    // Update existing table if needed (add columns if missing)
-    $conn->query("ALTER TABLE poll_types ADD COLUMN IF NOT EXISTS status ENUM('active', 'inactive') DEFAULT 'active'");
-    $conn->query("ALTER TABLE poll_types ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP");
 }
 
 // Get poll types
