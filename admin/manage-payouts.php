@@ -160,7 +160,8 @@ include_once '../header.php';
                                     'airtime' => '<span class="badge bg-warning">Airtime</span>',
                                     'data' => '<span class="badge bg-success">Data</span>'
                                 ];
-                                echo $method_badges[$metadata['method']] ?? ucfirst($metadata['method'] ?? 'N/A');
+                                $method = $metadata['method'] ?? 'N/A';
+                                echo $method_badges[$method] ?? ucfirst($method);
                                 ?>
                             </td>
                             <td>

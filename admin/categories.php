@@ -47,17 +47,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!empty($name) && $id > 0) {
                     $check = $conn->query("SELECT id FROM categories WHERE name = '$name' AND id != $id");
                     if ($check && $check->num_rows === 0) {
-                        // Check if status column exists
-                        $col_check = $conn->query("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'categories' AND COLUMN_NAME = 'status'");
-                        if ($col_check && $col_check->num_rows > 0) {
-                            $conn->query("UPDATE categories 
-                                       SET name = '$name', description = '$description', status = '$status', updated_at = NOW() 
-                                       WHERE id = $id");
-                        } else {
-                            $conn->query("UPDATE categories 
-                                       SET name = '$name', description = '$description', updated_at = NOW() 
-                                       WHERE id = $id");
-                        }
+                        // Check which columns exist
+                        $has_status = $conn->query("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'categories' AND COLUMN_NAME = 'status'");
+                        $has_updated_at = $conn->query("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'categories' AND COLUMN_NAME = 'updated_at'");
+                        
+                        $has_status_col = $has_status && $has_status->num_rows > 0;
+                        $has_updated_col = $has_updated_at && $has_updated_at->num_rows > 0;
+                        
+                        $update_fields = "name = '$name', description = '$description'";
+                        if ($has_status_col) $update_fields .= ", status = '$status'";
+                        if ($has_updated_col) $update_fields .= ", updated_at = NOW()";
+                        
+                        $conn->query("UPDATE categories SET $update_fields WHERE id = $id");
                         $_SESSION['success'] = "Category updated successfully!";
                     } else {
                         $_SESSION['errors'] = ["Category with this name already exists!"];
