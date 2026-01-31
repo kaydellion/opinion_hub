@@ -1472,6 +1472,33 @@ function handleRequestPayout() {
         // Update user's pending_earnings
         $conn->query("UPDATE users SET pending_earnings = pending_earnings + $amount WHERE id = $agent_id");
         
+        // Get agent details for notification
+        $agent_info = $conn->query("SELECT first_name, last_name, email FROM users WHERE id = $agent_id")->fetch_assoc();
+        $agent_name = ($agent_info['first_name'] ?? '') . ' ' . ($agent_info['last_name'] ?? '');
+        
+        // Send notification to all admins
+        $admins_result = $conn->query("SELECT id FROM users WHERE role = 'admin'");
+        if ($admins_result) {
+            while ($admin = $admins_result->fetch_assoc()) {
+                createNotification(
+                    $admin['id'],
+                    'payout_request',
+                    'New Payout Request',
+                    $agent_name . ' has requested a payout of ₦' . number_format($amount, 2) . ' via ' . ucfirst(str_replace('_', ' ', $payout_method)),
+                    'admin/manage-payouts.php'
+                );
+            }
+        }
+        
+        // Send confirmation notification to agent
+        createNotification(
+            $agent_id,
+            'payout_submitted',
+            'Payout Request Submitted',
+            'Your payout request of ₦' . number_format($amount, 2) . ' has been submitted and is pending approval.',
+            'agent/request-payout.php'
+        );
+        
         echo json_encode(['success' => true, 'message' => 'Payout request submitted successfully']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Failed to submit payout request']);

@@ -10,6 +10,7 @@ requireRole('admin');
 header('Location: ' . SITE_URL . 'admin/manage-payouts.php');
 exit;
 
+
 // OLD CODE BELOW - KEPT FOR REFERENCE
 /*
 $user = getCurrentUser();
@@ -152,7 +153,7 @@ include_once '../header.php';
 ?>
 
 <style>
-/* Fix active nav-link text color */
+/* Fix active nav-link text color 
 .nav-pills .nav-link.active {
     color: #fff !important;
 }
@@ -405,3 +406,7 @@ function showRejectModal(payoutId, agentName, amount) {
 </script>
 
 <?php include_once '../footer.php'; ?>
+
+
+*/  
+?>
