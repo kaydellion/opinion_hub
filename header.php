@@ -94,8 +94,8 @@ if (!isset($_SESSION['ads_checked'])) {
             color: var(--gray-600) !important;
             font-size: 14px;
             font-weight: 500;
-            margin: 0 8px;
-            padding: 8px 12px !important;
+            margin: 0 2px;
+            padding: 8px 10px !important;
             transition: all 0.2s;
             border-radius: 6px;
         }
