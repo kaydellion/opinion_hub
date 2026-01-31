@@ -1582,7 +1582,11 @@ function handleUpdatePayoutStatus() {
         $conn->query("UPDATE users SET pending_earnings = pending_earnings - $amount WHERE id = $agent_id");
     } elseif ($old_status === 'pending' && $new_status === 'paid') {
         // Process VTPass transaction if applicable
-        $payout_details = json_decode($payout['metadata'], true);
+        $payout_details = [];
+        if (isset($payout['metadata']) && !empty($payout['metadata'])) {
+            $payout_details = json_decode($payout['metadata'], true) ?? [];
+        }
+        
         if (empty($payout_details)) {
             // Try extracting from description field if metadata is empty
             if (strpos($payout['description'] ?? '', ' | Details: ') !== false) {
@@ -1618,7 +1622,11 @@ function handleUpdatePayoutStatus() {
         }
     } elseif ($old_status === 'approved' && $new_status === 'paid') {
         // Process VTPass transaction if applicable
-        $payout_details = json_decode($payout['metadata'], true);
+        $payout_details = [];
+        if (isset($payout['metadata']) && !empty($payout['metadata'])) {
+            $payout_details = json_decode($payout['metadata'], true) ?? [];
+        }
+        
         if (empty($payout_details)) {
             // Try extracting from description field if metadata is empty
             if (strpos($payout['description'] ?? '', ' | Details: ') !== false) {
