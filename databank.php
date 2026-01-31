@@ -374,12 +374,12 @@ $latest_articles = $conn->query("SELECT bp.*, CONCAT(u.first_name, ' ', u.last_n
                     <h4 class="text-primary">Price: ₦<span id="confirmAmount"></span></h4>
                 </div>
                 </div>
-            </div>
-            <div class="modal-footer">
+                 <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary" id="confirmPurchaseBtn" onclick="confirmPurchase()">
                     <i class="fas fa-credit-card me-2"></i>Proceed to Payment
                 </button>
+            </div>
             </div>
         </div>
     </div>
