@@ -1,12 +1,14 @@
 <?php
 $page_title = "My Purchased Results";
-include_once 'header.php';
+require_once __DIR__ . '/functions.php';
 
 if (!isLoggedIn()) {
     $_SESSION['error'] = "Please login to view your purchased results.";
     header('Location: ' . SITE_URL . 'signin.php');
     exit;
 }
+
+include_once 'header.php';
 
 global $conn;
 $current_user = getCurrentUser();

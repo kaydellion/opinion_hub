@@ -35,15 +35,25 @@ $total_earnings = $approved_earnings + $paid_earnings; // Available for payout (
 $recent_responses_query = "SELECT pr.*, p.title as poll_title, p.created_at as poll_created 
                           FROM poll_responses pr 
                           JOIN polls p ON pr.poll_id = p.id 
-                          WHERE pr.user_id = " . $user['id'] . " 
+                          WHERE pr.respondent_id = " . $user['id'] . " 
                           ORDER BY pr.responded_at DESC 
                           LIMIT 10";
 $recent_responses = $conn->query($recent_responses_query);
 
 // Check if query failed
 if (!$recent_responses) {
-    $recent_responses = null;
-    // Optionally log the error: error_log($conn->error);
+    // Fallback for older schemas that might still use user_id
+    $fallback_query = "SELECT pr.*, p.title as poll_title, p.created_at as poll_created 
+                      FROM poll_responses pr 
+                      JOIN polls p ON pr.poll_id = p.id 
+                      WHERE pr.user_id = " . $user['id'] . " 
+                      ORDER BY pr.responded_at DESC 
+                      LIMIT 10";
+    $recent_responses = $conn->query($fallback_query);
+    if (!$recent_responses) {
+        $recent_responses = null;
+        // Optionally log the error: error_log($conn->error);
+    }
 }
 ?>
 
