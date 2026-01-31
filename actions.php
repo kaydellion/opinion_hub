@@ -864,7 +864,8 @@ function handleAddQuestion() {
 
     // Handle image upload if file was provided
     if (isset($_FILES['question_image_file']) && $_FILES['question_image_file']['error'] === UPLOAD_ERR_OK) {
-        $upload_dir = '../uploads/questions/';
+        // Use absolute filesystem path for uploads directory
+        $upload_dir = __DIR__ . '/uploads/questions/';
         if (!file_exists($upload_dir)) {
             mkdir($upload_dir, 0755, true);
         }
@@ -879,7 +880,8 @@ function handleAddQuestion() {
                 $upload_path = $upload_dir . $new_filename;
 
                 if (move_uploaded_file($_FILES['question_image_file']['tmp_name'], $upload_path)) {
-                    $question_image = SITE_URL . 'uploads/questions/' . $new_filename;
+                    // Store filename only in DB for consistency with other admin pages
+                    $question_image = $new_filename;
                 } else {
                     $_SESSION['error'] = "Failed to upload image file";
                     header("Location: " . SITE_URL . "client/add-questions.php?id=$poll_id");

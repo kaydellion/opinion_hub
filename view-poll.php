@@ -315,6 +315,35 @@ if ($success && $poll['price_per_response'] == 0 && $poll['results_public_after_
                                         <span class="badge bg-secondary"><?php echo $question_num; ?></span>
                                         <?php echo htmlspecialchars($question['question_text']); ?>
                                     </h6>
+
+                                    <?php if (!empty($question['question_description'])): ?>
+                                        <div class="mb-3">
+                                            <p class="text-muted small"><?php echo nl2br(htmlspecialchars($question['question_description'])); ?></p>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($question['question_image'])):
+                                        $qimg = $question['question_image'];
+                                        // Support both full URL and stored filename
+                                        if (strpos($qimg, 'http') === 0) {
+                                            $qimg_src = $qimg;
+                                        } else {
+                                            $local_path = 'uploads/questions/' . $qimg;
+                                            if (file_exists($local_path)) {
+                                                $qimg_src = SITE_URL . $local_path;
+                                            } else {
+                                                // Fallback to raw value (in case it's a path already)
+                                                $qimg_src = $qimg;
+                                            }
+                                        }
+                                    ?>
+                                        <div class="mb-3">
+                                            <img src="<?php echo htmlspecialchars($qimg_src); ?>"
+                                                 alt="Question illustration"
+                                                 class="img-fluid rounded shadow-sm"
+                                                 style="max-height: 300px; display: block; margin: 0 auto;">
+                                        </div>
+                                    <?php endif; ?>
                                     
                                     <?php
                                     // Get response counts for each option using question_responses table
@@ -416,9 +445,21 @@ if ($success && $poll['price_per_response'] == 0 && $poll['results_public_after_
                                         </div>
                                     <?php endif; ?>
 
-                                    <?php if (!empty($question['question_image'])): ?>
+                                    <?php if (!empty($question['question_image'])):
+                                        $qimg = $question['question_image'];
+                                        if (strpos($qimg, 'http') === 0) {
+                                            $qimg_src = $qimg;
+                                        } else {
+                                            $local_path = 'uploads/questions/' . $qimg;
+                                            if (file_exists($local_path)) {
+                                                $qimg_src = SITE_URL . $local_path;
+                                            } else {
+                                                $qimg_src = $qimg;
+                                            }
+                                        }
+                                    ?>
                                         <div class="mb-3">
-                                            <img src="<?php echo htmlspecialchars($question['question_image']); ?>"
+                                            <img src="<?php echo htmlspecialchars($qimg_src); ?>"
                                                  alt="Question illustration"
                                                  class="img-fluid rounded shadow-sm"
                                                  style="max-height: 300px; display: block; margin: 0 auto;">
