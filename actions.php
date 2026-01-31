@@ -1558,13 +1558,17 @@ function handleUpdatePayoutStatus() {
     
     $payout = $payout_result->fetch_assoc();
     
-    // Validate it's actually a payout request (not a regular earning)
-    if (isset($payout['earning_type']) && $payout['earning_type'] !== 'payout_request') {
-        echo json_encode(['success' => false, 'message' => 'This is not a payout request']);
+    // Validate it's actually a payout request (not a commission or other earning)
+    // Only block if earning_type is explicitly set to something other than payout_request
+    // This allows NULL or 'payout_request' to pass through
+    if (isset($payout['earning_type']) && 
+        !empty($payout['earning_type']) && 
+        $payout['earning_type'] !== 'payout_request' &&
+        in_array($payout['earning_type'], ['commission', 'bonus', 'referral_earning'])) {
+        echo json_encode(['success' => false, 'message' => 'This is not a payout request, it is a ' . $payout['earning_type']]);
         exit;
     }
     
-    $payout = $payout_result->fetch_assoc();
     $old_status = $payout['status'];
     $amount = $payout['amount'];
     $agent_id = $payout['agent_id'];
