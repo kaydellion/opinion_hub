@@ -80,9 +80,6 @@ if (!$articles) {
 // Get categories for dropdown
 $categories = $conn->query("SELECT * FROM categories ORDER BY name");
 
-// Get TinyMCE API key from settings
-$tinymce_key = getSetting('tinymce_api_key', 'no-api-key');
-
 $page_title = 'Blog Management';
 include '../header.php';
 ?>
@@ -139,7 +136,7 @@ include '../header.php';
                                     <a href="../blog/view.php?slug=<?= $article['slug'] ?>" class="btn btn-sm btn-outline-info" target="_blank">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <button class="btn btn-sm btn-outline-primary" onclick='editArticle(<?= json_encode($article) ?>)'>
+                                    <button class="btn btn-sm btn-outline-primary" onclick='editArticle(<?= htmlspecialchars(json_encode($article), ENT_QUOTES) ?>)'>
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <a href="?delete=<?= $article['id'] ?>" class="btn btn-sm btn-outline-danger" 
@@ -158,7 +155,7 @@ include '../header.php';
 
 <!-- Article Modal -->
 <div class="modal fade" id="articleModal" tabindex="-1">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form method="POST" enctype="multipart/form-data">
                 <div class="modal-header">
@@ -216,51 +213,11 @@ include '../header.php';
     </div>
 </div>
 
-<!-- TinyMCE Script -->
-<script src="https://cdn.tiny.cloud/1/<?php echo htmlspecialchars($tinymce_key); ?>/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
-let editorInitialized = false;
-
-// Initialize TinyMCE
-function initTinyMCE() {
-    if (editorInitialized) {
-        return;
-    }
-    
-    tinymce.init({
-        selector: '#content',
-        height: 400,
-        menubar: false,
-        plugins: [
-            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-            'insertdatetime', 'media', 'table', 'help', 'wordcount'
-        ],
-        toolbar: 'undo redo | blocks | ' +
-            'bold italic forecolor | alignleft aligncenter ' +
-            'alignright alignjustify | bullist numlist outdent indent | ' +
-            'removeformat | link image | code | help',
-        content_style: 'body { font-family: Poppins, sans-serif; font-size: 14px }',
-        setup: function(editor) {
-            editorInitialized = true;
-        }
-    });
-}
-
-// Initialize when modal is shown
-document.getElementById('articleModal').addEventListener('shown.bs.modal', function() {
-    initTinyMCE();
-});
-
 function resetForm() {
     document.getElementById('article_id').value = '';
     document.getElementById('modalTitle').textContent = 'New Article';
     document.querySelector('form').reset();
-    
-    // Reset TinyMCE content
-    if (tinymce.get('content')) {
-        tinymce.get('content').setContent('');
-    }
 }
 
 function editArticle(article) {
@@ -268,25 +225,10 @@ function editArticle(article) {
     document.getElementById('title').value = article.title;
     document.getElementById('category_id').value = article.category_id || '';
     document.getElementById('status').value = article.status;
+    document.getElementById('content').value = article.content;
     document.getElementById('tags').value = article.tags ? JSON.parse(article.tags).join(', ') : '';
     document.getElementById('modalTitle').textContent = 'Edit Article';
-    
-    // Set content in TinyMCE after editor is ready
-    const setContent = () => {
-        if (tinymce.get('content')) {
-            tinymce.get('content').setContent(article.content || '');
-        } else {
-            // If editor not ready, try again after short delay
-            setTimeout(setContent, 100);
-        }
-    };
-    
-    // Show modal first
-    const modal = new bootstrap.Modal(document.getElementById('articleModal'));
-    modal.show();
-    
-    // Set content after modal is shown and editor initialized
-    setTimeout(setContent, 200);
+    new bootstrap.Modal(document.getElementById('articleModal')).show();
 }
 </script>
 
