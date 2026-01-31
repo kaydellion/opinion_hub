@@ -1583,6 +1583,16 @@ function handleUpdatePayoutStatus() {
     } elseif ($old_status === 'pending' && $new_status === 'paid') {
         // Process VTPass transaction if applicable
         $payout_details = json_decode($payout['metadata'], true);
+        if (empty($payout_details)) {
+            // Try extracting from description field if metadata is empty
+            if (strpos($payout['description'] ?? '', ' | Details: ') !== false) {
+                $parts = explode(' | Details: ', $payout['description']);
+                if (count($parts) > 1) {
+                    $payout_details = json_decode($parts[1], true) ?? [];
+                }
+            }
+        }
+        
         $vtpass_result = processVTPassPayout($payout_details, $amount);
         
         if (!$vtpass_result['success']) {
@@ -1598,13 +1608,27 @@ function handleUpdatePayoutStatus() {
                      
         // Log VTPass transaction if applicable
         if (isset($vtpass_result['request_id'])) {
-            $conn->query("UPDATE agent_earnings 
-                         SET metadata = JSON_SET(metadata, '$.vtpass_request_id', '{$vtpass_result['request_id']}')
-                         WHERE id = $payout_id");
+            // Check if metadata column exists
+            $has_metadata = $conn->query("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'agent_earnings' AND COLUMN_NAME = 'metadata'");
+            if ($has_metadata && $has_metadata->num_rows > 0) {
+                $conn->query("UPDATE agent_earnings 
+                             SET metadata = JSON_SET(COALESCE(metadata, '{}'), '$.vtpass_request_id', '{$vtpass_result['request_id']}')
+                             WHERE id = $payout_id");
+            }
         }
     } elseif ($old_status === 'approved' && $new_status === 'paid') {
         // Process VTPass transaction if applicable
         $payout_details = json_decode($payout['metadata'], true);
+        if (empty($payout_details)) {
+            // Try extracting from description field if metadata is empty
+            if (strpos($payout['description'] ?? '', ' | Details: ') !== false) {
+                $parts = explode(' | Details: ', $payout['description']);
+                if (count($parts) > 1) {
+                    $payout_details = json_decode($parts[1], true) ?? [];
+                }
+            }
+        }
+        
         $vtpass_result = processVTPassPayout($payout_details, $amount);
         
         if (!$vtpass_result['success']) {
@@ -1613,13 +1637,17 @@ function handleUpdatePayoutStatus() {
         }
         
         // Mark as paid (no pending adjustment needed if already approved)
-        $conn->query("UPDATE users SET paid_earnings = paid_earnings + $amount WHERE user_id = $agent_id");
+        $conn->query("UPDATE users SET paid_earnings = paid_earnings + $amount WHERE id = $agent_id");
         
         // Log VTPass transaction if applicable
         if (isset($vtpass_result['request_id'])) {
-            $conn->query("UPDATE agent_earnings 
-                         SET metadata = JSON_SET(metadata, '$.vtpass_request_id', '{$vtpass_result['request_id']}')
-                         WHERE id = $payout_id");
+            // Check if metadata column exists
+            $has_metadata = $conn->query("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'agent_earnings' AND COLUMN_NAME = 'metadata'");
+            if ($has_metadata && $has_metadata->num_rows > 0) {
+                $conn->query("UPDATE agent_earnings 
+                             SET metadata = JSON_SET(COALESCE(metadata, '{}'), '$.vtpass_request_id', '{$vtpass_result['request_id']}')
+                             WHERE id = $payout_id");
+            }
         }
     } elseif ($old_status === 'approved' && $new_status === 'cancelled') {
         // Cancelled from approved (already removed from pending)
