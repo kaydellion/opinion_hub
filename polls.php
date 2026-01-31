@@ -286,8 +286,8 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY name");
 
         if ($matched_polls && $matched_polls->num_rows > 0):
         ?>
-        <div class="card border-success shadow-sm mb-4">
-            <div class="card-header bg-success text-white">
+        <div class="card border-secondary shadow-sm mb-4">
+            <div class="card-header bg-secondary text-white">
                 <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>MATCHED POLLS</h5>
                 <small class="text-white-50">Polls you qualify for based on your profile</small>
             </div>
@@ -298,10 +298,19 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY name");
                         $poll['progress_percentage'] = getPollProgressPercentage($poll);
                     ?>
                         <div class="col-md-6 mb-3">
-                            <div class="card h-100 border-success">
+                            <div class="card h-100 border-secondary">
+                                <?php if (!empty($poll['image'])): ?>
+                                    <img src="<?php echo SITE_URL . 'uploads/polls/' . $poll['image']; ?>" 
+                                         class="card-img-top" alt="Poll image" style="height: 160px; object-fit: cover;">
+                                <?php else: ?>
+                                    <div class="bg-gradient text-white d-flex align-items-center justify-content-center" 
+                                         style="height: 160px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                        <i class="fas fa-poll fa-3x"></i>
+                                    </div>
+                                <?php endif; ?>
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <span class="badge bg-success">Matched</span>
+                                        <span class="badge bg-secondary">Matched</span>
                                         <small class="text-muted">
                                             <i class="fas fa-clock"></i> <?= date('M d', strtotime($poll['created_at'])) ?>
                                         </small>
@@ -316,20 +325,41 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY name");
                                         <?= htmlspecialchars(substr($poll['description'], 0, 80)) ?>
                                         <?php if (strlen($poll['description']) > 80): ?>...<?php endif; ?>
                                     </p>
-                                    <div class="d-flex justify-content-between align-items-center">
+                                    <div class="mb-2">
+                                        <span class="badge bg-primary"><?php echo htmlspecialchars($poll['category_name'] ?? 'General'); ?></span>
+                                        <span class="badge bg-info"><?php echo htmlspecialchars($poll['poll_type']); ?></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
                                         <div class="small">
                                             <span class="badge bg-info me-1"><?= $poll['question_count'] ?> Qs</span>
-                                            <span class="badge bg-success"><?= $poll['total_responses'] ?> Responses</span>
+                                            <span class="badge bg-secondary"><?= $poll['total_responses'] ?> Responses</span>
                                         </div>
                                         <div class="small text-success fw-bold">
                                             ₦<?= number_format(floatval($poll['price_per_response'] ?? 0), 0) ?>/response
                                         </div>
                                     </div>
+                                    <div class="progress mb-2" style="height: 6px;">
+                                        <div class="progress-bar bg-success" role="progressbar"
+                                             style="width: <?= $poll['progress_percentage']; ?>%"
+                                             aria-valuenow="<?= $poll['progress_percentage']; ?>"
+                                             aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <small class="text-success fw-bold">
+                                            <?= $poll['progress_percentage']; ?>% complete
+                                        </small>
+                                        <?php if ($poll['end_date']): ?>
+                                            <small class="text-muted">
+                                                <i class="fas fa-clock"></i> Ends <?= date('M d', strtotime($poll['end_date'])); ?>
+                                            </small>
+                                        <?php endif; ?>
+                                    </div>
                                     <div class="mt-2">
-                                        <a href="view-poll/<?= $poll['slug'] ?>" class="btn btn-success btn-sm">
+                                        <a href="view-poll/<?= $poll['slug'] ?>" class="btn btn-secondary btn-sm">
                                             <i class="fas fa-play"></i> Take Poll
                                         </a>
-                                        <a href="agent/share-poll.php?poll_id=<?= $poll['id'] ?>" class="btn btn-outline-success btn-sm ms-1">
+                                        <a href="agent/share-poll.php?poll_id=<?= $poll['id'] ?>" class="btn btn-outline-secondary btn-sm ms-1">
                                             <i class="fas fa-share"></i> Share
                                         </a>
                                     </div>
