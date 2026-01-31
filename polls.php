@@ -46,7 +46,8 @@ if (!empty($search)) {
     $where[] = "(p.title LIKE '%$search%' OR p.description LIKE '%$search%')";
 }
 if (!empty($location)) {
-    $where[] = "(agent_state_criteria = '$location' OR agent_location_all = 1)";
+    // Match polls explicitly targeted to a state, or polls that allow all locations, or polls whose agent criteria include the state
+    $where[] = "(p.poll_state = '$location' OR p.agent_state_criteria = '$location' OR p.agent_location_all = 1)";
 }
 
 // Handle following filter for logged-in users

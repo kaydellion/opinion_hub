@@ -80,6 +80,27 @@ unset($_SESSION['errors']);
                                 <input type="text" class="form-control" id="title" name="title" value="<?= htmlspecialchars($poll['title'] ?? '') ?>" required>
                             </div>
 
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="poll_state" class="form-label">Target State (Optional)</label>
+                                    <select class="form-select" id="poll_state" name="poll_state">
+                                        <option value="">All Nigeria</option>
+                                        <?php
+                                        $nigerian_states = [
+                                            'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno',
+                                            'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe',
+                                            'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara',
+                                            'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau',
+                                            'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara'
+                                        ];
+                                        foreach ($nigerian_states as $state): ?>
+                                            <option value="<?= $state ?>" <?= ($poll && ($poll['poll_state'] ?? '') === $state) ? 'selected' : '' ?>><?= htmlspecialchars($state) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <small class="text-muted">Limit this poll to a specific state (optional)</small>
+                                </div>
+                            </div>
+
                             <div class="mb-3">
                                 <label for="description" class="form-label">Poll Description *</label>
                                 <textarea class="form-control" id="description" name="description" rows="4" required><?= htmlspecialchars($poll['description'] ?? '') ?></textarea>

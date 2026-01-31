@@ -145,7 +145,8 @@ function ensurePollsTableColumns() {
         'agent_education_criteria' => 'TEXT DEFAULT \'[\"all\"]\' COMMENT \'JSON array of selected education levels\'',
         'agent_employment_criteria' => 'TEXT DEFAULT \'[\"both\"]\' COMMENT \'JSON array of selected employment status\'',
         'agent_income_criteria' => 'TEXT DEFAULT \'[\"all\"]\' COMMENT \'JSON array of selected income ranges\'',
-        'agent_commission' => 'DECIMAL(10, 2) DEFAULT 1000',
+            'poll_state' => "VARCHAR(100) DEFAULT ''",
+            'agent_commission' => 'DECIMAL(10, 2) DEFAULT 1000',
         'results_for_sale' => 'BOOLEAN DEFAULT FALSE',
         'results_sale_price' => 'DECIMAL(10, 2) DEFAULT 0'
     ];
@@ -585,6 +586,8 @@ function handleCreatePoll() {
     $disclaimer = sanitize($_POST['disclaimer'] ?? '');
     $category_id = (int)($_POST['category_id'] ?? 0);
     $poll_type = sanitize($_POST['poll_type'] ?? '');
+    $poll_state = sanitize($_POST['poll_state'] ?? '');
+    $poll_state = sanitize($_POST['poll_state'] ?? '');
     $start_date = sanitize($_POST['start_date'] ?? '');
     $end_date = sanitize($_POST['end_date'] ?? '');
     
@@ -658,7 +661,7 @@ function handleCreatePoll() {
     $slug = generateUniquePollSlug($title);
     
     $query = "INSERT INTO polls
-              (created_by, title, slug, description, disclaimer, category_id, poll_type, image,
+              (created_by, title, slug, description, disclaimer, category_id, poll_type, poll_state, image,
                start_date, end_date, allow_comments, allow_multiple_votes, one_vote_per_ip,
                one_vote_per_account, results_public_after_vote, results_public_after_end,
                results_private, status, price_per_response, target_responders,
@@ -666,7 +669,7 @@ function handleCreatePoll() {
                agent_location_all, agent_occupation_criteria, agent_education_criteria,
                agent_employment_criteria, agent_income_criteria)
               VALUES ({$user['id']}, '$title', '$slug', '$description', '$disclaimer', $category_id,
-              '$poll_type', '$image', '$start_date', '$end_date',
+              '$poll_type', '$poll_state', '$image', '$start_date', '$end_date',
               $allow_comments, $allow_multiple_votes, $one_vote_ip, $one_vote_account,
               $results_public_after_vote, $results_public_after_end, $results_private, 'draft',
               $price_per_response, $target_responders,
@@ -687,6 +690,38 @@ function handleCreatePoll() {
         );
         
         $_SESSION['success'] = "Poll created successfully! Now add questions.";
+        // Notify followers of the creator about the new poll
+        try {
+            $followers_q = $conn->query("SELECT u.* FROM user_follows uf JOIN users u ON uf.follower_id = u.id WHERE uf.following_id = {$user['id']}");
+            $poll_link = SITE_URL . 'view-poll/' . $slug;
+            $subject = "New poll from {$user['first_name']} {$user['last_name']}";
+            $plain_message = "{$user['first_name']} {$user['last_name']} just posted a new poll: $title\n\nView it here: $poll_link";
+
+            if ($followers_q && $followers_q->num_rows > 0) {
+                while ($f = $followers_q->fetch_assoc()) {
+                    // Create in-app notification
+                    try { createNotification($f['id'], 'new_poll', $subject, $plain_message, 'view-poll/' . $slug); } catch (Exception $e) { error_log('notify err: '.$e->getMessage()); }
+
+                    // Send email (best-effort, don't block)
+                    try {
+                        sendTemplatedEmail(
+                            $f['email'],
+                            $f['first_name'] . ' ' . $f['last_name'],
+                            $subject,
+                            nl2br(htmlspecialchars($plain_message)),
+                            'View Poll',
+                            $poll_link
+                        );
+                    } catch (Exception $e) {
+                        error_log('Failed to send follower email: ' . $e->getMessage());
+                    }
+                }
+            }
+
+        } catch (Exception $e) {
+            error_log('Failed to notify followers: ' . $e->getMessage());
+        }
+
         header("Location: " . SITE_URL . "client/add-questions.php?id=$poll_id");
     } else {
         error_log("Poll creation failed: " . $conn->error . " | Query: " . substr($query, 0, 200));
@@ -801,6 +836,7 @@ function handleUpdatePoll() {
     
     $query = "UPDATE polls SET
               title = '$title',
+              poll_state = '$poll_state',
               description = '$description',
               disclaimer = '$disclaimer',
               category_id = $category_id,
