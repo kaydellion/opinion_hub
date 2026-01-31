@@ -100,32 +100,48 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
         // Update messaging credits table
         if (in_array($credit_type, ['sms', 'email', 'whatsapp'])) {
             $column_name = $credit_type . '_balance';
+            file_put_contents($log_file, date('Y-m-d H:i:s') . " - Column name: $column_name\n", FILE_APPEND);
             
             // Check if user has messaging credits record
             $check_stmt = $conn->prepare("SELECT id FROM messaging_credits WHERE user_id = ?");
             $check_stmt->bind_param("i", $user_id);
             $check_stmt->execute();
-            $exists = $check_stmt->get_result()->fetch_assoc();
+            $check_result = $check_stmt->get_result();
+            $exists = $check_result->fetch_assoc();
+            file_put_contents($log_file, date('Y-m-d H:i:s') . " - Record exists: " . ($exists ? "YES (id={$exists['id']})" : "NO") . "\n", FILE_APPEND);
             
             if ($exists) {
                 // Update existing record - use direct query since column name can't be parameterized
                 $update_query = "UPDATE messaging_credits SET " . $column_name . " = " . $column_name . " + " . intval($units) . " WHERE user_id = " . intval($user_id);
+                file_put_contents($log_file, date('Y-m-d H:i:s') . " - Executing UPDATE: " . $update_query . "\n", FILE_APPEND);
+                
                 $result = $conn->query($update_query);
-                if (!$result) {
-                    file_put_contents($log_file, date('Y-m-d H:i:s') . " - SQL Error on UPDATE: " . $conn->error . " | Query: " . $update_query . "\n", FILE_APPEND);
+                $affected_rows = $conn->affected_rows;
+                
+                if ($result === false) {
+                    file_put_contents($log_file, date('Y-m-d H:i:s') . " - SQL Error on UPDATE: " . $conn->error . "\n", FILE_APPEND);
                     error_log("vPay callback - SQL Error on UPDATE: " . $conn->error);
                     $_SESSION['error_message'] = "Failed to update credits: " . $conn->error;
                     header('Location: dashboard.php');
                     exit;
                 }
-                file_put_contents($log_file, date('Y-m-d H:i:s') . " - CREDIT_UPDATE: $column_name += $units for user_id=$user_id - SUCCESS\n", FILE_APPEND);
-                error_log("vPay callback - CREDIT_UPDATE: $column_name += $units for user_id=$user_id - SUCCESS");
+                
+                file_put_contents($log_file, date('Y-m-d H:i:s') . " - UPDATE affected rows: " . $affected_rows . "\n", FILE_APPEND);
+                
+                // Verify the update
+                $verify_query = "SELECT $column_name FROM messaging_credits WHERE user_id = " . intval($user_id);
+                $verify_result = $conn->query($verify_query);
+                if ($verify_result) {
+                    $verify_row = $verify_result->fetch_assoc();
+                    file_put_contents($log_file, date('Y-m-d H:i:s') . " - VERIFIED: $column_name = {$verify_row[$column_name]} for user_id=$user_id\n", FILE_APPEND);
+                    error_log("vPay callback - CREDIT_UPDATE verified: $column_name = {$verify_row[$column_name]} for user_id=$user_id");
+                }
             } else {
                 // Create new record with defaults
                 $insert_query = "INSERT INTO messaging_credits (user_id, sms_balance, email_balance, whatsapp_balance) VALUES (?, 0, 0, 0)";
                 $insert_stmt = $conn->prepare($insert_query);
                 if (!$insert_stmt) {
-                    file_put_contents($log_file, date('Y-m-d H:i:s') . " - SQL Error on INSERT init: " . $conn->error . "\n", FILE_APPEND);
+                    file_put_contents($log_file, date('Y-m-d H:i:s') . " - SQL Error preparing INSERT init: " . $conn->error . "\n", FILE_APPEND);
                     error_log("vPay callback - SQL Error on INSERT init: " . $conn->error);
                     $_SESSION['error_message'] = "Failed to create credits record.";
                     header('Location: dashboard.php');
@@ -134,7 +150,7 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
                 $insert_stmt->bind_param("i", $user_id);
                 $result = $insert_stmt->execute();
                 if (!$result) {
-                    file_put_contents($log_file, date('Y-m-d H:i:s') . " - SQL Error on INSERT init execute: " . $conn->error . "\n", FILE_APPEND);
+                    file_put_contents($log_file, date('Y-m-d H:i:s') . " - SQL Error executing INSERT init: " . $conn->error . "\n", FILE_APPEND);
                     error_log("vPay callback - SQL Error on INSERT init execute: " . $conn->error);
                     $_SESSION['error_message'] = "Failed to create credits record.";
                     header('Location: dashboard.php');
@@ -145,15 +161,25 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
                 // Now update with the credits
                 $update_query = "UPDATE messaging_credits SET " . $column_name . " = " . intval($units) . " WHERE user_id = " . intval($user_id);
                 $result = $conn->query($update_query);
-                if (!$result) {
+                $affected_rows = $conn->affected_rows;
+                
+                if ($result === false) {
                     file_put_contents($log_file, date('Y-m-d H:i:s') . " - SQL Error on UPDATE after INSERT: " . $conn->error . "\n", FILE_APPEND);
                     error_log("vPay callback - SQL Error on UPDATE after INSERT: " . $conn->error);
                     $_SESSION['error_message'] = "Failed to update credits.";
                     header('Location: dashboard.php');
                     exit;
                 }
-                file_put_contents($log_file, date('Y-m-d H:i:s') . " - CREDIT_INSERT: $column_name = $units for user_id=$user_id - SUCCESS\n", FILE_APPEND);
-                error_log("vPay callback - CREDIT_INSERT: $column_name = $units for user_id=$user_id - SUCCESS");
+                file_put_contents($log_file, date('Y-m-d H:i:s') . " - UPDATE after INSERT affected rows: " . $affected_rows . "\n", FILE_APPEND);
+                
+                // Verify the update
+                $verify_query = "SELECT $column_name FROM messaging_credits WHERE user_id = " . intval($user_id);
+                $verify_result = $conn->query($verify_query);
+                if ($verify_result) {
+                    $verify_row = $verify_result->fetch_assoc();
+                    file_put_contents($log_file, date('Y-m-d H:i:s') . " - VERIFIED after INSERT: $column_name = {$verify_row[$column_name]} for user_id=$user_id\n", FILE_APPEND);
+                    error_log("vPay callback - CREDIT_INSERT verified: $column_name = {$verify_row[$column_name]} for user_id=$user_id");
+                }
             }
         }
         
