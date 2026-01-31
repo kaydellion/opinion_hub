@@ -95,7 +95,7 @@ include 'header.php';
                         
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title mb-3">
-                                <a href="blog/view.php?slug=<?= urlencode($article['slug']) ?>" 
+                                <a href="<?php echo SITE_URL; ?>blog/view.php?slug=<?= urlencode($article['slug']) ?>"
                                    class="text-decoration-none text-dark stretched-link">
                                     <?= htmlspecialchars($article['title']) ?>
                                 </a>

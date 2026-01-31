@@ -12,13 +12,13 @@ if (empty($slug)) {
 }
 
 // Get post with author details
-$stmt = $conn->prepare("SELECT ba.*, CONCAT(u.first_name, ' ', u.last_name) as author_name, u.email as author_email,
-                        (SELECT COUNT(*) FROM blog_likes WHERE post_id = ba.id) as like_count,
-                        (SELECT COUNT(*) FROM blog_comments WHERE post_id = ba.id) as comment_count,
-                        (SELECT COUNT(*) FROM blog_shares WHERE post_id = ba.id) as share_count
-                        FROM blog_articles ba
-                        JOIN users u ON ba.author_id = u.id
-                        WHERE ba.slug = ? AND ba.status = 'published'");
+$stmt = $conn->prepare("SELECT bp.*, CONCAT(u.first_name, ' ', u.last_name) as author_name, u.email as author_email,
+                        (SELECT COUNT(*) FROM blog_likes WHERE post_id = bp.id) as like_count,
+                        (SELECT COUNT(*) FROM blog_comments WHERE post_id = bp.id) as comment_count,
+                        (SELECT COUNT(*) FROM blog_shares WHERE post_id = bp.id) as share_count
+                        FROM blog_posts bp
+                        JOIN users u ON bp.user_id = u.id
+                        WHERE bp.slug = ? AND bp.status = 'approved'");
 if (!$stmt) {
     die("Prepare failed: " . $conn->error);
 }
