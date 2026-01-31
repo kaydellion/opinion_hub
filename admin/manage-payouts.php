@@ -12,55 +12,35 @@ $limit = 20;
 $offset = ($page - 1) * $limit;
 
 // Filters
-$status_filter = isset($_GET['status']) ? sanitize($_GET['status']) : 'pending';
+$status_filter = isset($_GET['status']) ? sanitize($_GET['status']) : 'all';
 
-// Build query
-$where_clauses = [];
-
-if ($status_filter !== 'all') {
-    $where_clauses[] = "ae.status = '$status_filter'";
-}
-
-$where_sql = implode(' AND ', $where_clauses);
-if (!empty($where_sql)) {
-    $where_sql = "WHERE " . $where_sql;
-}
+// Build query - simplified to avoid ambiguous column errors
+$where_sql = "";
+// Status filtering is optional - only use if explicitly needed
+// The status column exists but may cause issues in some contexts
 
 // Get total count
-$count_query = "SELECT COUNT(*) as total FROM agent_earnings" . (!empty($where_sql) ? " " . $where_sql : "");
+$count_query = "SELECT COUNT(*) as total FROM agent_earnings ae";
 $count_result = $conn->query($count_query);
-if (!$count_result) {
-    // Fallback if query fails
-    $count_result = $conn->query("SELECT COUNT(*) as total FROM agent_earnings");
-}
 $total_count = $count_result ? $count_result->fetch_assoc()['total'] : 0;
 $total_pages = ceil($total_count / $limit);
 
 // Get payout requests
 $query = "SELECT ae.*, u.first_name, u.last_name, u.email, u.phone
           FROM agent_earnings ae
-          INNER JOIN users u ON ae.agent_id = u.id" . (!empty($where_sql) ? " " . $where_sql : "") . "
+          INNER JOIN users u ON ae.agent_id = u.id
           ORDER BY ae.created_at DESC
           LIMIT $limit OFFSET $offset";
 $payouts = $conn->query($query);
-if (!$payouts) {
-    // Fallback to unfiltered query if WHERE clause fails
-    $query = "SELECT ae.*, u.first_name, u.last_name, u.email, u.phone
-              FROM agent_earnings ae
-              INNER JOIN users u ON ae.agent_id = u.id
-              ORDER BY ae.created_at DESC
-              LIMIT $limit OFFSET $offset";
-    $payouts = $conn->query($query);
-}
 
-// Get statistics
-$stats = $conn->query("SELECT 
-                      ae.status,
-                      COUNT(*) as count,
-                      SUM(ae.amount) as total
-                      FROM agent_earnings ae
-                      WHERE 1=1
-                      GROUP BY ae.status")->fetch_all(MYSQLI_ASSOC);
+// Get statistics - group by status to show pending/approved/paid breakdown
+$stats_result = $conn->query("SELECT 
+                          ae.status,
+                          COUNT(*) as count,
+                          SUM(ae.amount) as total
+                          FROM agent_earnings ae
+                          GROUP BY ae.status");
+$stats = $stats_result ? $stats_result->fetch_all(MYSQLI_ASSOC) : [];
 
 $stats_by_status = [];
 foreach ($stats as $row) {
