@@ -88,9 +88,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Get poll types
-$poll_types = $conn->query("SELECT * FROM poll_types ORDER BY name ASC");
-
 // Check if poll_types table exists, create if not
 $table_check = $conn->query("SHOW TABLES LIKE 'poll_types'");
 if (!$table_check || $table_check->num_rows === 0) {
@@ -123,7 +120,14 @@ if (!$table_check || $table_check->num_rows === 0) {
         header("Location: poll-types.php");
         exit;
     }
+} else {
+    // Update existing table if needed (add columns if missing)
+    $conn->query("ALTER TABLE poll_types ADD COLUMN IF NOT EXISTS status ENUM('active', 'inactive') DEFAULT 'active'");
+    $conn->query("ALTER TABLE poll_types ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP");
 }
+
+// Get poll types
+$poll_types = $conn->query("SELECT * FROM poll_types ORDER BY name ASC");
 
 $errors = $_SESSION['errors'] ?? [];
 $success = $_SESSION['success'] ?? '';
