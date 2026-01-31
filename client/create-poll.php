@@ -626,6 +626,8 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="radiologist" id="occ_radiologist"><label class="form-check-label small" for="occ_radiologist">Radiologist</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="optometrist" id="occ_optometrist"><label class="form-check-label small" for="occ_optometrist">Optometrist</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="psychiatrist" id="occ_psychiatrist"><label class="form-check-label small" for="occ_psychiatrist">Psychiatrist</label></div>
+                                                     </div>
+                                                     <div class="col-md-3">
                                                     <!-- Education and Academia -->
                                                     <h6 class="text-primary mt-3 mb-2">Education and Academia</h6>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="teacher" id="occ_teacher"><label class="form-check-label small" for="occ_teacher">Teacher</label></div>
@@ -638,6 +640,8 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="special_education_teacher" id="occ_special_education_teacher"><label class="form-check-label small" for="occ_special_education_teacher">Special Education Teacher</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="educational_consultant" id="occ_educational_consultant"><label class="form-check-label small" for="occ_educational_consultant">Educational Consultant</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="school_counselor" id="occ_school_counselor"><label class="form-check-label small" for="occ_school_counselor">School Counselor</label></div>
+                                                    </div>
+                                                     <div class="col-md-3">
                                                     <!-- Engineering and Technology -->
                                                     <h6 class="text-primary mt-3 mb-2">Engineering and Technology</h6>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="software_engineer" id="occ_software_engineer"><label class="form-check-label small" for="occ_software_engineer">Software Engineer</label></div>
@@ -650,6 +654,8 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="it_support_specialist" id="occ_it_support_specialist"><label class="form-check-label small" for="occ_it_support_specialist">IT Support Specialist</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="cybersecurity_analyst" id="occ_cybersecurity_analyst"><label class="form-check-label small" for="occ_cybersecurity_analyst">Cybersecurity Analyst</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="aerospace_engineer" id="occ_aerospace_engineer"><label class="form-check-label small" for="occ_aerospace_engineer">Aerospace Engineer</label></div>
+                                                     </div>
+                                                     <div class="col-md-3">
                                                     <!-- Business and Finance -->
                                                     <h6 class="text-primary mt-3 mb-2">Business and Finance</h6>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="accountant" id="occ_accountant"><label class="form-check-label small" for="occ_accountant">Accountant</label></div>
@@ -662,6 +668,8 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="real_estate_agent" id="occ_real_estate_agent"><label class="form-check-label small" for="occ_real_estate_agent">Real Estate Agent</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="project_manager" id="occ_project_manager"><label class="form-check-label small" for="occ_project_manager">Project Manager</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="insurance_broker" id="occ_insurance_broker"><label class="form-check-label small" for="occ_insurance_broker">Insurance Broker</label></div>
+                                                     </div>
+                                                     <div class="col-md-3">
                                                     <!-- Arts and Entertainment -->
                                                     <h6 class="text-primary mt-3 mb-2">Arts and Entertainment</h6>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="graphic_designer" id="occ_graphic_designer"><label class="form-check-label small" for="occ_graphic_designer">Graphic Designer</label></div>
@@ -674,6 +682,8 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="art_curator" id="occ_art_curator"><label class="form-check-label small" for="occ_art_curator">Art Curator</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="fashion_designer" id="occ_fashion_designer"><label class="form-check-label small" for="occ_fashion_designer">Fashion Designer</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="animator" id="occ_animator"><label class="form-check-label small" for="occ_animator">Animator</label></div>
+                                                     </div>
+                                                     <div class="col-md-3">
                                                     <!-- Law and Public Safety -->
                                                     <h6 class="text-primary mt-3 mb-2">Law and Public Safety</h6>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="lawyer" id="occ_lawyer"><label class="form-check-label small" for="occ_lawyer">Lawyer</label></div>
@@ -686,7 +696,9 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="detective" id="occ_detective"><label class="form-check-label small" for="occ_detective">Detective</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="security_guard" id="occ_security_guard"><label class="form-check-label small" for="occ_security_guard">Security Guard</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="legal_secretary" id="occ_legal_secretary"><label class="form-check-label small" for="occ_legal_secretary">Legal Secretary</label></div>
-                                                    <!-- Trades and Construction -->
+                                                    </div>
+                                                     <div class="col-md-3">
+                                                     <!-- Trades and Construction -->
                                                     <h6 class="text-primary mt-3 mb-2">Trades and Construction</h6>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="carpenter" id="occ_carpenter"><label class="form-check-label small" for="occ_carpenter">Carpenter</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="electrician" id="occ_electrician"><label class="form-check-label small" for="occ_electrician">Electrician</label></div>
@@ -698,6 +710,8 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="heavy_equipment_operator" id="occ_heavy_equipment_operator"><label class="form-check-label small" for="occ_heavy_equipment_operator">Heavy Equipment Operator</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="roofer" id="occ_roofer"><label class="form-check-label small" for="occ_roofer">Roofer</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="landscaper" id="occ_landscaper"><label class="form-check-label small" for="occ_landscaper">Landscaper</label></div>
+                                                     </div>
+                                                     <div class="col-md-3">
                                                     <!-- Science and Research -->
                                                     <h6 class="text-primary mt-3 mb-2">Science and Research</h6>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="biologist" id="occ_biologist"><label class="form-check-label small" for="occ_biologist">Biologist</label></div>
@@ -710,6 +724,8 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="geneticist" id="occ_geneticist"><label class="form-check-label small" for="occ_geneticist">Geneticist</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="meteorologist" id="occ_meteorologist"><label class="form-check-label small" for="occ_meteorologist">Meteorologist</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="ecologist" id="occ_ecologist"><label class="form-check-label small" for="occ_ecologist">Ecologist</label></div>
+                                                     </div>
+                                                     <div class="col-md-3">
                                                     <!-- Hospitality and Tourism -->
                                                     <h6 class="text-primary mt-3 mb-2">Hospitality and Tourism</h6>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="hotel_manager" id="occ_hotel_manager"><label class="form-check-label small" for="occ_hotel_manager">Hotel Manager</label></div>
@@ -722,6 +738,8 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="concierge" id="occ_concierge"><label class="form-check-label small" for="occ_concierge">Concierge</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="cruise_ship_staff" id="occ_cruise_ship_staff"><label class="form-check-label small" for="occ_cruise_ship_staff">Cruise Ship Staff</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="flight_attendant" id="occ_flight_attendant"><label class="form-check-label small" for="occ_flight_attendant">Flight Attendant</label></div>
+                                                     </div>
+                                                     <div class="col-md-3">
                                                     <!-- Media and Communication -->
                                                     <h6 class="text-primary mt-3 mb-2">Media and Communication</h6>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="journalist" id="occ_journalist"><label class="form-check-label small" for="occ_journalist">Journalist</label></div>
@@ -734,6 +752,8 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="videographer" id="occ_videographer"><label class="form-check-label small" for="occ_videographer">Videographer</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="translator" id="occ_translator"><label class="form-check-label small" for="occ_translator">Translator</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="copywriter" id="occ_copywriter"><label class="form-check-label small" for="occ_copywriter">Copywriter</label></div>
+                                                     </div>
+                                                     <div class="col-md-3">
                                                     <!-- Agriculture and Environment -->
                                                     <h6 class="text-primary mt-3 mb-2">Agriculture and Environment</h6>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="farmer" id="occ_farmer"><label class="form-check-label small" for="occ_farmer">Farmer</label></div>
@@ -746,7 +766,9 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="environmental_consultant" id="occ_environmental_consultant"><label class="form-check-label small" for="occ_environmental_consultant">Environmental Consultant</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="landscape_architect" id="occ_landscape_architect"><label class="form-check-label small" for="occ_landscape_architect">Landscape Architect</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="agronomist" id="occ_agronomist"><label class="form-check-label small" for="occ_agronomist">Agronomist</label></div>
-                                                    <!-- Transportation and Logistics -->
+                                                    </div>
+                                                     <div class="col-md-3">
+                                                     <!-- Transportation and Logistics -->
                                                     <h6 class="text-primary mt-3 mb-2">Transportation and Logistics</h6>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="truck_driver" id="occ_truck_driver"><label class="form-check-label small" for="occ_truck_driver">Truck Driver</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="airline_pilot" id="occ_airline_pilot"><label class="form-check-label small" for="occ_airline_pilot">Airline Pilot</label></div>
@@ -758,6 +780,8 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="air_traffic_controller" id="occ_air_traffic_controller"><label class="form-check-label small" for="occ_air_traffic_controller">Air Traffic Controller</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="freight_forwarder" id="occ_freight_forwarder"><label class="form-check-label small" for="occ_freight_forwarder">Freight Forwarder</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="customs_broker" id="occ_customs_broker"><label class="form-check-label small" for="occ_customs_broker">Customs Broker</label></div>
+                                                     </div>
+                                                     <div class="col-md-3">
                                                     <!-- Retail and Customer Service -->
                                                     <h6 class="text-primary mt-3 mb-2">Retail and Customer Service</h6>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="retail_sales_associate" id="occ_retail_sales_associate"><label class="form-check-label small" for="occ_retail_sales_associate">Retail Sales Associate</label></div>
@@ -770,6 +794,8 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="personal_shopper" id="occ_personal_shopper"><label class="form-check-label small" for="occ_personal_shopper">Personal Shopper</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="e_commerce_manager" id="occ_e_commerce_manager"><label class="form-check-label small" for="occ_e_commerce_manager">E-commerce Manager</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="retail_buyer" id="occ_retail_buyer"><label class="form-check-label small" for="occ_retail_buyer">Retail Buyer</label></div>
+                                                     </div>
+                                                     <div class="col-md-3">
                                                     <!-- Sports and Fitness -->
                                                     <h6 class="text-primary mt-3 mb-2">Sports and Fitness</h6>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="personal_trainer" id="occ_personal_trainer"><label class="form-check-label small" for="occ_personal_trainer">Personal Trainer</label></div>
@@ -782,6 +808,8 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="athletic_trainer" id="occ_athletic_trainer"><label class="form-check-label small" for="occ_athletic_trainer">Athletic Trainer</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="referee" id="occ_referee"><label class="form-check-label small" for="occ_referee">Referee</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="sports_marketing_manager" id="occ_sports_marketing_manager"><label class="form-check-label small" for="occ_sports_marketing_manager">Sports Marketing Manager</label></div>
+                                                     </div>
+                                                     <div class="col-md-3">
                                                     <!-- Government and Public Administration -->
                                                     <h6 class="text-primary mt-3 mb-2">Government and Public Administration</h6>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="diplomat" id="occ_diplomat"><label class="form-check-label small" for="occ_diplomat">Diplomat</label></div>
@@ -794,6 +822,8 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="tax_examiner" id="occ_tax_examiner"><label class="form-check-label small" for="occ_tax_examiner">Tax Examiner</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="customs_officer" id="occ_customs_officer"><label class="form-check-label small" for="occ_customs_officer">Customs Officer</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="intelligence_analyst" id="occ_intelligence_analyst"><label class="form-check-label small" for="occ_intelligence_analyst">Intelligence Analyst</label></div>
+                                                     </div>
+                                                     <div class="col-md-3">
                                                     <!-- Manufacturing and Production -->
                                                     <h6 class="text-primary mt-3 mb-2">Manufacturing and Production</h6>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="factory_worker" id="occ_factory_worker"><label class="form-check-label small" for="occ_factory_worker">Factory Worker</label></div>
@@ -806,6 +836,8 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="production_planner" id="occ_production_planner"><label class="form-check-label small" for="occ_production_planner">Production Planner</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="operations_manager" id="occ_operations_manager"><label class="form-check-label small" for="occ_operations_manager">Operations Manager</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="manufacturing_engineer" id="occ_manufacturing_engineer"><label class="form-check-label small" for="occ_manufacturing_engineer">Manufacturing Engineer</label></div>
+                                                     </div>
+                                                     <div class="col-md-3">
                                                     <!-- Miscellaneous -->
                                                     <h6 class="text-primary mt-3 mb-2">Miscellaneous</h6>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="entrepreneur" id="occ_entrepreneur"><label class="form-check-label small" for="occ_entrepreneur">Entrepreneur</label></div>
@@ -818,6 +850,7 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="florist" id="occ_florist"><label class="form-check-label small" for="occ_florist">Florist</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="funeral_director" id="occ_funeral_director"><label class="form-check-label small" for="occ_funeral_director">Funeral Director</label></div>
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="tattoo_artist" id="occ_tattoo_artist"><label class="form-check-label small" for="occ_tattoo_artist">Tattoo Artist</label></div>
+                                                 </div>
                                                 </div>
                                                 <div class="col-md-3">
                                                     <h6 class="text-primary mb-2">Education and Academia</h6>
