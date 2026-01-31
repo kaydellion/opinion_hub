@@ -42,7 +42,7 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
     // If no transaction record exists, create one from the callback data
     if (!$transaction) {
         $type = $_GET['type'] ?? 'unknown';
-        $amount = floatval($_GET['amount'] ?? 0) * 100; // Convert to kobo for consistency
+        $amount = floatval($_GET['amount'] ?? 0); // vPay sends amount in naira already
         $metadata = json_encode($_GET);
         
         $stmt = $conn->prepare("INSERT INTO transactions (user_id, type, amount, reference, status, payment_method, metadata, created_at) VALUES (?, ?, ?, ?, 'completed', 'vpay', ?, NOW())");
@@ -210,7 +210,7 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
             $user_id,
             'success',
             "Payment Successful",
-            "Your payment of ₦" . number_format($transaction['amount'] / 100, 2) . " was successful. $units $credit_type credits have been added to your account."
+            "Your payment of ₦" . number_format($transaction['amount'], 2) . " was successful. $units $credit_type credits have been added to your account."
         );
         
         $_SESSION['success_message'] = "Payment successful! $units $credit_type credits have been added to your account.";
@@ -308,7 +308,7 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
                 exit;
             }
             
-            $amount_paid = floatval($_GET['amount'] ?? 0) / 100; // Convert from kobo to naira
+            $amount_paid = floatval($_GET['amount'] ?? 0); // vPay sends amount in naira already
             $stmt->bind_param("iissd", $user_id, $plan_id, $end_date, $reference, $amount_paid);
             $result = $stmt->execute();
             
@@ -436,7 +436,7 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
                 
                 if (!$existing) {
                     // Grant lifetime access
-                    $amount_paid = $transaction['amount'] / 100; // Convert from kobo to naira
+                    $amount_paid = $transaction['amount']; // vPay sends amount in naira already
                     $stmt = $conn->prepare("INSERT INTO poll_results_access (user_id, poll_id, amount_paid) VALUES (?, ?, ?)");
                     if (!$stmt) {
                         error_log("vPay callback - SQL Error on INSERT: " . $conn->error);

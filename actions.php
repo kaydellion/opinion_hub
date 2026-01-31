@@ -1619,15 +1619,14 @@ function handleUpdatePayoutStatus() {
     $amount = $payout['amount'];
     $agent_id = $payout['agent_id'];
     
-    // Update payout status
-    $conn->query("UPDATE agent_earnings SET status = '$new_status' WHERE id = $payout_id");
-    
     // Update user earnings based on status change
     if ($old_status === 'pending' && $new_status === 'cancelled') {
+        // Update payout status
+        $conn->query("UPDATE agent_earnings SET status = '$new_status' WHERE id = $payout_id");
         // Remove from pending earnings
         $conn->query("UPDATE users SET pending_earnings = pending_earnings - $amount WHERE id = $agent_id");
     } elseif ($old_status === 'pending' && $new_status === 'paid') {
-        // Process VTPass transaction if applicable
+        // Process VTPass transaction BEFORE updating status
         $payout_details = [];
         if (isset($payout['metadata']) && !empty($payout['metadata'])) {
             $payout_details = json_decode($payout['metadata'], true) ?? [];
@@ -1646,9 +1645,13 @@ function handleUpdatePayoutStatus() {
         $vtpass_result = processVTPassPayout($payout_details, $amount);
         
         if (!$vtpass_result['success']) {
+            // Do NOT update status if VTPass fails
             echo json_encode(['success' => false, 'message' => 'VTPass transaction failed: ' . $vtpass_result['message']]);
             exit;
         }
+        
+        // Only update status if VTPass succeeded
+        $conn->query("UPDATE agent_earnings SET status = '$new_status' WHERE id = $payout_id");
         
         // Move from pending to paid
         $conn->query("UPDATE users
@@ -1667,7 +1670,7 @@ function handleUpdatePayoutStatus() {
             }
         }
     } elseif ($old_status === 'approved' && $new_status === 'paid') {
-        // Process VTPass transaction if applicable
+        // Process VTPass transaction BEFORE updating status
         $payout_details = [];
         if (isset($payout['metadata']) && !empty($payout['metadata'])) {
             $payout_details = json_decode($payout['metadata'], true) ?? [];
@@ -1686,9 +1689,13 @@ function handleUpdatePayoutStatus() {
         $vtpass_result = processVTPassPayout($payout_details, $amount);
         
         if (!$vtpass_result['success']) {
+            // Do NOT update status if VTPass fails
             echo json_encode(['success' => false, 'message' => 'VTPass transaction failed: ' . $vtpass_result['message']]);
             exit;
         }
+        
+        // Only update status if VTPass succeeded
+        $conn->query("UPDATE agent_earnings SET status = '$new_status' WHERE id = $payout_id");
         
         // Mark as paid (no pending adjustment needed if already approved)
         $conn->query("UPDATE users SET paid_earnings = paid_earnings + $amount WHERE id = $agent_id");
@@ -1704,8 +1711,17 @@ function handleUpdatePayoutStatus() {
             }
         }
     } elseif ($old_status === 'approved' && $new_status === 'cancelled') {
+        // Update payout status
+        $conn->query("UPDATE agent_earnings SET status = '$new_status' WHERE id = $payout_id");
         // Cancelled from approved (already removed from pending)
         // No adjustment needed
+    } elseif ($old_status === 'pending' && $new_status === 'approved') {
+        // Update payout status
+        $conn->query("UPDATE agent_earnings SET status = '$new_status' WHERE id = $payout_id");
+        // No earnings adjustment for approval, just status change
+    } else {
+        // Generic status update for other transitions
+        $conn->query("UPDATE agent_earnings SET status = '$new_status' WHERE id = $payout_id");
     }
     
     $status_messages = [

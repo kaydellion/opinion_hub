@@ -145,7 +145,7 @@ include_once '../header.php';
                                     </div>
                                     <h4 class="text-muted mb-1"><?php echo $plan['subscribers']; ?></h4>
                                     <small class="text-muted">subscribers</small>
-                                    <h3 class="text-success mt-2 mb-0">₦<?php echo number_format($plan['revenue'], 0); ?></h3>
+                                    <h3 class="text-success mt-2 mb-0">₦<?php echo number_format($plan['revenue'], 2); ?></h3>
                                     <small class="text-muted">revenue</small>
                                 </div>
                             </div>

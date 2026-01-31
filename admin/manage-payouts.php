@@ -318,9 +318,21 @@ include_once '../header.php';
 
 <script>
 function updatePayoutStatus(payoutId, newStatus) {
-    if (!confirm('Are you sure you want to ' + newStatus + ' this payout request?')) {
+    const confirmMessage = newStatus === 'paid' ? 
+        'This will process the payout transaction. For airtime/data payouts, this will send the value via VTPass API. Continue?' : 
+        'Are you sure you want to ' + newStatus + ' this payout request?';
+    
+    if (!confirm(confirmMessage)) {
         return;
     }
+    
+    // Show loading overlay
+    showLoadingOverlay('Processing payout transaction...');
+    
+    // Disable all action buttons
+    document.querySelectorAll('button[onclick*="updatePayoutStatus"]').forEach(btn => {
+        btn.disabled = true;
+    });
     
     const formData = new FormData();
     formData.append('action', 'updatePayoutStatus');
@@ -333,17 +345,50 @@ function updatePayoutStatus(payoutId, newStatus) {
     })
     .then(response => response.json())
     .then(data => {
+        hideLoadingOverlay();
         if (data.success) {
             alert(data.message);
             window.location.reload();
         } else {
             alert('Error: ' + data.message);
+            // Re-enable buttons on error
+            document.querySelectorAll('button[onclick*="updatePayoutStatus"]').forEach(btn => {
+                btn.disabled = false;
+            });
         }
     })
     .catch(error => {
+        hideLoadingOverlay();
         console.error('Error:', error);
         alert('An error occurred. Please try again.');
+        // Re-enable buttons on error
+        document.querySelectorAll('button[onclick*="updatePayoutStatus"]').forEach(btn => {
+            btn.disabled = false;
+        });
     });
+}
+
+function showLoadingOverlay(message) {
+    const overlay = document.createElement('div');
+    overlay.id = 'loadingOverlay';
+    overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center;';
+    overlay.innerHTML = `
+        <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 mb-0" style="font-size: 16px; font-weight: 500;">${message}</p>
+            <small class="text-muted">Please wait, this may take a few seconds...</small>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+}
+
+function hideLoadingOverlay() {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.remove();
+    }
 }
 </script>
 
