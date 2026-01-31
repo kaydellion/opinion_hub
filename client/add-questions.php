@@ -69,7 +69,7 @@ include '../header.php';
                     <?php endif; ?>
                     
                     <!-- Add Question Form -->
-                    <form method="POST" action="../actions.php?action=add_question" id="questionForm">
+                    <form method="POST" action="../actions.php?action=add_question" id="questionForm" enctype="multipart/form-data">
                         <input type="hidden" name="poll_id" value="<?= $poll_id ?>">
                         
                         <div class="mb-3">
@@ -166,9 +166,22 @@ include '../header.php';
                                             <?php if (!empty($q['question_description'])): ?>
                                                 <p class="mb-2 small text-muted"><?= htmlspecialchars($q['question_description']) ?></p>
                                             <?php endif; ?>
-                                            <?php if (!empty($q['question_image'])): ?>
+                                            <?php if (!empty($q['question_image'])):
+                                                $qimg = $q['question_image'];
+                                                // Support both full URL and stored filename
+                                                if (strpos($qimg, 'http') === 0) {
+                                                    $img_src = $qimg;
+                                                } else {
+                                                    $local_file = __DIR__ . '/../uploads/questions/' . $qimg;
+                                                    if (file_exists($local_file)) {
+                                                        $img_src = SITE_URL . 'uploads/questions/' . $qimg;
+                                                    } else {
+                                                        $img_src = $qimg; // fallback, maybe already a path
+                                                    }
+                                                }
+                                            ?>
                                                 <div class="mb-2">
-                                                    <img src="<?= htmlspecialchars($q['question_image']) ?>" alt="Question image" class="img-thumbnail" style="max-width: 100px; max-height: 75px;">
+                                                    <img src="<?= htmlspecialchars($img_src) ?>" alt="Question image" class="img-thumbnail" style="max-width: 100px; max-height: 75px;">
                                                 </div>
                                             <?php endif; ?>
                                             <small class="text-muted">
