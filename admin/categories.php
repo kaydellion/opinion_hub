@@ -5,10 +5,7 @@ require_once '../functions.php';
 // Check if user is admin
 requireRole(['admin']);
 
-$page_title = "Manage Categories";
-include_once '../header.php';
-
-// Handle form submissions
+// Handle form submissions BEFORE any output
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
@@ -104,6 +101,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
+
+$page_title = "Manage Categories";
+include_once '../header.php';
 
 // Check if categories table exists, create if not
 $table_check = $conn->query("SHOW TABLES LIKE 'categories'");
