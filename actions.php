@@ -627,7 +627,7 @@ function handleCreatePoll() {
     $results_sale_price = $pay_agents ? floatval($_POST['results_sale_price'] ?? 5000) : 0;
 
     // Pricing fields - only set if paying agents
-    $price_per_response = $pay_agents ? 500 : 0; // Platform fee only if paying agents
+    $price_per_response = $pay_agents ? 1000 : 0; // Platform fee only if paying agents
     $target_responders = intval($_POST['target_responders'] ?? 100);
     
     $errors = [];
