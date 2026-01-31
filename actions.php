@@ -1349,7 +1349,7 @@ function handleRequestPayout() {
     
     // Get user stats to validate available balance
     $user_result = $conn->query("SELECT total_earnings, paid_earnings, pending_earnings 
-                                 FROM users WHERE user_id = $agent_id");
+                                 FROM users WHERE id = $agent_id");
     $user_stats = $user_result->fetch_assoc();
     
     $available_balance = ($user_stats['total_earnings'] ?? 0) - 
