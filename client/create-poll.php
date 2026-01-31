@@ -852,7 +852,7 @@ unset($_SESSION['errors']);
                                                     <div class="form-check mb-1"><input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="tattoo_artist" id="occ_tattoo_artist"><label class="form-check-label small" for="occ_tattoo_artist">Tattoo Artist</label></div>
                                                  </div>
                                                 </div>
-                                                <div class="col-md-3">
+                                               <!-- <div class="col-md-3">
                                                     <h6 class="text-primary mb-2">Education and Academia</h6>
                                                     <div class="form-check mb-1">
                                                         <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="teacher" id="occ_teacher">
@@ -980,7 +980,7 @@ unset($_SESSION['errors']);
                                                         <input class="form-check-input agent-filter" type="checkbox" name="agent_occupation[]" value="insurance_broker" id="occ_insurance_broker">
                                                         <label class="form-check-label small" for="occ_insurance_broker">Insurance Broker</label>
                                                     </div>
-                                                </div>
+                                                </div>-->
                                             </div>
                                             <hr>
                                             <div class="form-check">
