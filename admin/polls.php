@@ -516,7 +516,17 @@ function handleChangePollStatus() {
         exit;
     }
 
-    if ($conn->query("UPDATE polls SET status = '$new_status', updated_at = NOW() WHERE id = $poll_id")) {
+    // Check if updated_at column exists
+    $col_check = $conn->query("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'polls' AND COLUMN_NAME = 'updated_at'");
+    $has_updated_at = $col_check && $col_check->num_rows > 0;
+    
+    if ($has_updated_at) {
+        $update_query = "UPDATE polls SET status = '$new_status', updated_at = NOW() WHERE id = $poll_id";
+    } else {
+        $update_query = "UPDATE polls SET status = '$new_status' WHERE id = $poll_id";
+    }
+    
+    if ($conn->query($update_query)) {
         $_SESSION['success_message'] = "Poll status updated successfully";
     } else {
         $_SESSION['error_message'] = "Failed to update poll status: " . $conn->error;
