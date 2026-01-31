@@ -162,14 +162,8 @@ include '../header.php';
                                 <?php
                                 if ($is_free) {
                                     echo 'Free';
-                                } elseif ($plan['type'] === 'basic') {
-                                    echo '₦' . number_format(getSetting('subscription_price_basic_monthly', '35000'));
-                                } elseif ($plan['type'] === 'classic') {
-                                    echo '₦' . number_format(getSetting('subscription_price_classic_monthly', '65000'));
-                                } elseif ($plan['type'] === 'enterprise') {
-                                    echo '₦' . number_format(getSetting('subscription_price_enterprise_monthly', '100000'));
                                 } else {
-                                    echo formatCurrency($plan['monthly_price']);
+                                    echo '₦' . number_format(intval($plan['monthly_price']));
                                 }
                                 ?>
                             </h2>
@@ -181,14 +175,8 @@ include '../header.php';
                                 <?php
                                 if ($is_free) {
                                     echo 'Free';
-                                } elseif ($plan['type'] === 'basic') {
-                                    echo '₦' . number_format(getSetting('subscription_price_basic_annual', '392000'));
-                                } elseif ($plan['type'] === 'classic') {
-                                    echo '₦' . number_format(getSetting('subscription_price_classic_annual', '735000'));
-                                } elseif ($plan['type'] === 'enterprise') {
-                                    echo '₦' . number_format(getSetting('subscription_price_enterprise_annual', '1050000'));
                                 } else {
-                                    echo formatCurrency($plan['annual_price']);
+                                    echo '₦' . number_format(intval($plan['annual_price']));
                                 }
                                 ?>
                             </h2>

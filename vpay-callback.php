@@ -270,31 +270,56 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
     
     // Subscription payments
     if ($transaction_type === 'subscription') {
-        $plan = $_GET['plan'] ?? '';
-        $duration = 30; // Default monthly
+        $plan_id = intval($_GET['plan_id'] ?? 0);
+        $billing_cycle = $_GET['billing_cycle'] ?? 'monthly';
         
-        if ($plan === 'yearly') {
-            $duration = 365;
-        }
-        
-            $expiry_date = date('Y-m-d', strtotime("+$duration days"));
+        if ($plan_id) {
+            // Calculate subscription end date
+            if ($billing_cycle === 'annual') {
+                $end_date = date('Y-m-d H:i:s', strtotime('+365 days'));
+            } else {
+                $end_date = date('Y-m-d H:i:s', strtotime('+30 days'));
+            }
             
-            // Update user subscription
-            $stmt = $conn->prepare("UPDATE users SET subscription_status = 'active', subscription_plan = ?, subscription_expiry = ? WHERE id = ?");
-            $stmt->bind_param("ssi", $plan, $expiry_date, $user_id);
-            $stmt->execute();
+            // Get plan details
+            $plan = $conn->query("SELECT name FROM subscription_plans WHERE id = $plan_id")->fetch_assoc();
+            $plan_name = $plan['name'] ?? 'Subscription';
+            
+            // Insert into user_subscriptions table
+            $stmt = $conn->prepare("INSERT INTO user_subscriptions (user_id, plan_id, status, start_date, end_date, payment_reference, amount_paid) 
+                                   VALUES (?, ?, 'active', NOW(), ?, ?, ?)");
+            if (!$stmt) {
+                error_log("vPay callback - SQL Error preparing subscription insert: " . $conn->error);
+                $_SESSION['error_message'] = "Failed to activate subscription: " . $conn->error;
+                header('Location: client/subscription.php');
+                exit;
+            }
+            
+            $amount_paid = floatval($_GET['amount'] ?? 0) / 100; // Convert from kobo to naira
+            $stmt->bind_param("iissd", $user_id, $plan_id, $end_date, $reference, $amount_paid);
+            $result = $stmt->execute();
+            
+            if (!$result) {
+                error_log("vPay callback - SQL Error inserting subscription: " . $conn->error);
+                $_SESSION['error_message'] = "Failed to activate subscription: " . $conn->error;
+                header('Location: client/subscription.php');
+                exit;
+            }
+            
+            error_log("vPay callback - Subscription activated: user_id=$user_id, plan_id=$plan_id, end_date=$end_date");
             
             createNotification(
                 $user_id,
                 'success',
                 "Subscription Activated",
-                "Your $plan subscription is now active until " . date('F j, Y', strtotime($expiry_date))
+                "Your $plan_name subscription is now active until " . date('F j, Y', strtotime($end_date))
             );
             
             $_SESSION['success_message'] = "Subscription activated successfully!";
-            header('Location: client/subscription.php');
+            header('Location: client/subscription.php?success=1');
             exit;
         }
+    }
         
         // Advertisement payments
         if ($transaction_type === 'advertisement') {
