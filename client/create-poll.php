@@ -1043,7 +1043,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Calculate estimated cost (Platform Fee + Agent Commission per response)
 function updateEstimatedCost() {
     const platformFee = 500; // Fixed platform fee
-    const agentCommission = 100; // Fixed agent commission (changed from 1000)
+    const agentCommission = 1000; // Fixed agent commission
     const totalPerResponse = platformFee + agentCommission; // Total cost per response
     const targetResponders = parseFloat(document.getElementById('target_responders').value) || 0;
     const total = totalPerResponse * targetResponders;
