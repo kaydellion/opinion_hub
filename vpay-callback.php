@@ -181,6 +181,28 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
                     error_log("vPay callback - CREDIT_INSERT verified: $column_name = {$verify_row[$column_name]} for user_id=$user_id");
                 }
             }
+            
+            // For SMS credits, also add to agent_sms_credits table if user is an agent
+            if ($credit_type === 'sms') {
+                $user = getUserById($user_id);
+                if ($user && $user['role'] === 'agent') {
+                    file_put_contents($log_file, date('Y-m-d H:i:s') . " - User is agent, adding to agent_sms_credits table\n", FILE_APPEND);
+                    $amount_paid = floatval($_GET['amount'] ?? 0);
+                    $description = "SMS credits purchase via vPay";
+                    
+                    // Add using the addAgentSMSCredits function
+                    if (function_exists('addAgentSMSCredits')) {
+                        $add_result = addAgentSMSCredits($user_id, $units, $amount_paid, $description);
+                        if ($add_result) {
+                            file_put_contents($log_file, date('Y-m-d H:i:s') . " - Successfully added $units SMS credits to agent_sms_credits for user_id=$user_id\n", FILE_APPEND);
+                            error_log("vPay callback - Added $units SMS credits to agent_sms_credits for user_id=$user_id");
+                        } else {
+                            file_put_contents($log_file, date('Y-m-d H:i:s') . " - Failed to add SMS credits to agent_sms_credits for user_id=$user_id\n", FILE_APPEND);
+                            error_log("vPay callback - Failed to add SMS credits to agent_sms_credits for user_id=$user_id");
+                        }
+                    }
+                }
+            }
         }
         
         // Create notification
