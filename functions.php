@@ -1540,7 +1540,7 @@ function getSettingsByCategory($category = null) {
  * Quick access functions for commonly used settings
  */
 function getAgentCommission() {
-    return getSetting('agent_commission_per_poll', 1000);
+    return getSetting('agent_commission_per_poll', 500);
 }
 
 function getMinPayout() {
