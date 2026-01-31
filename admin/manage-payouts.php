@@ -143,7 +143,17 @@ include_once '../header.php';
                     </thead>
                     <tbody>
                         <?php while ($payout = $payouts->fetch_assoc()): 
-                            $metadata = json_decode($payout['metadata'] ?? '{}', true);
+                            // Try to get metadata from metadata column, fallback to description
+                            $metadata = [];
+                            if (isset($payout['metadata']) && !empty($payout['metadata'])) {
+                                $metadata = json_decode($payout['metadata'], true) ?? [];
+                            } elseif (strpos($payout['description'] ?? '', ' | Details: ') !== false) {
+                                // Extract from description if metadata column doesn't exist
+                                $parts = explode(' | Details: ', $payout['description']);
+                                if (count($parts) > 1) {
+                                    $metadata = json_decode($parts[1], true) ?? [];
+                                }
+                            }
                         ?>
                         <tr>
                             <td>#<?php echo $payout['id']; ?></td>
@@ -216,6 +226,18 @@ include_once '../header.php';
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
                                     <div class="modal-body">
+                                        <?php
+                                        // Re-parse metadata for modal (in case it's different row)
+                                        $modal_metadata = [];
+                                        if (isset($payout['metadata']) && !empty($payout['metadata'])) {
+                                            $modal_metadata = json_decode($payout['metadata'], true) ?? [];
+                                        } elseif (strpos($payout['description'] ?? '', ' | Details: ') !== false) {
+                                            $parts = explode(' | Details: ', $payout['description']);
+                                            if (count($parts) > 1) {
+                                                $modal_metadata = json_decode($parts[1], true) ?? [];
+                                            }
+                                        }
+                                        ?>
                                         <h6>Agent Information</h6>
                                         <p>
                                             <strong>Name:</strong> <?php echo htmlspecialchars($payout['first_name'] . ' ' . $payout['last_name']); ?><br>
@@ -228,22 +250,22 @@ include_once '../header.php';
                                         <h6>Payout Details</h6>
                                         <p>
                                             <strong>Amount:</strong> ₦<?php echo number_format($payout['amount'], 2); ?><br>
-                                            <strong>Method:</strong> <?php echo ucfirst(str_replace('_', ' ', $metadata['method'] ?? 'N/A')); ?><br>
+                                            <strong>Method:</strong> <?php echo ucfirst(str_replace('_', ' ', $modal_metadata['method'] ?? 'N/A')); ?><br>
                                             
-                                            <?php if ($metadata['method'] === 'bank_transfer'): ?>
-                                                <strong>Bank:</strong> <?php echo htmlspecialchars($metadata['bank_name'] ?? 'N/A'); ?><br>
-                                                <strong>Account Number:</strong> <?php echo htmlspecialchars($metadata['account_number'] ?? 'N/A'); ?><br>
-                                                <strong>Account Name:</strong> <?php echo htmlspecialchars($metadata['account_name'] ?? 'N/A'); ?>
-                                            <?php elseif ($metadata['method'] === 'mobile_money'): ?>
-                                                <strong>Provider:</strong> <?php echo htmlspecialchars($metadata['mobile_provider'] ?? 'N/A'); ?><br>
-                                                <strong>Number:</strong> <?php echo htmlspecialchars($metadata['mobile_number'] ?? 'N/A'); ?>
-                                            <?php elseif ($metadata['method'] === 'airtime'): ?>
-                                                <strong>Network:</strong> <?php echo htmlspecialchars($metadata['airtime_network'] ?? 'N/A'); ?><br>
-                                                <strong>Number:</strong> <?php echo htmlspecialchars($metadata['airtime_number'] ?? 'N/A'); ?>
-                                            <?php elseif ($metadata['method'] === 'data'): ?>
-                                                <strong>Network:</strong> <?php echo htmlspecialchars(strtoupper(str_replace('-data', '', $metadata['data_network'] ?? 'N/A'))); ?><br>
-                                                <strong>Bundle:</strong> <?php echo htmlspecialchars($metadata['data_variation'] ?? 'N/A'); ?><br>
-                                                <strong>Number:</strong> <?php echo htmlspecialchars($metadata['data_number'] ?? 'N/A'); ?>
+                                            <?php if (($modal_metadata['method'] ?? '') === 'bank_transfer'): ?>
+                                                <strong>Bank:</strong> <?php echo htmlspecialchars($modal_metadata['bank_name'] ?? 'N/A'); ?><br>
+                                                <strong>Account Number:</strong> <?php echo htmlspecialchars($modal_metadata['account_number'] ?? 'N/A'); ?><br>
+                                                <strong>Account Name:</strong> <?php echo htmlspecialchars($modal_metadata['account_name'] ?? 'N/A'); ?>
+                                            <?php elseif (($modal_metadata['method'] ?? '') === 'mobile_money'): ?>
+                                                <strong>Provider:</strong> <?php echo htmlspecialchars($modal_metadata['mobile_provider'] ?? 'N/A'); ?><br>
+                                                <strong>Number:</strong> <?php echo htmlspecialchars($modal_metadata['mobile_number'] ?? 'N/A'); ?>
+                                            <?php elseif (($modal_metadata['method'] ?? '') === 'airtime'): ?>
+                                                <strong>Network:</strong> <?php echo htmlspecialchars($modal_metadata['airtime_network'] ?? 'N/A'); ?><br>
+                                                <strong>Number:</strong> <?php echo htmlspecialchars($modal_metadata['airtime_number'] ?? 'N/A'); ?>
+                                            <?php elseif (($modal_metadata['method'] ?? '') === 'data'): ?>
+                                                <strong>Network:</strong> <?php echo htmlspecialchars(strtoupper(str_replace('-data', '', $modal_metadata['data_network'] ?? 'N/A'))); ?><br>
+                                                <strong>Bundle:</strong> <?php echo htmlspecialchars($modal_metadata['data_variation'] ?? 'N/A'); ?><br>
+                                                <strong>Number:</strong> <?php echo htmlspecialchars($modal_metadata['data_number'] ?? 'N/A'); ?>
                                             <?php endif; ?>
                                         </p>
 

@@ -14,6 +14,7 @@ $offset = ($page - 1) * $limit;
 // Filters
 $plan_filter = isset($_GET['plan']) ? sanitize($_GET['plan']) : 'all';
 $status_filter = isset($_GET['status']) ? sanitize($_GET['status']) : 'active';
+$billing_filter = isset($_GET['billing']) ? sanitize($_GET['billing']) : 'all';
 
 // Build query
 $where_clauses = ["us.plan_id IS NOT NULL"];
@@ -47,7 +48,10 @@ $query = "SELECT u.id, u.first_name, u.last_name, u.email, u.phone, u.created_at
                  us.start_date, us.end_date, us.status,
                  us.amount_paid,
                  us.start_date as subscribed_at,
-                 CASE WHEN us.amount_paid = sp.monthly_price THEN 'monthly' ELSE 'annual' END as billing_cycle,
+                 CASE 
+                     WHEN us.amount_paid >= sp.annual_price * 0.9 THEN 'annual'
+                     ELSE 'monthly'
+                 END as billing_cycle,
                  0 as auto_renew,
                  (SELECT COUNT(*) FROM polls WHERE created_by = u.id) as total_polls,
                  (SELECT COUNT(*) FROM poll_responses pr 

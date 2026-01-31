@@ -1421,17 +1421,31 @@ function handleRequestPayout() {
     
     $payout_details_json = json_encode($payout_details);
     
-    // Insert payout request into agent_earnings
-    $stmt = $conn->prepare("INSERT INTO agent_earnings 
-                           (agent_id, earning_type, amount, description, status, metadata, created_at) 
-                           VALUES (?, 'payout_request', ?, ?, 'pending', ?, NOW())");
+    // Check if metadata column exists
+    $col_check = $conn->query("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'agent_earnings' AND COLUMN_NAME = 'metadata'");
+    $has_metadata_column = $col_check && $col_check->num_rows > 0;
     
     $description = "Payout request - " . ucfirst(str_replace('_', ' ', $payout_method));
     if (!empty($notes)) {
         $description .= " - Notes: " . $notes;
     }
+    // Add payment details to description if no metadata column
+    if (!$has_metadata_column) {
+        $description .= " | Details: " . $payout_details_json;
+    }
     
-    $stmt->bind_param("idss", $agent_id, $amount, $description, $payout_details_json);
+    // Insert payout request into agent_earnings
+    if ($has_metadata_column) {
+        $stmt = $conn->prepare("INSERT INTO agent_earnings 
+                               (agent_id, earning_type, amount, description, status, metadata, created_at) 
+                               VALUES (?, 'payout_request', ?, ?, 'pending', ?, NOW())");
+        $stmt->bind_param("idss", $agent_id, $amount, $description, $payout_details_json);
+    } else {
+        $stmt = $conn->prepare("INSERT INTO agent_earnings 
+                               (agent_id, earning_type, amount, description, status, created_at) 
+                               VALUES (?, 'payout_request', ?, ?, 'pending', NOW())");
+        $stmt->bind_param("ids", $agent_id, $amount, $description);
+    }
     
     if ($stmt->execute()) {
         // Update user's pending_earnings
