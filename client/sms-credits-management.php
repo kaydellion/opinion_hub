@@ -7,19 +7,24 @@ requireRole('client');
 $user = getCurrentUser();
 $page_title = "SMS Credits Management";
 
-// Get current credits balance
-$credits_query = "SELECT sms_credits FROM users WHERE id = " . $user['id'];
-$credits_result = $conn->query($credits_query);
+// Get current credits balance (prefer messaging_credits table; fallback to users.sms_credits)
 $sms_credits = 0;
-if ($credits_result && $credits_result->num_rows > 0) {
-    $sms_credits = $credits_result->fetch_assoc()['sms_credits'] ?? 0;
+$mc = $conn->query("SELECT sms_balance FROM messaging_credits WHERE user_id = " . intval($user['id']));
+if ($mc && $mc->num_rows > 0) {
+    $sms_credits = intval($mc->fetch_assoc()['sms_balance'] ?? 0);
+} else {
+    $credits_query = "SELECT sms_credits FROM users WHERE id = " . intval($user['id']);
+    $credits_result = $conn->query($credits_query);
+    if ($credits_result && $credits_result->num_rows > 0) {
+        $sms_credits = intval($credits_result->fetch_assoc()['sms_credits'] ?? 0);
+    }
 }
 
 // Get usage statistics
 $stats_query = "SELECT 
                 COUNT(*) as total_sent,
-                SUM(CASE WHEN delivery_status = 'delivered' THEN 1 ELSE 0 END) as delivered,
-                SUM(CASE WHEN delivery_status = 'failed' THEN 1 ELSE 0 END) as failed,
+                SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) as delivered,
+                SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed,
                 SUM(credits_used) as total_used,
                 DATE(MIN(created_at)) as first_sent,
                 DATE(MAX(created_at)) as last_sent
@@ -40,13 +45,20 @@ if ($stats_result instanceof mysqli_result) {
     error_log('Failed to load SMS stats: ' . $conn->error);
 }
 
-// Get recent transactions
-$transactions_query = "SELECT * FROM transactions 
+// Pagination for transactions
+$page = max(1, intval($_GET['page'] ?? 1));
+$page_size = 50;
+$offset = ($page - 1) * $page_size;
+
+// Get recent transactions with pagination
+$transactions_query = "SELECT SQL_CALC_FOUND_ROWS * FROM transactions 
                       WHERE user_id = {$user['id']} 
                       AND type LIKE '%sms%'
                       ORDER BY created_at DESC 
-                      LIMIT 10";
+                      LIMIT $offset, $page_size";
 $transactions = $conn->query($transactions_query);
+$total_rows = $conn->query("SELECT FOUND_ROWS() as total")->fetch_assoc()['total'] ?? 0;
+$total_pages = $total_rows > 0 ? ceil($total_rows / $page_size) : 1;
 
 // Get recent usage (last 30 days)
 $usage_query = "SELECT DATE(created_at) as date, 
@@ -275,6 +287,22 @@ include_once '../header.php';
                     </tbody>
                 </table>
             </div>
+            <!-- Pagination -->
+            <?php if ($total_pages > 1): ?>
+            <nav aria-label="Transactions pagination">
+                <ul class="pagination justify-content-center mt-3">
+                    <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
+                        <a class="page-link" href="?page=<?= max(1, $page-1) ?>">Previous</a>
+                    </li>
+                    <?php for ($p = 1; $p <= $total_pages; $p++): ?>
+                        <li class="page-item <?= $p == $page ? 'active' : '' ?>"><a class="page-link" href="?page=<?= $p ?>"><?= $p ?></a></li>
+                    <?php endfor; ?>
+                    <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
+                        <a class="page-link" href="?page=<?= min($total_pages, $page+1) ?>">Next</a>
+                    </li>
+                </ul>
+            </nav>
+            <?php endif; ?>
             <?php else: ?>
             <div class="text-center py-4">
                 <i class="fas fa-receipt fa-3x text-muted mb-3"></i>

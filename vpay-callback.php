@@ -233,10 +233,10 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
         $amount = floatval($_GET['amount'] ?? 0);
         
         if ($poll_id) {
-            // Get poll details to calculate commission
-            $poll = $conn->query("SELECT price_per_response, target_responders FROM polls WHERE id = $poll_id")->fetch_assoc();
-            $agent_total = ($poll['price_per_response'] ?? 100) * ($poll['target_responders'] ?? 100);
-            $admin_commission = $amount - $agent_total;
+            // Get poll details and compute agent payout from settings
+            $poll = $conn->query("SELECT price_per_response, target_responders, created_by, title FROM polls WHERE id = $poll_id")->fetch_assoc();
+            $agent_payout = floatval(getAgentCommission()); // amount per poll as defined in settings
+            $admin_commission = $amount - $agent_payout;
             
             // Record transaction with poll_id and admin_commission
             // First check if transaction already exists
@@ -254,7 +254,20 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
                 $stmt->bind_param("idsid", $user_id, $amount, $reference, $poll_id, $admin_commission);
                 $stmt->execute();
             }
-            
+            // Credit the poll creator (agent) with configured commission per poll
+            if (!empty($poll['created_by'])) {
+                $creator_id = intval($poll['created_by']);
+                // Record agent earning
+                $earning_stmt = $conn->prepare("INSERT INTO agent_earnings (agent_id, poll_id, earning_type, amount, description, status, created_at) VALUES (?, ?, 'poll_sale', ?, ?, 'pending', NOW())");
+                if ($earning_stmt) {
+                    $desc = "Sale of poll: " . ($poll['title'] ?? $poll_id);
+                    $earning_stmt->bind_param("iids", $creator_id, $poll_id, $agent_payout, $desc);
+                    $earning_stmt->execute();
+                }
+
+                // Update user's earnings counters
+                $conn->query("UPDATE users SET total_earnings = total_earnings + $agent_payout, pending_earnings = pending_earnings + $agent_payout WHERE id = $creator_id");
+            }
             createNotification(
                 $user_id,
                 'success',
@@ -306,6 +319,64 @@ if (isset($_GET['reference']) || isset($_GET['txnref']) || isset($_GET['transact
                 exit;
             }
             
+            // Allocate subscription benefits (SMS/Email/WhatsApp units) to user's messaging credits
+            $plan_units = $conn->query("SELECT sms_invite_units, email_invite_units, whatsapp_invite_units FROM subscription_plans WHERE id = $plan_id")->fetch_assoc();
+            $sms_units = intval($plan_units['sms_invite_units'] ?? 0);
+            $email_units = intval($plan_units['email_invite_units'] ?? 0);
+            $whatsapp_units = intval($plan_units['whatsapp_invite_units'] ?? 0);
+
+            // Ensure messaging_credits record exists
+            $mc_check = $conn->query("SELECT id FROM messaging_credits WHERE user_id = " . intval($user_id))->fetch_assoc();
+            if (!$mc_check) {
+                $ins = $conn->prepare("INSERT INTO messaging_credits (user_id, sms_balance, email_balance, whatsapp_balance) VALUES (?, 0, 0, 0)");
+                if ($ins) {
+                    $ins->bind_param("i", $user_id);
+                    $ins->execute();
+                }
+            }
+
+            // Build update for messaging_credits
+            $update_parts = [];
+            if ($sms_units > 0) $update_parts[] = "sms_balance = sms_balance + " . intval($sms_units);
+            if ($email_units > 0) $update_parts[] = "email_balance = email_balance + " . intval($email_units);
+            if ($whatsapp_units > 0) $update_parts[] = "whatsapp_balance = whatsapp_balance + " . intval($whatsapp_units);
+
+            if (!empty($update_parts)) {
+                $update_query = "UPDATE messaging_credits SET " . implode(', ', $update_parts) . " WHERE user_id = " . intval($user_id);
+                $conn->query($update_query);
+                // Record transactions for each credit type (so user sees incoming credits)
+                if ($sms_units > 0) {
+                    $ref_bonus = 'SUB_BONUS_SMS_' . $reference;
+                    $stmt_tx = $conn->prepare("INSERT INTO transactions (user_id, type, amount, reference, status, payment_method, metadata, created_at) VALUES (?, 'sms_credits', 0.00, ?, 'completed', 'system', 'subscription bonus', NOW())");
+                    if ($stmt_tx) {
+                        $stmt_tx->bind_param("is", $user_id, $ref_bonus);
+                        $stmt_tx->execute();
+                    }
+                }
+                if ($email_units > 0) {
+                    $ref_bonus = 'SUB_BONUS_EMAIL_' . $reference;
+                    $stmt_tx = $conn->prepare("INSERT INTO transactions (user_id, type, amount, reference, status, payment_method, metadata, created_at) VALUES (?, 'email_credits', 0.00, ?, 'completed', 'system', 'subscription bonus', NOW())");
+                    if ($stmt_tx) {
+                        $stmt_tx->bind_param("is", $user_id, $ref_bonus);
+                        $stmt_tx->execute();
+                    }
+                }
+                if ($whatsapp_units > 0) {
+                    $ref_bonus = 'SUB_BONUS_WA_' . $reference;
+                    $stmt_tx = $conn->prepare("INSERT INTO transactions (user_id, type, amount, reference, status, payment_method, metadata, created_at) VALUES (?, 'whatsapp_credits', 0.00, ?, 'completed', 'system', 'subscription bonus', NOW())");
+                    if ($stmt_tx) {
+                        $stmt_tx->bind_param("is", $user_id, $ref_bonus);
+                        $stmt_tx->execute();
+                    }
+                }
+            }
+
+            // If agent, also add to agent_sms_credits ledger for SMS units
+            $user_role = getUserById($user_id)['role'] ?? '';
+            if ($user_role === 'agent' && $sms_units > 0 && function_exists('addAgentSMSCredits')) {
+                addAgentSMSCredits($user_id, $sms_units, 0.00, 'Subscription bonus');
+            }
+
             error_log("vPay callback - Subscription activated: user_id=$user_id, plan_id=$plan_id, end_date=$end_date");
             
             createNotification(

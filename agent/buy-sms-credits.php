@@ -37,16 +37,18 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
 // Get current credits
 $current_credits = getAgentSMSCredits($_SESSION['user_id']);
 
-// Get transaction history
-$stmt = $conn->prepare("
-    SELECT * FROM agent_sms_credits 
-    WHERE agent_id = ? 
-    ORDER BY created_at DESC 
-    LIMIT 20
-");
-$stmt->bind_param("i", $_SESSION['user_id']);
+$page = max(1, intval($_GET['page'] ?? 1));
+$page_size = 50;
+$offset = ($page - 1) * $page_size;
+
+$stmt = $conn->prepare(
+    "SELECT SQL_CALC_FOUND_ROWS * FROM agent_sms_credits WHERE agent_id = ? ORDER BY created_at DESC LIMIT ?, ?"
+);
+$stmt->bind_param("iii", $_SESSION['user_id'], $offset, $page_size);
 $stmt->execute();
 $transactions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$total_rows = $conn->query("SELECT FOUND_ROWS() as total")->fetch_assoc()['total'] ?? 0;
+$total_pages = $total_rows > 0 ? ceil($total_rows / $page_size) : 1;
 
 $page_title = "Buy SMS Credits";
 include '../header.php';
@@ -93,6 +95,22 @@ include '../header.php';
             </div>
         </div>
     </div>
+    <!-- Pagination for transactions (if any) -->
+    <?php if (!empty($transactions) && isset($total_pages) && $total_pages > 1): ?>
+        <nav aria-label="Agent transactions pagination">
+            <ul class="pagination justify-content-center mt-3">
+                <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
+                    <a class="page-link" href="?page=<?= max(1, $page-1) ?>">Previous</a>
+                </li>
+                <?php for ($p = 1; $p <= $total_pages; $p++): ?>
+                    <li class="page-item <?= $p == $page ? 'active' : '' ?>"><a class="page-link" href="?page=<?= $p ?>"><?= $p ?></a></li>
+                <?php endfor; ?>
+                <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
+                    <a class="page-link" href="?page=<?= min($total_pages, $page+1) ?>">Next</a>
+                </li>
+            </ul>
+        </nav>
+    <?php endif; ?>
     
     <!-- Credit Packages -->
     <div class="row mb-4">
