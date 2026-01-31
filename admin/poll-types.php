@@ -102,13 +102,70 @@ if (!$table_check || $table_check->num_rows === 0) {
     )";
     
     if ($conn->query($create_table)) {
-        // Insert default poll types
+        // Insert comprehensive poll types (from create-poll.php)
         $default_types = [
+            // Political Polling
+            ['Approval Poll', 'Measure approval ratings for political figures', 'active'],
+            ['Favourability Poll', 'Assess public perception and favorability', 'active'],
+            ['Head-to-Head Poll', 'Compare support between candidates or parties', 'active'],
+            ['Issue Poll', 'Gauge public opinion on specific policy issues', 'active'],
+            ['Benchmark Poll', 'Establish baseline measurements for tracking', 'active'],
+            ['Tracking Poll', 'Monitor changes in opinion over time', 'active'],
+            ['Exit Poll', 'Survey voters as they leave polling locations', 'active'],
+            ['Push Poll', 'Polls designed to influence voter opinion', 'active'],
+            ['Deliberative Poll', 'In-depth polls with informed deliberation', 'active'],
+            ['Flash Poll', 'Quick polls capturing immediate reactions', 'active'],
             ['Opinion Poll', 'General opinion polls on various topics', 'active'],
-            ['Survey', 'Detailed surveys with multiple questions', 'active'],
-            ['Market Research', 'Commercial market research polls', 'active'],
-            ['Political Poll', 'Political opinion and voting polls', 'active'],
-            ['Social Research', 'Academic and social research polls', 'active']
+            ['Straw Poll', 'Informal preliminary polls', 'active'],
+            ['Referendum Poll', 'Polls on referendum or ballot measures', 'active'],
+            ['Omnibus Poll', 'Multiple questions from different sponsors', 'active'],
+            ['Sentiment Poll', 'Measure public sentiment and emotions', 'active'],
+            ['Ballot Test Poll', 'Test ballot designs and wording', 'active'],
+            ['Engagement Poll', 'Measure public engagement levels', 'active'],
+            ['Satisfaction Poll', 'Measure satisfaction with policies', 'active'],
+            ['Electability Poll', 'Assess candidate viability', 'active'],
+            ['Priority Poll', 'Identify voter priorities and concerns', 'active'],
+            ['Awareness Poll', 'Measure awareness of issues or campaigns', 'active'],
+            // Business & Market Research
+            ['Customer Satisfaction Poll', 'Measure customer satisfaction levels', 'active'],
+            ['Brand Awareness Poll', 'Assess brand recognition and recall', 'active'],
+            ['Market Segmentation Poll', 'Identify and profile market segments', 'active'],
+            ['Product Development Poll', 'Gather input for product development', 'active'],
+            ['Pricing Poll', 'Test pricing strategies and acceptance', 'active'],
+            ['Advertising Effectiveness Poll', 'Measure advertising impact', 'active'],
+            ['Employee Satisfaction Poll', 'Assess employee engagement and satisfaction', 'active'],
+            ['Competitor Analysis Poll', 'Analyze competitive landscape perception', 'active'],
+            ['Purchase Intent Poll', 'Measure likelihood to purchase', 'active'],
+            ['Market Trend Poll', 'Identify emerging market trends', 'active'],
+            ['Customer Experience Poll', 'Evaluate customer experience quality', 'active'],
+            ['Product Usage Poll', 'Understand product usage patterns', 'active'],
+            ['Demand Forecasting Poll', 'Project future demand', 'active'],
+            ['Concept Testing Poll', 'Test new product or marketing concepts', 'active'],
+            ['Brand Loyalty Poll', 'Measure brand loyalty and retention', 'active'],
+            ['Economic Outlook Poll', 'Assess economic sentiment', 'active'],
+            ['Crisis Management Poll', 'Measure response to crises', 'active'],
+            // Social Research
+            ['Community Feedback Poll', 'Gather community input and feedback', 'active'],
+            ['Cross-Sectional Poll', 'Snapshot of population at one point in time', 'active'],
+            ['Longitudinal Poll', 'Track same subjects over time', 'active'],
+            ['Attitudinal Poll', 'Measure attitudes and beliefs', 'active'],
+            ['Behavioural Poll', 'Assess behaviors and habits', 'active'],
+            ['Demographic Poll', 'Analyze demographic characteristics', 'active'],
+            ['Social Network Poll', 'Study social network patterns', 'active'],
+            ['Experimental Poll', 'Poll with experimental design', 'active'],
+            ['Qualitative Poll', 'In-depth qualitative research', 'active'],
+            ['Cultural Poll', 'Explore cultural attitudes and norms', 'active'],
+            ['Social Mobility Poll', 'Assess social mobility perceptions', 'active'],
+            ['Policy Impact Poll', 'Measure impact of policies', 'active'],
+            ['Social Norms Poll', 'Understand social norms and expectations', 'active'],
+            ['Life Satisfaction Poll', 'Measure life satisfaction and well-being', 'active'],
+            // Environment
+            ['Climate Change Poll', 'Assess views on climate change', 'active'],
+            ['Environmental Awareness Poll', 'Measure environmental awareness', 'active'],
+            ['Sustainability Poll', 'Gauge support for sustainability', 'active'],
+            ['Conservation Poll', 'Measure conservation attitudes', 'active'],
+            // Survey
+            ['Survey', 'General surveys with multiple questions', 'active']
         ];
         
         foreach ($default_types as $type) {

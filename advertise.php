@@ -48,28 +48,44 @@ include_once 'header.php';
                                 </tr>
                             </thead>
                             <tbody>
+                                <?php
+                                // Fetch ad rates from settings table
+                                $ad_rates_result = $conn->query("SELECT setting_key, setting_value FROM site_settings WHERE setting_key LIKE 'ad_rate_%' ORDER BY setting_key");
+                                $ad_rates = [];
+                                if ($ad_rates_result && $ad_rates_result->num_rows > 0) {
+                                    while ($row = $ad_rates_result->fetch_assoc()) {
+                                        $ad_rates[$row['setting_key']] = (float)$row['setting_value'];
+                                    }
+                                }
+                                
+                                // Default rates if settings not found
+                                $top_banner = $ad_rates['ad_rate_top_banner'] ?? 5.00;
+                                $sidebar = $ad_rates['ad_rate_sidebar'] ?? 3.00;
+                                $footer = $ad_rates['ad_rate_footer'] ?? 1.50;
+                                $in_poll = $ad_rates['ad_rate_in_poll'] ?? 4.00;
+                                ?>
                                 <tr>
                                     <td><strong>Top Banner Ad</strong></td>
                                     <td>728x90 pixels</td>
-                                    <td>₦5.00</td>
+                                    <td>₦<?php echo number_format($top_banner, 2); ?></td>
                                     <td>Prime position at the top of the homepage, visible on every page load</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Sidebar Ad</strong></td>
                                     <td>300x250 pixels</td>
-                                    <td>₦3.00</td>
+                                    <td>₦<?php echo number_format($sidebar, 2); ?></td>
                                     <td>Positioned on the right sidebar of survey pages</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Footer Ad</strong></td>
                                     <td>728x90 pixels</td>
-                                    <td>₦1.50</td>
+                                    <td>₦<?php echo number_format($footer, 2); ?></td>
                                     <td>Appears at the bottom of pages, ideal for brand awareness</td>
                                 </tr>
                                 <tr>
                                     <td><strong>In-Poll Sponsored Message</strong></td>
                                     <td>Text/Image</td>
-                                    <td>₦4.00</td>
+                                    <td>₦<?php echo number_format($in_poll, 2); ?></td>
                                     <td>A brief sponsored message displayed within a poll before or after questions</td>
                                 </tr>
                             </tbody>

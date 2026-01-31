@@ -131,70 +131,15 @@ unset($_SESSION['errors']);
                                 <div class="col-md-6 mb-3">
                                     <label for="poll_type" class="form-label">Poll Type *</label>
                                     <select class="form-select" id="poll_type" name="poll_type" required>
-                                        <optgroup label="Political Polling">
-                                            <option value="Approval Poll">Approval Poll</option>
-                                            <option value="Favourability Poll">Favourability Poll</option>
-                                            <option value="Head-to-Head Poll">Head-to-Head Poll</option>
-                                            <option value="Issue Poll">Issue Poll</option>
-                                            <option value="Benchmark Poll">Benchmark Poll</option>
-                                            <option value="Tracking Poll">Tracking Poll</option>
-                                            <option value="Exit Poll">Exit Poll</option>
-                                            <option value="Push Poll">Push Poll</option>
-                                            <option value="Deliberative Poll">Deliberative Poll</option>
-                                            <option value="Flash Poll">Flash Poll</option>
-                                            <option value="Opinion Poll">Opinion Poll</option>
-                                            <option value="Straw Poll">Straw Poll</option>
-                                            <option value="Referendum Poll">Referendum Poll</option>
-                                            <option value="Omnibus Poll">Omnibus Poll</option>
-                                            <option value="Sentiment Poll">Sentiment Poll</option>
-                                            <option value="Ballot Test Poll">Ballot Test Poll</option>
-                                            <option value="Engagement Poll">Engagement Poll</option>
-                                            <option value="Satisfaction Poll">Satisfaction Poll</option>
-                                            <option value="Electability Poll">Electability Poll</option>
-                                            <option value="Priority Poll">Priority Poll</option>
-                                            <option value="Awareness Poll">Awareness Poll</option>
-                                        </optgroup>
-                                        <optgroup label="Business & Market Research">
-                                            <option value="Customer Satisfaction Poll">Customer Satisfaction Poll</option>
-                                            <option value="Brand Awareness Poll">Brand Awareness Poll</option>
-                                            <option value="Market Segmentation Poll">Market Segmentation Poll</option>
-                                            <option value="Product Development Poll">Product Development Poll</option>
-                                            <option value="Pricing Poll">Pricing Poll</option>
-                                            <option value="Advertising Effectiveness Poll">Advertising Effectiveness Poll</option>
-                                            <option value="Employee Satisfaction Poll">Employee Satisfaction Poll</option>
-                                            <option value="Competitor Analysis Poll">Competitor Analysis Poll</option>
-                                            <option value="Purchase Intent Poll">Purchase Intent Poll</option>
-                                            <option value="Market Trend Poll">Market Trend Poll</option>
-                                            <option value="Customer Experience Poll">Customer Experience Poll</option>
-                                            <option value="Product Usage Poll">Product Usage Poll</option>
-                                            <option value="Demand Forecasting Poll">Demand Forecasting Poll</option>
-                                            <option value="Concept Testing Poll">Concept Testing Poll</option>
-                                            <option value="Brand Loyalty Poll">Brand Loyalty Poll</option>
-                                            <option value="Economic Outlook Poll">Economic Outlook Poll</option>
-                                            <option value="Crisis Management Poll">Crisis Management Poll</option>
-                                        </optgroup>
-                                        <optgroup label="Social Research">
-                                            <option value="Community Feedback Poll">Community Feedback Poll</option>
-                                            <option value="Cross-Sectional Poll">Cross-Sectional Poll</option>
-                                            <option value="Longitudinal Poll">Longitudinal Poll</option>
-                                            <option value="Attitudinal Poll">Attitudinal Poll</option>
-                                            <option value="Behavioural Poll">Behavioural Poll</option>
-                                            <option value="Demographic Poll">Demographic Poll</option>
-                                            <option value="Social Network Poll">Social Network Poll</option>
-                                            <option value="Experimental Poll">Experimental Poll</option>
-                                            <option value="Qualitative Poll">Qualitative Poll</option>
-                                            <option value="Cultural Poll">Cultural Poll</option>
-                                            <option value="Social Mobility Poll">Social Mobility Poll</option>
-                                            <option value="Policy Impact Poll">Policy Impact Poll</option>
-                                            <option value="Social Norms Poll">Social Norms Poll</option>
-                                            <option value="Life Satisfaction Poll">Life Satisfaction and Well-being Poll</option>
-                                        </optgroup>
-                                        <optgroup label="Environment">
-                                            <option value="Climate Change Poll">Climate Change Poll</option>
-                                            <option value="Environmental Awareness Poll">Environmental Awareness Poll</option>
-                                            <option value="Sustainability Poll">Sustainability Poll</option>
-                                            <option value="Conservation Poll">Conservation Poll</option>
-                                        </optgroup>
+                                        <option value="">-- Select Poll Type --</option>
+                                        <?php
+                                        $poll_types_result = $conn->query("SELECT id, name, description FROM poll_types WHERE status = 'active' ORDER BY name ASC");
+                                        if ($poll_types_result && $poll_types_result->num_rows > 0) {
+                                            while ($pt = $poll_types_result->fetch_assoc()) {
+                                                echo "<option value='{$pt['name']}'>{$pt['name']}</option>";
+                                            }
+                                        }
+                                        ?>
                                     </select>
                                 </div>
                             </div>

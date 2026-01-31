@@ -49,7 +49,7 @@ $query = "SELECT u.id, u.first_name, u.last_name, u.email, u.phone, u.created_at
                  (SELECT COUNT(*) FROM polls WHERE client_id = u.id) as total_polls,
                  (SELECT COUNT(*) FROM poll_responses pr 
                   INNER JOIN polls p ON pr.poll_id = p.id 
-                  WHERE p.client_id = u.id) as total_responses
+                  WHERE p.created_by = u.id) as total_responses
           FROM users u
           INNER JOIN user_subscriptions us ON u.id = us.user_id
           INNER JOIN subscription_plans sp ON us.plan_id = sp.id

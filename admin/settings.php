@@ -10,6 +10,29 @@ $page_title = "System Settings";
 $success = '';
 $error = '';
 
+// Check if site_settings table exists, create if not
+$table_check = $conn->query("SHOW TABLES LIKE 'site_settings'");
+if (!$table_check || $table_check->num_rows === 0) {
+    $create_sql = "CREATE TABLE IF NOT EXISTS `site_settings` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `setting_key` varchar(100) NOT NULL UNIQUE,
+        `setting_value` text,
+        `setting_type` enum('text','number','boolean','email','url','json') DEFAULT 'text',
+        `category` varchar(50) DEFAULT 'general',
+        `description` varchar(255) DEFAULT NULL,
+        `updated_by` int(11) DEFAULT NULL,
+        `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+        `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`id`),
+        KEY `category` (`category`),
+        KEY `updated_by` (`updated_by`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+    if (!$conn->query($create_sql)) {
+        $error = "Failed to create site_settings table: " . $conn->error;
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $updates = [];
 
@@ -18,29 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (strpos($key, 'setting_') === 0) {
             $setting_key = str_replace('setting_', '', $key);
             $updates[$setting_key] = sanitize($value);
-        }
-    }
-
-    // Check if site_settings table exists, create if not
-    $table_check = $conn->query("SHOW TABLES LIKE 'site_settings'");
-    if (!$table_check || $table_check->num_rows === 0) {
-        $create_sql = "CREATE TABLE IF NOT EXISTS `site_settings` (
-            `id` int(11) NOT NULL AUTO_INCREMENT,
-            `setting_key` varchar(100) NOT NULL UNIQUE,
-            `setting_value` text,
-            `setting_type` enum('text','number','boolean','email','url','json') DEFAULT 'text',
-            `category` varchar(50) DEFAULT 'general',
-            `description` varchar(255) DEFAULT NULL,
-            `updated_by` int(11) DEFAULT NULL,
-            `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-            `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (`id`),
-            KEY `category` (`category`),
-            KEY `updated_by` (`updated_by`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
-
-        if (!$conn->query($create_sql)) {
-            $error = "Failed to create site_settings table: " . $conn->error;
         }
     }
 

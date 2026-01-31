@@ -46,7 +46,8 @@ $stats = $conn->query("SELECT
                       COUNT(*) as count,
                       SUM(amount) as total
                       FROM agent_earnings
-                      GROUP BY status")->fetch_all(MYSQLI_ASSOC);
+                      WHERE 1=1
+                      GROUP BY ae.status")->fetch_all(MYSQLI_ASSOC);
 
 $stats_by_status = [];
 foreach ($stats as $row) {

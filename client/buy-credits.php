@@ -16,25 +16,30 @@ if (isset($_GET['success'])) {
 $success = $success ?? '';
 $error = '';
 
-// Credit packages
+// Get messaging rates from settings
+$sms_rate = getSetting('sms_price_basic', 12); // Default ₦12 per SMS
+$email_rate = getSetting('email_price_basic', 8); // Default ₦8 per email
+$whatsapp_rate = getSetting('whatsapp_price_basic', 8); // Default ₦8 per WhatsApp
+
+// Credit packages - using settings for per-unit rates
 $packages = [
     'sms' => [
-        ['units' => 100, 'price' => 1200, 'per_unit' => 12],
-        ['units' => 500, 'price' => 5000, 'per_unit' => 10],
-        ['units' => 1000, 'price' => 9000, 'per_unit' => 9],
-        ['units' => 5000, 'price' => 40000, 'per_unit' => 8],
+        ['units' => 100, 'price' => 100 * $sms_rate, 'per_unit' => $sms_rate],
+        ['units' => 500, 'price' => (int)(500 * $sms_rate * 0.85), 'per_unit' => (int)(500 * $sms_rate * 0.85 / 500)], // 15% discount
+        ['units' => 1000, 'price' => (int)(1000 * $sms_rate * 0.80), 'per_unit' => (int)(1000 * $sms_rate * 0.80 / 1000)], // 20% discount
+        ['units' => 5000, 'price' => (int)(5000 * $sms_rate * 0.75), 'per_unit' => (int)(5000 * $sms_rate * 0.75 / 5000)], // 25% discount
     ],
     'email' => [
-        ['units' => 100, 'price' => 800, 'per_unit' => 8],
-        ['units' => 500, 'price' => 3000, 'per_unit' => 6],
-        ['units' => 1000, 'price' => 5000, 'per_unit' => 5],
-        ['units' => 5000, 'price' => 20000, 'per_unit' => 4],
+        ['units' => 100, 'price' => 100 * $email_rate, 'per_unit' => $email_rate],
+        ['units' => 500, 'price' => (int)(500 * $email_rate * 0.85), 'per_unit' => (int)(500 * $email_rate * 0.85 / 500)],
+        ['units' => 1000, 'price' => (int)(1000 * $email_rate * 0.80), 'per_unit' => (int)(1000 * $email_rate * 0.80 / 1000)],
+        ['units' => 5000, 'price' => (int)(5000 * $email_rate * 0.75), 'per_unit' => (int)(5000 * $email_rate * 0.75 / 5000)],
     ],
     'whatsapp' => [
-        ['units' => 100, 'price' => 800, 'per_unit' => 8],
-        ['units' => 500, 'price' => 3000, 'per_unit' => 6],
-        ['units' => 1000, 'price' => 5000, 'per_unit' => 5],
-        ['units' => 5000, 'price' => 20000, 'per_unit' => 4],
+        ['units' => 100, 'price' => 100 * $whatsapp_rate, 'per_unit' => $whatsapp_rate],
+        ['units' => 500, 'price' => (int)(500 * $whatsapp_rate * 0.85), 'per_unit' => (int)(500 * $whatsapp_rate * 0.85 / 500)],
+        ['units' => 1000, 'price' => (int)(1000 * $whatsapp_rate * 0.80), 'per_unit' => (int)(1000 * $whatsapp_rate * 0.80 / 1000)],
+        ['units' => 5000, 'price' => (int)(5000 * $whatsapp_rate * 0.75), 'per_unit' => (int)(5000 * $whatsapp_rate * 0.75 / 5000)],
     ]
 ];
 
