@@ -54,7 +54,7 @@ $query = "SELECT u.id, u.first_name, u.last_name, u.email, u.phone, u.created_at
           INNER JOIN user_subscriptions us ON u.id = us.user_id
           INNER JOIN subscription_plans sp ON us.plan_id = sp.id
           WHERE $where_sql 
-          ORDER BY us.subscribed_at DESC 
+          ORDER BY us.start_date DESC 
           LIMIT $limit OFFSET $offset";
 $clients = $conn->query($query);
 

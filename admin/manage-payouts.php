@@ -18,7 +18,7 @@ $status_filter = isset($_GET['status']) ? sanitize($_GET['status']) : 'pending';
 $where_clauses = [];
 
 if ($status_filter !== 'all') {
-    $where_clauses[] = "status = '$status_filter'";
+    $where_clauses[] = "ae.status = '$status_filter'";
 }
 
 $where_sql = implode(' AND ', $where_clauses);
@@ -27,18 +27,31 @@ if (!empty($where_sql)) {
 }
 
 // Get total count
-$count_result = $conn->query("SELECT COUNT(*) as total FROM agent_earnings $where_sql");
-$total_count = $count_result->fetch_assoc()['total'];
+$count_query = "SELECT COUNT(*) as total FROM agent_earnings" . (!empty($where_sql) ? " " . $where_sql : "");
+$count_result = $conn->query($count_query);
+if (!$count_result) {
+    // Fallback if query fails
+    $count_result = $conn->query("SELECT COUNT(*) as total FROM agent_earnings");
+}
+$total_count = $count_result ? $count_result->fetch_assoc()['total'] : 0;
 $total_pages = ceil($total_count / $limit);
 
 // Get payout requests
 $query = "SELECT ae.*, u.first_name, u.last_name, u.email, u.phone
           FROM agent_earnings ae
-          INNER JOIN users u ON ae.agent_id = u.id
-          $where_sql
+          INNER JOIN users u ON ae.agent_id = u.id" . (!empty($where_sql) ? " " . $where_sql : "") . "
           ORDER BY ae.created_at DESC
           LIMIT $limit OFFSET $offset";
 $payouts = $conn->query($query);
+if (!$payouts) {
+    // Fallback to unfiltered query if WHERE clause fails
+    $query = "SELECT ae.*, u.first_name, u.last_name, u.email, u.phone
+              FROM agent_earnings ae
+              INNER JOIN users u ON ae.agent_id = u.id
+              ORDER BY ae.created_at DESC
+              LIMIT $limit OFFSET $offset";
+    $payouts = $conn->query($query);
+}
 
 // Get statistics
 $stats = $conn->query("SELECT 

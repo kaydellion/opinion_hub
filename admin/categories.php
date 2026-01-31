@@ -15,13 +15,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             case 'add':
                 $name = sanitize($_POST['name']);
                 $description = sanitize($_POST['description']);
-                $status = sanitize($_POST['status']);
+                $status = sanitize($_POST['status'] ?? 'active');
                 
                 if (!empty($name)) {
                     $check = $conn->query("SELECT id FROM categories WHERE name = '$name'");
                     if ($check && $check->num_rows === 0) {
-                        $conn->query("INSERT INTO categories (name, description, status, created_at) 
-                                   VALUES ('$name', '$description', '$status', NOW())");
+                        // Check if status column exists
+                        $col_check = $conn->query("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'categories' AND COLUMN_NAME = 'status'");
+                        if ($col_check && $col_check->num_rows > 0) {
+                            $conn->query("INSERT INTO categories (name, description, status, created_at) 
+                                       VALUES ('$name', '$description', '$status', NOW())");
+                        } else {
+                            $conn->query("INSERT INTO categories (name, description, created_at) 
+                                       VALUES ('$name', '$description', NOW())");
+                        }
                         $_SESSION['success'] = "Category added successfully!";
                     } else {
                         $_SESSION['errors'] = ["Category with this name already exists!"];
@@ -35,14 +42,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $id = (int)$_POST['id'];
                 $name = sanitize($_POST['name']);
                 $description = sanitize($_POST['description']);
-                $status = sanitize($_POST['status']);
+                $status = sanitize($_POST['status'] ?? 'active');
                 
                 if (!empty($name) && $id > 0) {
                     $check = $conn->query("SELECT id FROM categories WHERE name = '$name' AND id != $id");
                     if ($check && $check->num_rows === 0) {
-                        $conn->query("UPDATE categories 
-                                   SET name = '$name', description = '$description', status = '$status', updated_at = NOW() 
-                                   WHERE id = $id");
+                        // Check if status column exists
+                        $col_check = $conn->query("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'categories' AND COLUMN_NAME = 'status'");
+                        if ($col_check && $col_check->num_rows > 0) {
+                            $conn->query("UPDATE categories 
+                                       SET name = '$name', description = '$description', status = '$status', updated_at = NOW() 
+                                       WHERE id = $id");
+                        } else {
+                            $conn->query("UPDATE categories 
+                                       SET name = '$name', description = '$description', updated_at = NOW() 
+                                       WHERE id = $id");
+                        }
                         $_SESSION['success'] = "Category updated successfully!";
                     } else {
                         $_SESSION['errors'] = ["Category with this name already exists!"];

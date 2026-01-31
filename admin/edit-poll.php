@@ -152,10 +152,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get categories and poll types with error checking
+// Try with status filter first, fallback if column doesn't exist
 $categories_query = $conn->query("SELECT * FROM categories WHERE status = 'active' ORDER BY name");
+if (!$categories_query && strpos($conn->error, "Unknown column 'status'") !== false) {
+    $categories_query = $conn->query("SELECT * FROM categories ORDER BY name");
+}
 $categories = $categories_query && $categories_query->num_rows > 0 ? $categories_query : null;
 
 $poll_types_query = $conn->query("SELECT * FROM poll_types WHERE status = 'active' ORDER BY name");
+if (!$poll_types_query && strpos($conn->error, "Unknown column 'status'") !== false) {
+    $poll_types_query = $conn->query("SELECT * FROM poll_types ORDER BY name");
+}
 $poll_types = $poll_types_query && $poll_types_query->num_rows > 0 ? $poll_types_query : null;
 
 $errors = $_SESSION['errors'] ?? [];
