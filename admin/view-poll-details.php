@@ -189,7 +189,7 @@ $questions_query = $conn->query("SELECT * FROM poll_questions WHERE poll_id = $p
 
                             <?php if ($question['question_type'] === 'multiple_choice' || $question['question_type'] === 'checkbox'): ?>
                                 <?php
-                                $options = json_decode($question['question_options'], true);
+                                $options = !empty($question['question_options']) ? json_decode($question['question_options'], true) : null;
                                 if ($options):
                                 ?>
                                 <p><strong>Options:</strong></p>

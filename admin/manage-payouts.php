@@ -42,10 +42,10 @@ $payouts = $conn->query($query);
 
 // Get statistics
 $stats = $conn->query("SELECT 
-                      status,
+                      ae.status,
                       COUNT(*) as count,
-                      SUM(amount) as total
-                      FROM agent_earnings
+                      SUM(ae.amount) as total
+                      FROM agent_earnings ae
                       WHERE 1=1
                       GROUP BY ae.status")->fetch_all(MYSQLI_ASSOC);
 

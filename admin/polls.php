@@ -483,12 +483,16 @@ function handleDeletePoll() {
 
     // Check if poll has responses
     $result = $conn->query("SELECT COUNT(*) as count FROM poll_responses WHERE poll_id = $poll_id");
-    if ($result->fetch_assoc()['count'] > 0) {
+    if ($result && $result->fetch_assoc()['count'] > 0) {
         $_SESSION['error_message'] = "Cannot delete poll with existing responses";
         header("Location: polls.php");
         exit;
     }
 
+    // Delete poll questions first (cascading delete)
+    $conn->query("DELETE FROM poll_questions WHERE poll_id = $poll_id");
+    
+    // Then delete the poll
     if ($conn->query("DELETE FROM polls WHERE id = $poll_id")) {
         $_SESSION['success_message'] = "Poll deleted successfully";
     } else {

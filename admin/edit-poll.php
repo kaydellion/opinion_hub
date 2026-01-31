@@ -152,10 +152,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get categories and poll types with error checking
-$categories_query = $conn->query("SELECT * FROM categories WHERE is_active = 1 ORDER BY name");
+$categories_query = $conn->query("SELECT * FROM categories WHERE status = 'active' ORDER BY name");
 $categories = $categories_query && $categories_query->num_rows > 0 ? $categories_query : null;
 
-$poll_types_query = $conn->query("SELECT * FROM poll_types WHERE is_active = 1 ORDER BY name");
+$poll_types_query = $conn->query("SELECT * FROM poll_types WHERE status = 'active' ORDER BY name");
 $poll_types = $poll_types_query && $poll_types_query->num_rows > 0 ? $poll_types_query : null;
 
 $errors = $_SESSION['errors'] ?? [];

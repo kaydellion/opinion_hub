@@ -127,8 +127,11 @@ if (!$table_check || $table_check->num_rows === 0) {
         exit;
     }
 } else {
-    // Update existing categories that don't have a status
-    $conn->query("UPDATE categories SET status = 'active' WHERE status IS NULL OR status = ''");
+    // Update existing categories that don't have a status (if the column exists)
+    $check_col = $conn->query("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'categories' AND COLUMN_NAME = 'status'");
+    if ($check_col && $check_col->num_rows > 0) {
+        $conn->query("UPDATE categories SET status = 'active' WHERE status IS NULL OR status = ''");
+    }
 }
 
 // Get categories

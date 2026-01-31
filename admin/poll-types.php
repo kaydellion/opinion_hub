@@ -5,10 +5,7 @@ require_once '../functions.php';
 // Check if user is admin
 requireRole(['admin']);
 
-$page_title = "Manage Poll Types";
-include_once '../header.php';
-
-// Handle form submissions
+// Handle form submissions BEFORE any output
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
@@ -16,12 +13,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $name = sanitize($_POST['name']);
                 $description = sanitize($_POST['description']);
                 $status = sanitize($_POST['status']);
+                $category = sanitize($_POST['category'] ?? 'General');
                 
                 if (!empty($name)) {
                     $check = $conn->query("SELECT id FROM poll_types WHERE name = '$name'");
                     if ($check && $check->num_rows === 0) {
-                        $conn->query("INSERT INTO poll_types (name, description, status, created_at) 
-                                   VALUES ('$name', '$description', '$status', NOW())");
+                        $conn->query("INSERT INTO poll_types (name, description, category, status, created_at) 
+                                   VALUES ('$name', '$description', '$category', '$status', NOW())");
                         $_SESSION['success'] = "Poll type added successfully!";
                     } else {
                         $_SESSION['errors'] = ["Poll type with this name already exists!"];
@@ -36,12 +34,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $name = sanitize($_POST['name']);
                 $description = sanitize($_POST['description']);
                 $status = sanitize($_POST['status']);
+                $category = sanitize($_POST['category'] ?? 'General');
                 
                 if (!empty($name) && $id > 0) {
                     $check = $conn->query("SELECT id FROM poll_types WHERE name = '$name' AND id != $id");
                     if ($check && $check->num_rows === 0) {
                         $conn->query("UPDATE poll_types 
-                                   SET name = '$name', description = '$description', status = '$status', updated_at = NOW() 
+                                   SET name = '$name', description = '$description', category = '$category', status = '$status', updated_at = NOW() 
                                    WHERE id = $id");
                         $_SESSION['success'] = "Poll type updated successfully!";
                     } else {
@@ -55,8 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             case 'delete':
                 $id = (int)$_POST['id'];
                 if ($id > 0) {
-                    // Check if any polls are using this type
-                    $check_polls = $conn->query("SELECT COUNT(*) as count FROM polls WHERE poll_type_id = $id");
+                    // Check if any polls are using this type (poll_type is a string field)
+                    $type_name = $conn->query("SELECT name FROM poll_types WHERE id = $id")->fetch_assoc()['name'] ?? '';
+                    $check_polls = $conn->query("SELECT COUNT(*) as count FROM polls WHERE poll_type = '$type_name'");
                     $poll_count = $check_polls ? $check_polls->fetch_assoc()['count'] : 0;
                     
                     if ($poll_count === 0) {
@@ -87,6 +87,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
+
+$page_title = "Manage Poll Types";
+include_once '../header.php';
 
 // Check if poll_types table exists, create if not
 $table_check = $conn->query("SHOW TABLES LIKE 'poll_types'");
