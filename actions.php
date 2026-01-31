@@ -61,7 +61,9 @@ function ensureUsersTableColumns() {
         'education_qualification' => 'VARCHAR(100) DEFAULT NULL COMMENT \'Agent highest education qualification\'',
         'employment_status' => 'ENUM(\'employed\', \'unemployed\') DEFAULT NULL COMMENT \'Agent employment status\'',
         'income_range' => 'VARCHAR(50) DEFAULT NULL COMMENT \'Agent monthly income range\'',
-        'payment_preference' => 'ENUM(\'cash\', \'airtime\', \'data\') DEFAULT \'cash\' AFTER account_number',
+        'payment_preference' => 'ENUM(\'bank_transfer\', \'mobile_money\', \'airtime\', \'data\') DEFAULT NULL AFTER account_number',
+        'mobile_money_provider' => 'VARCHAR(50) DEFAULT NULL COMMENT \'Mobile money provider for payouts\'',
+        'mobile_money_number' => 'VARCHAR(15) DEFAULT NULL COMMENT \'Mobile money number for payouts\'',
         'total_earnings' => 'DECIMAL(10, 2) DEFAULT 0.00 AFTER payment_preference',
         'pending_earnings' => 'DECIMAL(10, 2) DEFAULT 0.00 AFTER total_earnings',
         'paid_earnings' => 'DECIMAL(10, 2) DEFAULT 0.00 AFTER pending_earnings',
@@ -1547,10 +1549,18 @@ function handleUpdatePayoutStatus() {
         exit;
     }
     
-    // Get current payout details
-    $payout_result = $conn->query("SELECT * FROM agent_earnings WHERE id = $payout_id AND earning_type = 'payout_request'");
+    // Get current payout details - check both with and without earning_type filter
+    $payout_result = $conn->query("SELECT * FROM agent_earnings WHERE id = $payout_id");
     if (!$payout_result || $payout_result->num_rows === 0) {
         echo json_encode(['success' => false, 'message' => 'Payout request not found']);
+        exit;
+    }
+    
+    $payout = $payout_result->fetch_assoc();
+    
+    // Validate it's actually a payout request (not a regular earning)
+    if (isset($payout['earning_type']) && $payout['earning_type'] !== 'payout_request') {
+        echo json_encode(['success' => false, 'message' => 'This is not a payout request']);
         exit;
     }
     
@@ -2533,12 +2543,26 @@ function handleUpdateProfile() {
     $education_qualification = '';
     $employment_status = '';
     $income_range = '';
+    $payment_preference = '';
+    $bank_name = '';
+    $account_name = '';
+    $account_number = '';
+    $mobile_money_provider = '';
+    $mobile_money_number = '';
 
     if ($user['role'] === 'agent') {
         $occupation = sanitize($_POST['occupation'] ?? '');
         $education_qualification = sanitize($_POST['education_qualification'] ?? '');
         $employment_status = sanitize($_POST['employment_status'] ?? '');
         $income_range = sanitize($_POST['income_range'] ?? '');
+        
+        // Payment information
+        $payment_preference = sanitize($_POST['payment_preference'] ?? '');
+        $bank_name = sanitize($_POST['bank_name'] ?? '');
+        $account_name = sanitize($_POST['account_name'] ?? '');
+        $account_number = sanitize($_POST['account_number'] ?? '');
+        $mobile_money_provider = sanitize($_POST['mobile_money_provider'] ?? '');
+        $mobile_money_number = sanitize($_POST['mobile_money_number'] ?? '');
     }
 
     // Validation
@@ -2612,11 +2636,27 @@ function handleUpdateProfile() {
               occupation = " . ($occupation ? "'$occupation'" : "NULL") . ",
               education_qualification = " . ($education_qualification ? "'$education_qualification'" : "NULL") . ",
               employment_status = " . ($employment_status ? "'$employment_status'" : "NULL") . ",
-              income_range = " . ($income_range ? "'$income_range'" : "NULL") . "
+              income_range = " . ($income_range ? "'$income_range'" : "NULL") . ",
+              payment_preference = " . ($payment_preference ? "'$payment_preference'" : "NULL") . ",
+              bank_name = " . ($bank_name ? "'$bank_name'" : "NULL") . ",
+              account_name = " . ($account_name ? "'$account_name'" : "NULL") . ",
+              account_number = " . ($account_number ? "'$account_number'" : "NULL") . "
               $profile_image_update
               WHERE id = $user_id";
 
     if ($conn->query($query)) {
+        // Also update mobile money fields if columns exist
+        $col_check = $conn->query("SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
+                                    WHERE TABLE_NAME = 'users' 
+                                    AND COLUMN_NAME IN ('mobile_money_provider', 'mobile_money_number')");
+        if ($col_check && $col_check->num_rows > 0) {
+            $mobile_query = "UPDATE users SET
+                           mobile_money_provider = " . ($mobile_money_provider ? "'$mobile_money_provider'" : "NULL") . ",
+                           mobile_money_number = " . ($mobile_money_number ? "'$mobile_money_number'" : "NULL") . "
+                           WHERE id = $user_id";
+            $conn->query($mobile_query);
+        }
+        
         $_SESSION['success'] = "Profile updated successfully!";
     } else {
         $_SESSION['error'] = "Failed to update profile: " . $conn->error;

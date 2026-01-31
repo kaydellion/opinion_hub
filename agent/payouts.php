@@ -24,7 +24,7 @@ if ($user['role'] !== 'agent') {
 }
 
 if (isset($user['agent_status']) && $user['agent_status'] !== 'approved') {
-    $_SESSION['errors'] = ["Access Denied: Your agent application is currently <strong>" . htmlspecialchars($user['agent_status']) . "</strong>. You'll be notified via email once approved (usually within 48 hours)."];
+    $_SESSION['errors'] = ["Access Denied: Your agent application is currently " . htmlspecialchars($user['agent_status']) . ". You'll be notified via email once approved (usually within 48 hours)."];
     header("Location: " . SITE_URL . "dashboard.php");
     exit;
 }

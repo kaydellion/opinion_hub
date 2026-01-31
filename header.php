@@ -446,7 +446,6 @@ if (!isset($_SESSION['ads_checked'])) {
                                 <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>agent/my-earnings.php"><i class="fas fa-coins"></i> My Earnings</a></li>
                                 <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>agent/request-payout.php"><i class="fas fa-hand-holding-usd"></i> Request Payout</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>agent/payouts.php"><i class="fas fa-wallet"></i> Payout History</a></li>
                                 <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>agent/buy-sms-credits.php"><i class="fas fa-sms"></i> Buy SMS Credits</a></li>
                             </ul>
                         </li>
@@ -558,7 +557,7 @@ if (!isset($_SESSION['ads_checked'])) {
                             <?php } elseif ($current_user['role'] === 'agent') { ?>
                                 <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>agent/share-poll.php"><i class="fas fa-share-alt"></i> Share Polls</a></li>
                                 <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>agent/buy-sms-credits.php"><i class="fas fa-sms"></i> Buy SMS Credits</a></li>
-                                <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>agent/payouts.php"><i class="fas fa-wallet"></i> Earnings</a></li>
+                                <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>agent/my-earnings.php"><i class="fas fa-wallet"></i> Earnings</a></li>
                                 <li><hr class="dropdown-divider"></li>
                             <?php } ?>
                             <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>faq.php"><i class="fas fa-question-circle"></i> FAQ</a></li>
@@ -578,7 +577,7 @@ if (!isset($_SESSION['ads_checked'])) {
                             <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>client/my-polls.php"><i class="fas fa-list"></i> My Polls</a></li>
                             <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>client/my-ads.php"><i class="fas fa-ad"></i> My Advertisements</a></li>
                             <?php } elseif ($current_user['role'] === 'agent') { ?>
-                            <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>agent/payouts.php"><i class="fas fa-money-bill-wave"></i> My Earnings</a></li>
+                            <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>agent/my-earnings.php"><i class="fas fa-money-bill-wave"></i> My Earnings</a></li>
                             <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>agent/buy-sms-credits.php"><i class="fas fa-sms"></i> Buy SMS Credits</a></li>
                             <li><a class="dropdown-item" href="<?php echo SITE_URL; ?>client/my-ads.php"><i class="fas fa-ad"></i> My Advertisements</a></li>
                             <?php } elseif ($current_user['role'] === 'user') { ?>

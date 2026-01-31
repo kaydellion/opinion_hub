@@ -1,9 +1,17 @@
 <?php
+// DEPRECATED: This file has been replaced by manage-payouts.php
+// Redirecting to the new payout management system
 require_once '../connect.php';
 require_once '../functions.php';
 
 requireRole('admin');
 
+// Redirect to the new manage-payouts.php
+header('Location: ' . SITE_URL . 'admin/manage-payouts.php');
+exit;
+
+// OLD CODE BELOW - KEPT FOR REFERENCE
+/*
 $user = getCurrentUser();
 $page_title = "Manage Payouts";
 

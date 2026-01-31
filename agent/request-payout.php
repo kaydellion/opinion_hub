@@ -102,10 +102,10 @@ include_once '../header.php';
                             <label class="form-label">Payout Method <span class="text-danger">*</span></label>
                             <select class="form-select" id="payoutMethod" name="payout_method" required>
                                 <option value="">Select payout method...</option>
-                                <option value="bank_transfer">Bank Transfer</option>
-                                <option value="mobile_money">Mobile Money</option>
-                                <option value="airtime">Airtime</option>
-                                <option value="data">Data Bundle</option>
+                                <option value="bank_transfer" <?php echo ($user['payment_preference'] ?? '') === 'bank_transfer' ? 'selected' : ''; ?>>Bank Transfer</option>
+                                <option value="mobile_money" <?php echo ($user['payment_preference'] ?? '') === 'mobile_money' ? 'selected' : ''; ?>>Mobile Money</option>
+                                <option value="airtime" <?php echo ($user['payment_preference'] ?? '') === 'airtime' ? 'selected' : ''; ?>>Airtime</option>
+                                <option value="data" <?php echo ($user['payment_preference'] ?? '') === 'data' ? 'selected' : ''; ?>>Data Bundle</option>
                             </select>
                         </div>
 
@@ -114,31 +114,31 @@ include_once '../header.php';
                                 <label class="form-label">Bank Name <span class="text-danger">*</span></label>
                                 <select class="form-select" name="bank_name">
                                     <option value="">Select bank...</option>
-                                    <option value="Access Bank">Access Bank</option>
-                                    <option value="Zenith Bank">Zenith Bank</option>
-                                    <option value="GTBank">GTBank</option>
-                                    <option value="First Bank">First Bank</option>
-                                    <option value="UBA">UBA</option>
-                                    <option value="Fidelity Bank">Fidelity Bank</option>
-                                    <option value="Union Bank">Union Bank</option>
-                                    <option value="Stanbic IBTC">Stanbic IBTC</option>
-                                    <option value="Sterling Bank">Sterling Bank</option>
-                                    <option value="Polaris Bank">Polaris Bank</option>
-                                    <option value="Ecobank">Ecobank</option>
-                                    <option value="Wema Bank">Wema Bank</option>
-                                    <option value="FCMB">FCMB</option>
-                                    <option value="Kuda Bank">Kuda Bank</option>
-                                    <option value="Opay">Opay</option>
-                                    <option value="Palmpay">Palmpay</option>
+                                    <option value="Access Bank" <?php echo ($user['bank_name'] ?? '') === 'Access Bank' ? 'selected' : ''; ?>>Access Bank</option>
+                                    <option value="Zenith Bank" <?php echo ($user['bank_name'] ?? '') === 'Zenith Bank' ? 'selected' : ''; ?>>Zenith Bank</option>
+                                    <option value="GTBank" <?php echo ($user['bank_name'] ?? '') === 'GTBank' ? 'selected' : ''; ?>>GTBank</option>
+                                    <option value="First Bank" <?php echo ($user['bank_name'] ?? '') === 'First Bank' ? 'selected' : ''; ?>>First Bank</option>
+                                    <option value="UBA" <?php echo ($user['bank_name'] ?? '') === 'UBA' ? 'selected' : ''; ?>>UBA</option>
+                                    <option value="Fidelity Bank" <?php echo ($user['bank_name'] ?? '') === 'Fidelity Bank' ? 'selected' : ''; ?>>Fidelity Bank</option>
+                                    <option value="Union Bank" <?php echo ($user['bank_name'] ?? '') === 'Union Bank' ? 'selected' : ''; ?>>Union Bank</option>
+                                    <option value="Stanbic IBTC" <?php echo ($user['bank_name'] ?? '') === 'Stanbic IBTC' ? 'selected' : ''; ?>>Stanbic IBTC</option>
+                                    <option value="Sterling Bank" <?php echo ($user['bank_name'] ?? '') === 'Sterling Bank' ? 'selected' : ''; ?>>Sterling Bank</option>
+                                    <option value="Polaris Bank" <?php echo ($user['bank_name'] ?? '') === 'Polaris Bank' ? 'selected' : ''; ?>>Polaris Bank</option>
+                                    <option value="Ecobank" <?php echo ($user['bank_name'] ?? '') === 'Ecobank' ? 'selected' : ''; ?>>Ecobank</option>
+                                    <option value="Wema Bank" <?php echo ($user['bank_name'] ?? '') === 'Wema Bank' ? 'selected' : ''; ?>>Wema Bank</option>
+                                    <option value="FCMB" <?php echo ($user['bank_name'] ?? '') === 'FCMB' ? 'selected' : ''; ?>>FCMB</option>
+                                    <option value="Kuda Bank" <?php echo ($user['bank_name'] ?? '') === 'Kuda Bank' ? 'selected' : ''; ?>>Kuda Bank</option>
+                                    <option value="Opay" <?php echo ($user['bank_name'] ?? '') === 'Opay' ? 'selected' : ''; ?>>Opay</option>
+                                    <option value="Palmpay" <?php echo ($user['bank_name'] ?? '') === 'Palmpay' ? 'selected' : ''; ?>>Palmpay</option>
                                 </select>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Account Number <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="account_number" maxlength="10" pattern="[0-9]{10}">
+                                <input type="text" class="form-control" name="account_number" value="<?php echo htmlspecialchars($user['account_number'] ?? ''); ?>" maxlength="10" pattern="[0-9]{10}">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Account Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="account_name">
+                                <input type="text" class="form-control" name="account_name" value="<?php echo htmlspecialchars($user['account_name'] ?? ''); ?>">
                             </div>
                         </div>
 
@@ -147,16 +147,16 @@ include_once '../header.php';
                                 <label class="form-label">Mobile Money Provider <span class="text-danger">*</span></label>
                                 <select class="form-select" name="mobile_provider">
                                     <option value="">Select provider...</option>
-                                    <option value="Opay">Opay</option>
-                                    <option value="Palmpay">Palmpay</option>
-                                    <option value="Paga">Paga</option>
-                                    <option value="MTN MoMo">MTN MoMo</option>
-                                    <option value="Airtel Money">Airtel Money</option>
+                                    <option value="Opay" <?php echo (strtolower($user['mobile_money_provider'] ?? '') === 'opay') ? 'selected' : ''; ?>>Opay</option>
+                                    <option value="Palmpay" <?php echo (strtolower($user['mobile_money_provider'] ?? '') === 'palmpay') ? 'selected' : ''; ?>>Palmpay</option>
+                                    <option value="Paga" <?php echo (strtolower($user['mobile_money_provider'] ?? '') === 'paga') ? 'selected' : ''; ?>>Paga</option>
+                                    <option value="MTN MoMo" <?php echo (strtolower($user['mobile_money_provider'] ?? '') === 'mtn') ? 'selected' : ''; ?>>MTN MoMo</option>
+                                    <option value="Airtel Money" <?php echo (strtolower($user['mobile_money_provider'] ?? '') === 'airtel') ? 'selected' : ''; ?>>Airtel Money</option>
                                 </select>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Phone Number <span class="text-danger">*</span></label>
-                                <input type="tel" class="form-control" name="mobile_number" maxlength="11" pattern="[0-9]{11}">
+                                <input type="tel" class="form-control" name="mobile_number" value="<?php echo htmlspecialchars($user['mobile_money_number'] ?? ''); ?>" maxlength="11" pattern="[0-9]{11}">
                             </div>
                         </div>
 
@@ -347,6 +347,15 @@ document.getElementById('payoutRequestForm')?.addEventListener('submit', functio
         console.error('Error:', error);
         alert('An error occurred. Please try again.');
     });
+});
+
+// Initialize payment method display on page load (for pre-selected preference)
+document.addEventListener('DOMContentLoaded', function() {
+    const payoutMethodSelect = document.getElementById('payoutMethod');
+    if (payoutMethodSelect && payoutMethodSelect.value) {
+        // Trigger change event to show the appropriate section
+        togglePaymentFields();
+    }
 });
 </script>
 

@@ -258,6 +258,94 @@ unset($_SESSION['success'], $_SESSION['error']);
                         </div>
                         <?php endif; ?>
 
+                        <?php if (($user['role'] ?? '') === 'agent'): ?>
+                        <!-- Payment Information for Agents -->
+                        <hr class="my-4">
+                        <h5 class="mb-3 text-primary"><i class="fas fa-credit-card"></i> Payment Information</h5>
+                        <p class="text-muted small mb-3">Update your payment details for receiving payouts. This information will be used when you request withdrawals.</p>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Preferred Payout Method</label>
+                                <select class="form-select" name="payment_preference">
+                                    <option value="">Select Payout Method</option>
+                                    <option value="bank_transfer" <?= ($user['payment_preference'] ?? '') === 'bank_transfer' ? 'selected' : '' ?>>Bank Transfer</option>
+                                    <option value="mobile_money" <?= ($user['payment_preference'] ?? '') === 'mobile_money' ? 'selected' : '' ?>>Mobile Money</option>
+                                    <option value="airtime" <?= ($user['payment_preference'] ?? '') === 'airtime' ? 'selected' : '' ?>>Airtime</option>
+                                    <option value="data" <?= ($user['payment_preference'] ?? '') === 'data' ? 'selected' : '' ?>>Data Bundle</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Bank Transfer Details -->
+                        <div class="row" id="bank-details">
+                            <div class="col-md-12 mb-2">
+                                <h6 class="text-secondary">Bank Transfer Details</h6>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Bank Name</label>
+                                <select class="form-select" name="bank_name">
+                                    <option value="">Select Bank</option>
+                                    <option value="Access Bank" <?= ($user['bank_name'] ?? '') === 'Access Bank' ? 'selected' : '' ?>>Access Bank</option>
+                                    <option value="Citibank" <?= ($user['bank_name'] ?? '') === 'Citibank' ? 'selected' : '' ?>>Citibank</option>
+                                    <option value="Ecobank Nigeria" <?= ($user['bank_name'] ?? '') === 'Ecobank Nigeria' ? 'selected' : '' ?>>Ecobank Nigeria</option>
+                                    <option value="Fidelity Bank" <?= ($user['bank_name'] ?? '') === 'Fidelity Bank' ? 'selected' : '' ?>>Fidelity Bank</option>
+                                    <option value="First Bank of Nigeria" <?= ($user['bank_name'] ?? '') === 'First Bank of Nigeria' ? 'selected' : '' ?>>First Bank of Nigeria</option>
+                                    <option value="First City Monument Bank" <?= ($user['bank_name'] ?? '') === 'First City Monument Bank' ? 'selected' : '' ?>>First City Monument Bank (FCMB)</option>
+                                    <option value="Globus Bank" <?= ($user['bank_name'] ?? '') === 'Globus Bank' ? 'selected' : '' ?>>Globus Bank</option>
+                                    <option value="Guaranty Trust Bank" <?= ($user['bank_name'] ?? '') === 'Guaranty Trust Bank' ? 'selected' : '' ?>>Guaranty Trust Bank (GTBank)</option>
+                                    <option value="Heritage Bank" <?= ($user['bank_name'] ?? '') === 'Heritage Bank' ? 'selected' : '' ?>>Heritage Bank</option>
+                                    <option value="Keystone Bank" <?= ($user['bank_name'] ?? '') === 'Keystone Bank' ? 'selected' : '' ?>>Keystone Bank</option>
+                                    <option value="Kuda Bank" <?= ($user['bank_name'] ?? '') === 'Kuda Bank' ? 'selected' : '' ?>>Kuda Bank</option>
+                                    <option value="Polaris Bank" <?= ($user['bank_name'] ?? '') === 'Polaris Bank' ? 'selected' : '' ?>>Polaris Bank</option>
+                                    <option value="Providus Bank" <?= ($user['bank_name'] ?? '') === 'Providus Bank' ? 'selected' : '' ?>>Providus Bank</option>
+                                    <option value="Stanbic IBTC Bank" <?= ($user['bank_name'] ?? '') === 'Stanbic IBTC Bank' ? 'selected' : '' ?>>Stanbic IBTC Bank</option>
+                                    <option value="Standard Chartered" <?= ($user['bank_name'] ?? '') === 'Standard Chartered' ? 'selected' : '' ?>>Standard Chartered</option>
+                                    <option value="Sterling Bank" <?= ($user['bank_name'] ?? '') === 'Sterling Bank' ? 'selected' : '' ?>>Sterling Bank</option>
+                                    <option value="SunTrust Bank" <?= ($user['bank_name'] ?? '') === 'SunTrust Bank' ? 'selected' : '' ?>>SunTrust Bank</option>
+                                    <option value="Union Bank of Nigeria" <?= ($user['bank_name'] ?? '') === 'Union Bank of Nigeria' ? 'selected' : '' ?>>Union Bank of Nigeria</option>
+                                    <option value="United Bank for Africa" <?= ($user['bank_name'] ?? '') === 'United Bank for Africa' ? 'selected' : '' ?>>United Bank for Africa (UBA)</option>
+                                    <option value="Unity Bank" <?= ($user['bank_name'] ?? '') === 'Unity Bank' ? 'selected' : '' ?>>Unity Bank</option>
+                                    <option value="Wema Bank" <?= ($user['bank_name'] ?? '') === 'Wema Bank' ? 'selected' : '' ?>>Wema Bank</option>
+                                    <option value="Zenith Bank" <?= ($user['bank_name'] ?? '') === 'Zenith Bank' ? 'selected' : '' ?>>Zenith Bank</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Account Name</label>
+                                <input type="text" class="form-control" name="account_name" value="<?= htmlspecialchars($user['account_name'] ?? '') ?>" placeholder="Full name on account">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Account Number</label>
+                                <input type="text" class="form-control" name="account_number" value="<?= htmlspecialchars($user['account_number'] ?? '') ?>" maxlength="10" pattern="[0-9]{10}" placeholder="10-digit account number">
+                            </div>
+                        </div>
+
+                        <!-- Mobile Money Details -->
+                        <div class="row" id="mobile-details">
+                            <div class="col-md-12 mb-2">
+                                <h6 class="text-secondary">Mobile Money Details</h6>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Mobile Money Provider</label>
+                                <select class="form-select" name="mobile_money_provider">
+                                    <option value="">Select Provider</option>
+                                    <option value="mtn" <?= ($user['mobile_money_provider'] ?? '') === 'mtn' ? 'selected' : '' ?>>MTN Mobile Money</option>
+                                    <option value="airtel" <?= ($user['mobile_money_provider'] ?? '') === 'airtel' ? 'selected' : '' ?>>Airtel Money</option>
+                                    <option value="9mobile" <?= ($user['mobile_money_provider'] ?? '') === '9mobile' ? 'selected' : '' ?>>9mobile</option>
+                                    <option value="glo" <?= ($user['mobile_money_provider'] ?? '') === 'glo' ? 'selected' : '' ?>>Glo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Mobile Number</label>
+                                <input type="text" class="form-control" name="mobile_money_number" value="<?= htmlspecialchars($user['mobile_money_number'] ?? '') ?>" maxlength="11" pattern="[0-9]{11}" placeholder="11-digit phone number">
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> <strong>Note:</strong> Keep your payment information up-to-date to ensure smooth payout processing. You can change your preferred payout method at any time.
+                        </div>
+                        <?php endif; ?>
+
                         <div class="mb-3">
                             <label class="form-label">Profile Image</label>
                             <input type="file" class="form-control" name="profile_image" accept="image/*">
@@ -385,6 +473,40 @@ unset($_SESSION['success'], $_SESSION['error']);
                     });
                 }
             });
+        }
+
+        // Payment method toggle for agents
+        const paymentPreferenceSelect = document.querySelector('select[name="payment_preference"]');
+        const bankDetails = document.getElementById('bank-details');
+        const mobileDetails = document.getElementById('mobile-details');
+
+        if (paymentPreferenceSelect && bankDetails && mobileDetails) {
+            // Show/hide payment sections based on preference
+            function togglePaymentSections() {
+                const preference = paymentPreferenceSelect.value;
+                
+                // Show all sections by default (so agents can fill both for flexibility)
+                bankDetails.style.display = 'flex';
+                mobileDetails.style.display = 'flex';
+                
+                // Add visual emphasis to the selected method
+                bankDetails.style.opacity = '0.5';
+                mobileDetails.style.opacity = '0.5';
+                
+                if (preference === 'bank_transfer') {
+                    bankDetails.style.opacity = '1';
+                } else if (preference === 'mobile_money') {
+                    mobileDetails.style.opacity = '1';
+                } else if (preference === 'airtime' || preference === 'data') {
+                    mobileDetails.style.opacity = '1';
+                }
+            }
+
+            // Initialize on page load
+            togglePaymentSections();
+
+            // Update when selection changes
+            paymentPreferenceSelect.addEventListener('change', togglePaymentSections);
         }
     });
 </script>
