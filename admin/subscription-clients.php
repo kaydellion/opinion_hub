@@ -46,6 +46,9 @@ $query = "SELECT u.id, u.first_name, u.last_name, u.email, u.phone, u.created_at
                  sp.name as plan_name, sp.type as plan_type, sp.monthly_price, sp.annual_price,
                  us.start_date, us.end_date, us.status,
                  us.amount_paid,
+                 us.start_date as subscribed_at,
+                 CASE WHEN us.amount_paid = sp.monthly_price THEN 'monthly' ELSE 'annual' END as billing_cycle,
+                 0 as auto_renew,
                  (SELECT COUNT(*) FROM polls WHERE created_by = u.id) as total_polls,
                  (SELECT COUNT(*) FROM poll_responses pr 
                   INNER JOIN polls p ON pr.poll_id = p.id 
@@ -226,10 +229,10 @@ include_once '../header.php';
                                 </span>
                             </td>
                             <td>
-                                <span class="badge bg-<?php echo $client['billing_cycle'] === 'monthly' ? 'info' : 'success'; ?>">
-                                    <?php echo ucfirst($client['billing_cycle']); ?>
+                                <span class="badge bg-<?php echo ($client['billing_cycle'] ?? 'monthly') === 'monthly' ? 'info' : 'success'; ?>">
+                                    <?php echo ucfirst($client['billing_cycle'] ?? 'monthly'); ?>
                                 </span>
-                                <?php if ($client['auto_renew']): ?>
+                                <?php if ($client['auto_renew'] ?? false): ?>
                                     <br><small class="text-success"><i class="fas fa-sync-alt"></i> Auto-renew</small>
                                 <?php endif; ?>
                             </td>
