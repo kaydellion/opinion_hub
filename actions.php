@@ -1354,9 +1354,28 @@ function handleRequestPayout() {
                                  FROM users WHERE id = $agent_id");
     $user_stats = $user_result->fetch_assoc();
     
-    $available_balance = ($user_stats['total_earnings'] ?? 0) - 
-                        ($user_stats['paid_earnings'] ?? 0) - 
-                        ($user_stats['pending_earnings'] ?? 0);
+    // Get approved earnings from agent_earnings table (same calculation as request-payout.php)
+    $approved_earnings_result = $conn->query("SELECT SUM(amount) as approved_total FROM agent_earnings
+                                             WHERE agent_id = $agent_id
+                                             AND earning_type != 'payout_request'
+                                             AND status = 'approved'");
+    $approved_earnings = 0;
+    if ($approved_earnings_result && $approved_earnings_row = $approved_earnings_result->fetch_assoc()) {
+        $approved_earnings = $approved_earnings_row['approved_total'] ?? 0;
+    }
+    
+    // Get pending payout requests
+    $pending_payouts_result = $conn->query("SELECT SUM(amount) as total FROM agent_earnings
+                                           WHERE agent_id = $agent_id
+                                           AND earning_type = 'payout_request'
+                                           AND status = 'pending'");
+    $pending_payout_total = 0;
+    if ($pending_payouts_result && $pending_payout_row = $pending_payouts_result->fetch_assoc()) {
+        $pending_payout_total = $pending_payout_row['total'] ?? 0;
+    }
+    
+    // Calculate available balance (MUST match request-payout.php calculation)
+    $available_balance = $approved_earnings - ($user_stats['paid_earnings'] ?? 0) - $pending_payout_total;
     
     // Validation
     if ($amount < 5000) {
