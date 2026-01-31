@@ -234,11 +234,11 @@ include_once '../header.php';
                     </div>
                     <div class="mb-3">
                         <small class="text-muted">Already Paid</small>
-                        <h5 class="text-muted">-₦<?php echo number_format($user_stats['paid_earnings'] ?? 0, 2); ?></h5>
+                        <h5 class="text-muted">₦<?php echo number_format($user_stats['paid_earnings'] ?? 0, 2); ?></h5>
                     </div>
                     <div class="mb-3">
                         <small class="text-muted">Pending Approval</small>
-                        <h5 class="text-warning">-₦<?php echo number_format($user_stats['pending_earnings'] ?? 0, 2); ?></h5>
+                        <h5 class="text-warning">₦<?php echo number_format($user_stats['pending_earnings'] ?? 0, 2); ?></h5>
                     </div>
                     <hr>
                     <div>
