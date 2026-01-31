@@ -524,9 +524,9 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY name");
                                         <?php
                                         // Try different possible paths for the image
                                         $image_paths = [
-                                            SITE_URL . 'uploads/blog/' . $article['featured_image'],
-                                            SITE_URL . 'uploads/' . $article['featured_image'],
-                                            SITE_URL . $article['featured_image']
+                                            SITE_URL . 'uploads/blog/' . basename($article['featured_image']),
+                                            SITE_URL . 'uploads/' . basename($article['featured_image']),
+                                            SITE_URL . basename($article['featured_image'])
                                         ];
                                         $image_src = $image_paths[0]; // Default to first path
                                         ?>
