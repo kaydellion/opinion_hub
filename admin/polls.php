@@ -93,7 +93,7 @@ if (!empty($params)) {
 }
 
 // Get categories for filter dropdown
-$categories_query = $conn->query("SELECT id, name FROM categories WHERE status = 'active' ORDER BY name");
+$categories_query = $conn->query("SELECT id, name FROM categories ORDER BY name");
 $categories = $categories_query && $categories_query->num_rows > 0 ? $categories_query : null;
 
 // Get statistics with error checking

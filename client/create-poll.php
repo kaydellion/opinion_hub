@@ -133,10 +133,24 @@ unset($_SESSION['errors']);
                                     <select class="form-select" id="poll_type" name="poll_type" required>
                                         <option value="">-- Select Poll Type --</option>
                                         <?php
-                                        $poll_types_result = $conn->query("SELECT id, name, description FROM poll_types WHERE status = 'active' ORDER BY name ASC");
+                                        // Get poll types grouped by category
+                                        $poll_types_result = $conn->query("SELECT id, name, description, category FROM poll_types WHERE status = 'active' ORDER BY category ASC, name ASC");
                                         if ($poll_types_result && $poll_types_result->num_rows > 0) {
+                                            $current_category = '';
                                             while ($pt = $poll_types_result->fetch_assoc()) {
-                                                echo "<option value='{$pt['name']}'>{$pt['name']}</option>";
+                                                // Start new optgroup when category changes
+                                                if ($pt['category'] !== $current_category) {
+                                                    if ($current_category !== '') {
+                                                        echo '</optgroup>';
+                                                    }
+                                                    $current_category = $pt['category'];
+                                                    echo "<optgroup label='{$current_category}'>";
+                                                }
+                                                $selected = ($poll && $poll['poll_type'] === $pt['name']) ? 'selected' : '';
+                                                echo "<option value='{$pt['name']}' {$selected}>{$pt['name']}</option>";
+                                            }
+                                            if ($current_category !== '') {
+                                                echo '</optgroup>';
                                             }
                                         }
                                         ?>
